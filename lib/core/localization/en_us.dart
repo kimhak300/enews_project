@@ -79,6 +79,17 @@ const Map<String, String> enUs = {
   'projects': 'Projects',
   'operating_status': 'Operating Status',
   'device_traffic': 'Device Traffic',
+  'create_new_category': 'Create New Category',
+  'admin':'Admin',
+  'edit_category':'Edit Category',
+  'delete_category':'Delete Category',
+  'media':'Media',
+  'color':'Color',
+  'description':'Description',
+  'tag':'Tag',
+  'video':'Video',
+  'image':'Image',
+  'delete_category_confirmation':'Are you sure you want to delete',
 
   // Home
   'trending': 'Trending',
