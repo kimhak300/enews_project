@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../category/category_view.dart';
 import '../dashboard_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {
@@ -19,10 +20,6 @@ class DashboardView extends GetView<DashboardController> {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios, size: 20),
-                    onPressed: () => Get.back(),
-                  ),
                   Text(
                     'home'.tr,
                     style: const TextStyle(
@@ -108,14 +105,15 @@ class DashboardView extends GetView<DashboardController> {
 
                     // Tabs Section
                     _buildTabSection(),
-                    const SizedBox(height: 16),
-
-                    // Chart
-                    _buildChart(),
+                    const SizedBox(height: 8),
+                    // Categories CRUD section (under Device Traffic)
+                    _buildCategoriesSection(),
                     const SizedBox(height: 24),
-
                     // Device Traffic
                     _buildDeviceTraffic(),
+                    const SizedBox(height: 48),
+                    // Chart
+                    _buildChart(),
                     const SizedBox(height: 24),
                   ],
                 );
@@ -138,7 +136,7 @@ class DashboardView extends GetView<DashboardController> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isHighlighted ? Colors.blue : Colors.black87,
+        color: isHighlighted ? Colors.blue : Colors.grey.shade500, 
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -191,16 +189,14 @@ class DashboardView extends GetView<DashboardController> {
         Text('users'.tr,
             style: const TextStyle(
                 color: Colors.purple, fontWeight: FontWeight.bold)),
-        const SizedBox(width: 20),
-        Text('projects'.tr, style: const TextStyle(color: Colors.grey)),
-        const SizedBox(width: 20),
-        Text('operating_status'.tr, style: const TextStyle(color: Colors.grey)),
+
       ],
     );
   }
 
   Widget _buildChart() {
     return SizedBox(
+      
       height: 150,
       child: CustomPaint(
         painter: SimpleLineChartPainter(ctrl.chartData),
@@ -276,6 +272,32 @@ class DashboardView extends GetView<DashboardController> {
         ),
       ],
     );
+  }
+}
+  Widget _buildCategoriesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(
+          // Let internal list be non-scrollable and size to content
+          child: _CategoryViewHost(),
+        ),
+      ],
+    );
+  }
+
+class _CategoryViewHost extends StatelessWidget {
+  const _CategoryViewHost();
+
+  @override
+  Widget build(BuildContext context) {
+    // Deferred import kept simple here; just reference the view.
+    // ignore: avoid_types_as_parameter_names
+    return Builder(builder: (context) {
+      // Import locally to avoid top-level import noise
+      // ignore: prefer_const_constructors
+      return CategoryView();
+    });
   }
 }
 
