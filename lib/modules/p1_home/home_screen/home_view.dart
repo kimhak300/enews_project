@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:video_player/video_player.dart';
 
 import '../home_controller.dart';
 import '../../button_nav/bottom_nav_bar/bottom_nav_view.dart';
@@ -8,6 +9,7 @@ import '../../p2_dashboard/dashboard_screen/dashboard_view.dart';
 import '../../p3_search/search_screen/search_view.dart';
 import '../../p4_saved/saved_screen/bookmark_view.dart';
 import '../../p5_profile/profile_screen/profile_view.dart';
+import '../../p5_profile/profile_controller.dart';
 import '../../../core/controllers/language_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -26,7 +28,7 @@ class HomeView extends GetView<HomeController> {
 
     return Scaffold(
       // Use themed scaffold background so it adapts to dark mode
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      // backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Obx(() => pages[controller.currentNavIndex.value]),
       bottomNavigationBar: BottomNavView(),
     );
@@ -248,7 +250,7 @@ class _HomeContent extends StatelessWidget {
           ),
           child: Center(
             child: Text(
-              text,
+              text.tr,
               style: TextStyle(
                 color: isSelected ? Colors.white : Colors.grey,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -325,7 +327,8 @@ class _HomeContent extends StatelessWidget {
               final count = items.length;
               return Row(
                 children: List.generate(count, (i) {
-                  final bool filled = i <= active; // show previous as filled like stories
+                  final bool filled =
+                      i <= active; // show previous as filled like stories
                   return Expanded(
                     child: Container(
                       height: 4,
@@ -427,102 +430,550 @@ class _HomeContent extends StatelessWidget {
   }
 
   Widget _buildNewsCart() {
-    return Obx(() {
-      final items = controller.currentTopTab.value == 1
-          ? controller.campusNewsItems
-          : controller.currentTopTab.value == 2
-              ? controller.governmentNewsItems
-              : controller.newsItems;
-
-      return ListView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        padding: const EdgeInsets.only(top: 12.0, bottom: 24.0),
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: _buildCardItem(items[index]),
-          );
-        },
-      );
-    });
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildVideoCard(),
+        ],
+      ),
+    );
   }
 
-  Widget _buildCardItem(Map<String, dynamic> news) {
-    return Card(
-      elevation: 6,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        alignment: Alignment.bottomLeft,
-        children: [
-          // Background image
-          Ink.image(
-            image: AssetImage(news['image'] ?? 'assets/images/default.jpg'),
-            height: 300,
-            fit: BoxFit.cover,
-            child: InkWell(
-              onTap: () {},
-            ),
-          ),
+  Widget _buildVideoCard() {
+    final profileCtrl = Get.put(ProfileController());
+    final homeCtrl = Get.put(HomeController());
 
-          // Gradient overlay for text readability
-          Container(
-            height: 300,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withOpacity(0.6),
+    // Track like state for each video
+    final likeStates = List.generate(5, (index) => false.obs);
+    final likeCounts = List.generate(5, (index) => 0.obs);
+
+    // Different text descriptions for each video
+    final List<String> videoDescriptions = [
+      'កំណត់ចងក្រោយការបូជនីយកិច្ចបញ្ចប់អនុស្សាវរីយ៍លើកទី៣របស់ប្រធានាធិបតី Donald Trump ប្រពន្ធដំបូងនៃលោក Trump បានសាទរពានដែលដ្ឋាន់មានឯកឧត្តមផត់ដ្ឋាន',
+      'ព័ត៌មានចុងក្រោយអំពីស្ថានភាពសេដ្ឋកិច្ចពិភពលោក និងការវិវឌ្ឍន៍ថ្មីៗនៅក្នុងវិស័យបច្ចេកវិទ្យា',
+      'របាយការណ៍ពិសេសអំពីការអភិវឌ្ឍន៍ក្នុងវិស័យការអប់រំ និងនវានុវត្តន៍ថ្មីៗសម្រាប់សិស្សានុសិស្ស',
+      'ការវិភាគស៊ីជម្រៅអំពីស្ថានភាពនយោបាយក្នុងតំបន់ និងផលប៉ះពាល់របស់វាទៅលើសង្គម',
+      'ព័ត៌មានកីឡាចុងក្រោយ ការប្រកួតសំខាន់ៗ និងសមិទ្ធផលរបស់កីឡាករជាតិ',
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Trending videos list
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: [
+            homeCtrl.homeVideoUrls.length,
+            homeCtrl.videoControllers.length,
+            homeCtrl.isInitializedList.length
+          ].reduce((a, b) => a < b ? a : b),
+          itemBuilder: (context, index) {
+            return Card(
+              elevation: 2,
+              margin: const EdgeInsets.only(bottom: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // User info header for each video
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      children: [
+                        Obx(() => CircleAvatar(
+                              radius: 20,
+                              backgroundColor: Colors.blue,
+                              backgroundImage: profileCtrl.profileImage.value !=
+                                      null
+                                  ? FileImage(profileCtrl.profileImage.value!)
+                                  : null,
+                              child: profileCtrl.profileImage.value == null
+                                  ? const Icon(Icons.person,
+                                      color: Colors.white)
+                                  : null,
+                            )),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Obx(() => Text(
+                                        profileCtrl.userName.value,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      )),
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.verified,
+                                      color: Colors.blue, size: 16),
+                                ],
+                              ),
+                              const Text(
+                                '4hour(s) ago • ព័ត៌មានខ្លីរយៈពេល',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.more_horiz),
+                          onPressed: () {
+                            _showPostOptionsBottomSheet(context);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Post text
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Text(
+                      index < videoDescriptions.length
+                          ? videoDescriptions[index]
+                          : 'ព័ត៌មានថ្មីៗពីសារព័ត៌មាន',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Video player
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => FullScreenVideoPage(
+                            controller: homeCtrl.videoControllers[index],
+                            title: index == 0
+                                ? "កំណត់ចងក្រោយការបូជនីយកិច្ចបញ្ចប់អនុស្សាវរីយ៍លើកទី៣របស់ប្រធានាធិបតី Donald Trump ប្រពន្ធដំបូងនៃលោក Trump បានសាទរពានដែលដ្ឋាន់មានឯកឧត្តមផត់ដ្ឋាន"
+                                : index == 1
+                                    ? "ព័ត៌មានចុងក្រោយអំពីស្ថានភាពសេដ្ឋកិច្ចពិភពលោក និងការវិវឌ្ឍន៍ថ្មីៗនៅក្នុងវិស័យបច្ចេកវិទ្យា"
+                                    : index == 2
+                                        ? "របាយការណ៍ពិសេសអំពីការអភិវឌ្ឍន៍ក្នុងវិស័យការអប់រំ និងនវានុវត្តន៍ថ្មីៗសម្រាប់សិស្សានុសិស្ស"
+                                        : index == 3
+                                            ? "ការវិភាគស៊ីជម្រៅអំពីស្ថានភាពនយោបាយក្នុងតំបន់ និងផលប៉ះពាល់របស់វាទៅលើសង្គម"
+                                            : index == 4
+                                                ? "ព័ត៌មានកីឡាចុងក្រោយ ការប្រកួតសំខាន់ៗ និងសមិទ្ធផលរបស់កីឡាករជាតិ"
+                                                : "Trending Video",
+                          ),
+                        ),
+                      );
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Obx(() {
+                        if (homeCtrl.isInitializedList[index].value) {
+                          return AspectRatio(
+                            aspectRatio: homeCtrl
+                                .videoControllers[index].value.aspectRatio,
+                            child:
+                                VideoPlayer(homeCtrl.videoControllers[index]),
+                          );
+                        } else {
+                          return Container(
+                            color: Colors.black,
+                            height: 180,
+                            child: const Center(
+                                child: CircularProgressIndicator()),
+                          );
+                        }
+                      }),
+                    ),
+                  ),
+
+                  // Interaction buttons
+                  const Divider(height: 1),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildLikeButton(likeStates[index], likeCounts[index]),
+                        _buildCommentButton(context),
+                        _buildActionButton(Icons.share_outlined, 'Share'),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ),
+            );
+          },
+        ),
+      ],
+    );
+  }
 
-          // Text content
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildLikeButton(RxBool isLiked, RxInt likeCount) {
+    return Obx(() => InkWell(
+          onTap: () {
+            isLiked.value = !isLiked.value;
+            if (isLiked.value) {
+              likeCount.value++;
+            } else {
+              likeCount.value--;
+            }
+          },
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Row(
               children: [
-                Text(
-                  news['title'] ?? 'Untitled News',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black45,
-                        offset: Offset(1, 1),
-                        blurRadius: 3,
-                      ),
-                    ],
-                  ),
+                Icon(
+                  isLiked.value ? Icons.thumb_up : Icons.thumb_up_outlined,
+                  size: 20,
+                  color: isLiked.value ? Colors.blue : Colors.grey[600],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(width: 8),
                 Text(
-                  // support both description and subtitle for different datasets
-                  (news['description'] ?? news['subtitle']) ?? '',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white70,
+                  likeCount.value > 0 ? '${likeCount.value}' : 'Like',
+                  style: TextStyle(
+                    color: isLiked.value ? Colors.blue : Colors.grey[600],
                     fontSize: 14,
                   ),
                 ),
               ],
             ),
           ),
-        ],
+        ));
+  }
+
+  Widget _buildActionButton(IconData icon, String label) {
+    return InkWell(
+      onTap: () {},
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: Colors.grey[600]),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildCommentButton(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        _showCommentsBottomSheet(context);
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Row(
+          children: [
+            Icon(Icons.comment_outlined, size: 20, color: Colors.grey[600]),
+            const SizedBox(width: 8),
+            Text(
+              'Comment',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showCommentsBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          builder: (_, controller) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                children: [
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(color: Colors.grey[300]!),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        const Expanded(
+                          child: Text(
+                            'All comments(0)',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(width: 48), // Balance the close button
+                      ],
+                    ),
+                  ),
+
+                  // Empty state
+                  Expanded(
+                    child: ListView(
+                      controller: controller,
+                      children: [
+                        const SizedBox(height: 100),
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.chat_bubble_outline,
+                                size: 80,
+                                color: Colors.grey[300],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No comment',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Comment input
+                  Container(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      border: Border(
+                        top: BorderSide(color: Colors.grey[300]!),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Row(
+                        children: [
+                          // SizedBox(
+                          //   height: 40,
+                          //   width: 120,
+                          //   child: ListView(
+                          //     scrollDirection: Axis.horizontal,
+                          //     children: [
+                          //       _buildRecentImageThumbnail('assets/images/logo1.png'),
+                          //       _buildRecentImageThumbnail('assets/images/logo1.png'),
+                          //       _buildRecentImageThumbnail('assets/images/logo1.png'),
+                          //     ],
+                          //   ),
+                          // ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              decoration: InputDecoration(
+                                hintText: 'Comment',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                  borderSide: BorderSide.none,
+                                ),
+                                filled: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: const Icon(Icons.send_outlined),
+                            onPressed: () {},
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.emoji_emotions_outlined),
+                            onPressed: () {},
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildRecentImageThumbnail(String imagePath) {
+    return Container(
+      width: 35,
+      height: 35,
+      margin: const EdgeInsets.only(right: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(7),
+        child: Image.asset(
+          imagePath,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            color: Colors.grey[200],
+            child: const Icon(Icons.image, size: 16),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showPostOptionsBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.add, color: Colors.black),
+                ),
+                title: const Text(
+                  'Follow',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                subtitle: const Text(
+                  'Add to follow list',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Added to follow list')),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.bookmark_border, color: Colors.black),
+                ),
+                title: const Text(
+                  'Save',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                subtitle: const Text(
+                  'Add to Favorite List',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Added to favorites')),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.close, color: Colors.black),
+                ),
+                title: const Text(
+                  'Unlike',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                subtitle: const Text(
+                  'Hide this content, reduce this type of content recommendation',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Content hidden')),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.report_outlined, color: Colors.black),
+                ),
+                title: const Text(
+                  'Report',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                subtitle: const Text(
+                  'Feedback Bad Content',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Report submitted')),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

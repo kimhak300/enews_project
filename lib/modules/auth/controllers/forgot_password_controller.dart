@@ -14,8 +14,8 @@ class ForgotPasswordController extends GetxController {
   Future<void> sendResetLink() async {
     if (emailController.text.isEmpty) {
       Get.snackbar(
-        'Error'.tr,
-        'Please enter your email'.tr,
+        'error'.tr,
+        'please_enter_your_email'.tr,
         snackPosition: SnackPosition.BOTTOM,
       );
       return;
@@ -27,8 +27,8 @@ class ForgotPasswordController extends GetxController {
 
     Get.back();
     Get.snackbar(
-      'Success'.tr,
-      'Password reset link sent to your email'.tr,
+      'success'.tr,
+      'password_reset_link_sent_to_your_email'.tr,
       snackPosition: SnackPosition.BOTTOM,
     );
   }

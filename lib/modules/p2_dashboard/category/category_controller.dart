@@ -58,31 +58,36 @@ class CategoryModel {
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'name'.tr: name,
-        'tag'.tr: tag,
-        'description'.tr: description,
+        'name': name,
+        'tag': tag,
+        'description': description,
         'author': author,
-        'date'.tr: date,
-        'views'.tr: views,
+        'date': date,
+        'views': views,
         'items': items,
         'colorValue': colorValue,
-        'mediaPath'.tr: mediaPath,
-        'mediaType'.tr: mediaType,
+        'mediaPath': mediaPath,
+        'mediaType': mediaType,
       };
 
-  static CategoryModel fromJson(Map<String, dynamic> json) => CategoryModel(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        tag: json['tag'] as String,
-        description: json['description'] as String,
-        author: json['author'] as String,
-        date: json['date'] as String,
-        views: (json['views'] ?? 0) as int,
-        items: (json['items'] ?? 0) as int,
-        colorValue: (json['colorValue'] ?? Colors.blue.value) as int,
-        mediaPath: json['mediaPath'] as String?,
-        mediaType: json['mediaType'] as String?,
-      );
+  static CategoryModel fromJson(Map<String, dynamic> json) {
+    final now = DateTime.now();
+    final defaultDate = '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    
+    return CategoryModel(
+      id: json['id']?.toString() ?? now.millisecondsSinceEpoch.toString(),
+      name: json['name']?.toString() ?? '',
+      tag: json['tag']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+      author: json['author']?.toString() ?? 'admin',
+      date: json['date']?.toString() ?? defaultDate,
+      views: json['views'] is int ? json['views'] : (int.tryParse(json['views']?.toString() ?? '0') ?? 0),
+      items: json['items'] is int ? json['items'] : (int.tryParse(json['items']?.toString() ?? '0') ?? 0),
+      colorValue: json['colorValue'] is int ? json['colorValue'] : (int.tryParse(json['colorValue']?.toString() ?? '0') ?? Colors.blue.value),
+      mediaPath: json['mediaPath']?.toString(),
+      mediaType: json['mediaType']?.toString(),
+    );
+  }
 }
 
 class CategoryController extends GetxController {

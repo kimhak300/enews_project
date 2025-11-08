@@ -42,12 +42,12 @@ class LoginController extends GetxController {
 
     // Basic validation
     if (email.isEmpty || password.isEmpty) {
-      _showError('Please fill in all fields'.tr);
+      _showError('please_fill_in_all_fields'.tr);
       return;
     }
 
     if (!_validateEmail(email)) {
-      _showError('Please enter a valid email address'.tr);
+      _showError('please_enter_a_valid_email_address'.tr);
       return;
     }
 
@@ -64,7 +64,7 @@ class LoginController extends GetxController {
         _authService.saveCurrentUser(profile);
       }
 
-      _showSuccess('Welcome ${apiResponse['username'.tr]}!'.tr);
+      _showSuccess('welcome_back ${apiResponse['username'.tr]}!'.tr);
       _navigateToHome();
 
     } catch (e) {
@@ -76,14 +76,14 @@ class LoginController extends GetxController {
 
       if (localUser != null) {
         _authService.saveCurrentUser(localUser);
-        _showSuccess('Welcome back, ${localUser['name'.tr]}!'.tr);
+        _showSuccess('welcome_back'.tr);
         _navigateToHome();
       } else {
         // 🔹 4. If neither works → show error
         if (_authService.emailExists(email)) {
-          _showError('Incorrect password. Please try again.'.tr);
+          _showError('incorrect_password'.tr);
         } else {
-          _showError('Account not found. Please register first.'.tr);
+          _showError('account_not_found'.tr);
         }
       }
     } finally {
@@ -125,7 +125,7 @@ void tryRefresh() async {
 
   void _showError(String message) {
     Get.snackbar(
-      'Error'.tr,
+      'error'.tr,
       message,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.red[400],
@@ -137,7 +137,7 @@ void tryRefresh() async {
 
   void _showSuccess(String message) {
     Get.snackbar(
-      'Success'.tr,
+      'success'.tr,
       message,
       snackPosition: SnackPosition.TOP,
       backgroundColor: Colors.green[400],

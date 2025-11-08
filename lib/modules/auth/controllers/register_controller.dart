@@ -35,8 +35,8 @@ class RegisterController extends GetxController {
     // Validation
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
       Get.snackbar(
-        'Error'.tr,
-        'Please fill all fields'.tr,
+        'error'.tr,
+        'please_fill_in_all_fields'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red[400],
         colorText: Colors.white,
@@ -47,8 +47,8 @@ class RegisterController extends GetxController {
 
     if (name.length < 3) {
       Get.snackbar(
-        'Error'.tr,
-        'Name must be at least 3 characters'.tr,
+        'error'.tr,
+        'name_must_be_at_least_3_characters'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red[400],
         colorText: Colors.white,
@@ -59,8 +59,8 @@ class RegisterController extends GetxController {
 
     if (!_validateEmail(email)) {
       Get.snackbar(
-        'Error'.tr,
-        'Please enter a valid email address'.tr,
+        'error'.tr,
+        'please_enter_a_valid_email_address'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red[400],
         colorText: Colors.white,
@@ -71,8 +71,8 @@ class RegisterController extends GetxController {
 
     if (password.length < 6) {
       Get.snackbar(
-        'Error'.tr,
-        'Password must be at least 6 characters'.tr,
+        'error'.tr,
+        'password_must_be_at_least_6_characters'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red[400],
         colorText: Colors.white,
@@ -88,8 +88,8 @@ class RegisterController extends GetxController {
     if (_authService.emailExists(email)) {
       isLoading.value = false;
       Get.snackbar(
-        'Error'.tr,
-        'Email already registered. Please login instead.'.tr,
+        'error'.tr,
+        'email_already_registered._please_login_instead.'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange[400],
         colorText: Colors.white,
@@ -115,8 +115,8 @@ class RegisterController extends GetxController {
       passwordController.clear();
 
       Get.snackbar(
-        'Success'.tr,
-        'Account created successfully! Please login.'.tr,
+        'success'.tr,
+        'account_created_successfully!_please_login.'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green[400],
         colorText: Colors.white,

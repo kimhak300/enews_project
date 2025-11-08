@@ -62,6 +62,20 @@ const Map<String, String> enUs = {
   'sign_up': 'Sign Up',
   'name': 'Full Name',
   'confirm_password': 'Confirm Password',
+  'welcome_back':'Welcome back',
+  'null':'',
+  'password_must_be_at_least_6_characters': 'Password must be at least 6 characters',
+  'email_already_registered._please_login_instead.': 'Email already registered. Please login instead.',
+  'account_created_successfully!_please_login.': 'Account created successfully! Please login.',
+  'name_must_be_at_least_3_characters': 'Name must be at least 3 characters',
+  'please_fill_in_all_fields': 'Please fill in all fields',
+  'please_enter_a_valid_email_address': 'Please enter a valid email address',
+  'please_enter_your_email_and_password': 'Please enter your email and password',
+  'please_enter_your_email_address': 'Please enter your email address',
+  'password_reset_link_sent_to_your_email': 'Password reset link sent to your email',
+  'incorrect_password': 'Incorrect password. Please try again.',
+  'account_not_found': 'Account not found. Please register first.',
+
 
   // Navigation
   'home': 'Home',
@@ -92,10 +106,12 @@ const Map<String, String> enUs = {
   'delete_category_confirmation':'Are you sure you want to delete',
 
   // Home
-  'trending': 'Trending',
-  'latest_news': 'Latest News',
-  'categories': 'Categories',
-  'for_you': 'For You',
+  'following': 'Following',
+  'popular': 'Popular',
+  'news': 'News',
+  'sports': 'Sports',
+  'entertainment': 'Entertainment',
+  'technology': 'Technology',
 
   // Profile
   'edit_profile': 'Edit Profile',
@@ -109,6 +125,8 @@ const Map<String, String> enUs = {
   // Search
   'search_news': 'Search news...',
   'recent_searches': 'Recent Searches',
+  'trending_topics': 'Trending Topics',
+  'trending_videos': 'Trending Videos',
 
   // Article
   'read_more': 'Read More',

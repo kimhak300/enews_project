@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:newshub/modules/p2_dashboard/dashboard_controller.dart';
-// import 'package:newshub/core/controllers/theme_controller.dart';
 import '../../data/services/auth_service.dart';
 import '../../data/services/api_service.dart';
 import '../../data/local/storage_service.dart';

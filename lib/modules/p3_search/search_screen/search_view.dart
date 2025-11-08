@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:video_player/video_player.dart';
 import '../search_controller.dart' as search;
+// import './format_duration_helper.dart';
 
 class SearchView extends GetView<search.SearchController> {
   const SearchView({super.key});
@@ -27,7 +29,8 @@ class SearchView extends GetView<search.SearchController> {
                   hintText: 'search_news'.tr,
                   border: InputBorder.none,
                   prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
                 onSubmitted: ctrl.search,
               ),
@@ -64,72 +67,171 @@ class SearchView extends GetView<search.SearchController> {
               }
 
               return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (ctrl.recentSearches.isNotEmpty) ...[
-                Text(
-                  'recent_searches'.tr,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ...ctrl.recentSearches.map((term) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Row(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.history_outlined, color: Colors.grey, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          term,
+                      if (ctrl.recentSearches.isNotEmpty) ...[
+                        Text(
+                          'recent_searches'.tr,
                           style: const TextStyle(
-                            fontSize: 15,
-                            color: Colors.grey,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
+                        ),
+                        const SizedBox(height: 12),
+                        ...ctrl.recentSearches.map((term) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.history_outlined,
+                                      color: Colors.grey, size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      term,
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                  Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(12),
+                                      onTap: () =>
+                                          ctrl.removeRecentSearch(term),
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(4),
+                                        child: Icon(Icons.close,
+                                            size: 18, color: Colors.grey),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                        const SizedBox(height: 24),
+                      ],
+                      Text(
+                        'trending_topics'.tr,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(12),
-                          onTap: () => ctrl.removeRecentSearch(term),
-                          child: const Padding(
-                            padding: EdgeInsets.all(4),
-                            child: Icon(Icons.close, size: 18, color: Colors.grey),
-                          ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 12,
+                        children: [
+                          _buildTrendingChip('Popular', ctrl),
+                          _buildTrendingChip('Technology', ctrl),
+                          _buildTrendingChip('Entertainment', ctrl),
+                          _buildTrendingChip('Sports', ctrl),
+                          _buildTrendingChip('News', ctrl),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'trending_videos'.tr,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
+                      ),
+                      const SizedBox(height: 12),
+                      // Trending videos list
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: [
+                          ctrl.trendingVideoUrls.length,
+                          ctrl.videoControllers.length,
+                          ctrl.isInitializedList.length
+                        ].reduce((a, b) => a < b ? a : b),
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => FullScreenVideoPage(
+                                          controller:
+                                              ctrl.videoControllers[index],
+                                          title: index == 0
+                                              ? "First lady Melania Trump accepts the 'Patriot of the Year' award at Fox Nation Patriot Awards"
+                                              : index == 1
+                                                  ? "Breaking News: World Event"
+                                                  : index == 2
+                                                      ? "News Anchor Talking on TV"
+                                                      : index == 3
+                                                          ? "Tech Innovations 2024"
+                                                          : index == 4
+                                                              ? "Sports Highlights"
+                                                              : "Trending Video",
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Obx(() {
+                                      if (ctrl.isInitializedList[index].value) {
+                                        return AspectRatio(
+                                          aspectRatio: ctrl
+                                              .videoControllers[index]
+                                              .value
+                                              .aspectRatio,
+                                          child: VideoPlayer(
+                                              ctrl.videoControllers[index]),
+                                        );
+                                      } else {
+                                        return Container(
+                                          color: Colors.black,
+                                          height: 180,
+                                          child: const Center(
+                                              child:
+                                                  CircularProgressIndicator()),
+                                        );
+                                      }
+                                    }),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  index == 0
+                                      ? "First lady Melania Trump accepts the 'Patriot of the Year' award at Fox Nation Patriot Awards"
+                                      : index == 1
+                                          ? "Breaking News: World Event"
+                                          : index == 2
+                                              ? "News Anchor Talking on TV"
+                                              : index == 3
+                                                  ? "Tech Innovations 2024"
+                                                  : index == 4
+                                                      ? "Sports Highlights"
+                                                      : "Trending Video",
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ],
-                  ),
-                )),
-                const SizedBox(height: 24),
-              ],
-              const Text(
-                'Trending Topics',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 12,
-                children: [
-                  _buildTrendingChip('#AI', ctrl),
-                  _buildTrendingChip('#Technology', ctrl),
-                  _buildTrendingChip('#Business', ctrl),
-                  _buildTrendingChip('#Sports', ctrl),
-                  _buildTrendingChip('#Health', ctrl),
-                ],
-              ),
-            ],
-          ),
-        );
+                  ));
             }),
           ),
         ],
@@ -163,6 +265,125 @@ class SearchView extends GetView<search.SearchController> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+// Fullscreen video page widget
+class FullScreenVideoPage extends StatelessWidget {
+  final VideoPlayerController controller;
+  final String title;
+  const FullScreenVideoPage({required this.controller, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(title,
+            style: const TextStyle(color: Colors.white, fontSize: 16)),
+      ),
+      body: Center(
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            AspectRatio(
+              aspectRatio: controller.value.aspectRatio,
+              child: VideoPlayer(controller),
+            ),
+            // Progress bar overlay (fullscreen only)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: _FullScreenControls(controller: controller),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FullScreenControls extends StatefulWidget {
+  final VideoPlayerController controller;
+  const _FullScreenControls({required this.controller});
+
+  @override
+  State<_FullScreenControls> createState() => _FullScreenControlsState();
+}
+
+class _FullScreenControlsState extends State<_FullScreenControls> {
+  late VideoPlayerController controller;
+  Duration position = Duration.zero;
+  Duration duration = Duration.zero;
+  bool isPlaying = false;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = widget.controller;
+    controller.addListener(_update);
+    _update();
+  }
+
+  void _update() {
+    if (!mounted) return;
+    setState(() {
+      position = controller.value.position;
+      duration = controller.value.duration;
+      isPlaying = controller.value.isPlaying;
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.removeListener(_update);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.black.withOpacity(0.7),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Row(
+        children: [
+          // Text(
+          //   formatDuration(position),
+          //   style: const TextStyle(color: Colors.white, fontSize: 12),
+          // ),
+          Expanded(
+            child: Slider(
+              value: position.inSeconds.toDouble(),
+              min: 0.0,
+              max: duration.inSeconds.toDouble().clamp(1, double.infinity),
+              onChanged: (value) {
+                controller.seekTo(Duration(seconds: value.toInt()));
+              },
+              activeColor: Colors.white,
+              inactiveColor: Colors.white24,
+            ),
+          ),
+          // Text(
+          //   formatDuration(duration),
+          //   style: const TextStyle(color: Colors.white, fontSize: 12),
+          // ),
+          IconButton(
+            icon: Icon(
+              isPlaying ? Icons.pause : Icons.play_arrow,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                isPlaying ? controller.pause() : controller.play();
+              });
+            },
+          ),
+        ],
       ),
     );
   }

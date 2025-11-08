@@ -61,6 +61,19 @@ const Map<String, String> kmKh = {
   'sign_up': 'ចុះឈ្មោះ',
   'name': 'ឈ្មោះពេញ',
   'confirm_password': 'បញ្ជាក់លេខសម្ងាត់',
+  'welcome_back':'សូមស្វាគមន៍ត្រឡប់មកកាន់',
+  'null':'',
+  'password_must_be_at_least_6_characters': 'លេខសម្ងាត់ត្រូវតែមានយ៉ាងហោចណាស់ ៦ តួអក្សរ',
+  'email_already_registered._please_login_instead.': 'អ៊ីមែលបានចុះឈ្មោះរួចហើយ។ សូមចូលប្រើវិញ។',
+  'account_created_successfully!_please_login.': 'គណនីត្រូវបានបង្កើតដោយជោគជ័យ! សូមចូលប្រើ។',
+  'name_must_be_at_least_3_characters': 'ឈ្មោះត្រូវតែមានយ៉ាងហោចណាស់ ៣ តួអក្សរ',
+  'please_fill_in_all_fields': 'សូមបំពេញទាំងអស់',
+  'please_enter_a_valid_email_address': 'សូមបញ្ចូលអ៊ីមែលដែលត្រឹមត្រូវ',
+  'please_enter_your_email_and_password': 'សូមបញ្ចូលអ៊ីមែល និង លេខសម្ងាត់របស់អ្នក',
+  'please_enter_your_email_address': 'សូមបញ្ចូលអ៊ីមែលរបស់អ្នក',
+  'password_reset_link_sent_to_your_email': 'លិខិតកំណត់លេខសម្ងាត់ត្រូវបានផ្ញើទៅអ៊ីមែលរបស់អ្នក',
+  'incorrect_password': 'លេខសម្ងាត់មិនត្រឹមត្រូវ។ សូមព្យាយាមម្តងទៀត។',
+  'account_not_found': 'រកមិនឃើញគណនីទេ។ សូមចុះឈ្មោះជាមុន។',
 
   // Navigation
   'home': 'ទំព័រដើម',
@@ -91,10 +104,12 @@ const Map<String, String> kmKh = {
   'delete_category_confirmation':'តើអ្នកប្រាកដថាចង់លុប',
 
   // Home
-  'trending': 'ពេញនិយម',
-  'latest_news': 'ព័ត៌មានថ្មី',
-  'categories': 'ប្រភេទ',
-  'for_you': 'សម្រាប់អ្នក',
+  'following': 'កំពុងតាមដាន',
+  'popular': 'ពេញនិយម',
+  'news': 'ព័ត៌មាន',
+  'sports': 'កីឡា',
+  'entertainment': 'កម្សាន្ត',
+  'technology': 'បច្ចេកវិទ្យា',
 
   // Profile
   'edit_profile': 'កែប្រវត្តិរូប',
@@ -108,6 +123,8 @@ const Map<String, String> kmKh = {
   // Search
   'search_news': 'ស្វែងរកព័ត៌មាន...',
   'recent_searches': 'ការស្វែងរកថ្មីៗ',
+  'trending_topics': 'ប្រធានបទពេញនិយម',
+  'trending_videos': 'វីដេអូពេញនិយម',
 
   // Article
   'read_more': 'អានបន្ថែម',

@@ -1,47 +1,44 @@
 import '../models/user_model.dart';
+import '../models/auth_response_model.dart';
 import '../services/auth_service.dart';
 
 class AuthRepository {
   final AuthService _authService = AuthService();
 
   // Register user
-  Future<bool> register({
+  Future<AuthResponseModel> register({
     required String name,
     required String email,
     required String password,
+    required String passwordConfirmation,
   }) async {
-    return await _authService.registerUser(
+    return await _authService.register(
       name: name,
       email: email,
       password: password,
+      passwordConfirmation: passwordConfirmation,
     );
   }
 
   // Login
-  Future<UserModel?> login({
+  Future<AuthResponseModel> login({
     required String email,
     required String password,
   }) async {
-    final userData = _authService.validateLogin(
+    return await _authService.login(
       email: email,
       password: password,
     );
-
-    if (userData != null) {
-      await _authService.saveCurrentUser(userData);
-      return UserModel.fromLegacyMap(userData);
-    }
-
-    return null;
   }
 
   // Get current user
-  UserModel? getCurrentUser() {
-    final userData = _authService.getCurrentUser();
-    if (userData != null) {
-      return UserModel.fromLegacyMap(userData);
-    }
-    return null;
+  Future<UserModel> getCurrentUser() async {
+    return await _authService.getCurrentUser();
+  }
+
+  // Get saved user (offline)
+  Future<UserModel?> getSavedUser() async {
+    return await _authService.getSavedUser();
   }
 
   // Logout
@@ -50,29 +47,20 @@ class AuthRepository {
   }
 
   // Check if logged in
-  bool isLoggedIn() {
-    return _authService.isLoggedIn();
-  }
-
-  // Check if email exists
-  bool emailExists(String email) {
-    return _authService.emailExists(email);
+  Future<bool> isLoggedIn() async {
+    return await _authService.isLoggedIn();
   }
 
   // Update user profile
-  Future<bool> updateProfile({
-    required String name,
+  Future<UserModel> updateProfile({
+    String? name,
+    String? email,
     String? phone,
-    String? avatar,
   }) async {
-    final currentUser = _authService.getCurrentUser();
-    if (currentUser == null) return false;
-
-    currentUser['name'] = name;
-    if (phone != null) currentUser['phone'] = phone;
-    if (avatar != null) currentUser['avatar'] = avatar;
-
-    await _authService.saveCurrentUser(currentUser);
-    return true;
+    return await _authService.updateProfile(
+      name: name,
+      email: email,
+      phone: phone,
+    );
   }
 }

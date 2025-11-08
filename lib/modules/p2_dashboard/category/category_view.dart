@@ -358,7 +358,7 @@ class _CreateButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.zero,
+          padding: EdgeInsets.symmetric(horizontal: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           elevation: 2,
           backgroundColor: Colors.transparent,

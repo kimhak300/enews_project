@@ -113,8 +113,8 @@ class DashboardView extends GetView<DashboardController> {
                     _buildDeviceTraffic(),
                     const SizedBox(height: 48),
                     // Chart
-                    _buildChart(),
-                    const SizedBox(height: 24),
+                  
+                    const SizedBox(height: 24),  _buildChart(),
                   ],
                 );
               }),
