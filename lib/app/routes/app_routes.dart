@@ -9,8 +9,6 @@ abstract class Routes {
   static const HOME = _Paths.HOME;
   static const CATEGORY = _Paths.CATEGORY;
   static const DASHBOARD = _Paths.DASHBOARD;
-  static const ARTICLE_LIST = _Paths.ARTICLE_LIST;
-  static const ARTICLE_DETAIL = _Paths.ARTICLE_DETAIL;
   static const SEARCH = _Paths.SEARCH;
   static const BOOKMARK = _Paths.BOOKMARK;
   static const PROFILE = _Paths.PROFILE;
@@ -18,6 +16,7 @@ abstract class Routes {
   static const NOTIFICATIONS = _Paths.NOTIFICATIONS;
   static const ABOUT = _Paths.ABOUT;
   static const BOTTOM_NAV = _Paths.BOTTOM_NAV;
+  static const EDIT_POST = _Paths.EDIT_POST;
 }
 
 abstract class _Paths {
@@ -30,14 +29,13 @@ abstract class _Paths {
   static const HOME = '/home';
   static const CATEGORY = '/category';
   static const DASHBOARD = '/dashboard';
-  static const ARTICLE_LIST = '/article-list';
-  static const ARTICLE_DETAIL = '/article-detail';
   static const SEARCH = '/search';
   static const BOOKMARK = '/bookmark';
   static const PROFILE = '/profile';
   static const SETTINGS = '/settings';
   static const BOTTOM_NAV = '/bottomNav';
   static const ABOUT = '/about';
+  static const EDIT_POST = '/edit-post';
 }
 
 

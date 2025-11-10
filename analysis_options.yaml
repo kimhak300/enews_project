@@ -33,6 +33,7 @@ analyzer:
     prefer_interpolation_to_compose_strings: ignore
     override_on_non_overriding_member: ignore
     use_key_in_widget_constructors: ignore
+    prefer_is_empty: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:

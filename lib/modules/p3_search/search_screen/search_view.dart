@@ -42,30 +42,6 @@ class SearchView extends GetView<search.SearchController> {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              if (ctrl.searchResults.isNotEmpty) {
-                return ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: ctrl.searchResults.length,
-                  itemBuilder: (context, index) {
-                    final article = ctrl.searchResults[index];
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: ListTile(
-                        title: Text(
-                          article.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          '${article.content.substring(0, 50)}...',
-                          maxLines: 2,
-                        ),
-                        onTap: () => ctrl.goToArticleDetail(article),
-                      ),
-                    );
-                  },
-                );
-              }
-
               return SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
                   child: Column(

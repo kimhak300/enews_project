@@ -86,7 +86,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/user_model.dart';
 import '../models/auth_response_model.dart';
-import '../../core/constants/api_constants.dart';
+import '../../app/config/api_constants.dart';
 import 'api_service.dart';
 
 class AuthService {

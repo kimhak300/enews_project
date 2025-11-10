@@ -1,10 +1,18 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../app/models/post_model.dart';
 
 class DashboardController extends GetxController {
   static DashboardController get to => Get.find();
   
   final RxBool isLoading = false.obs;
   final String baseUrl = 'http://10.0.2.2:3000'; // Android emulator localhost
+  
+  // Posts list
+  final RxList<Post> posts = <Post>[].obs;
 
   // Dashboard metrics
   final RxInt views = 7265.obs;
@@ -34,6 +42,12 @@ class DashboardController extends GetxController {
   void onInit() {
     super.onInit();
     loadDashboardData();
+    // Load saved posts from local storage
+    _loadSavedPosts();
+    // Persist posts whenever they change
+    ever(posts, (_) {
+      _savePosts();
+    });
   }
 
   Future<void> loadDashboardData() async {
@@ -63,6 +77,42 @@ class DashboardController extends GetxController {
 
   void refreshDashboard() {
     loadDashboardData();
+  }
+
+  // Persistence: save/load posts to shared preferences
+  static const String _kPostsKey = 'dashboard_saved_posts_v1';
+
+  Future<void> _savePosts() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final list = posts.map((p) => p.toJson()).toList();
+      final encoded = jsonEncode(list);
+      await prefs.setString(_kPostsKey, encoded);
+      // debug print for persistence
+      // print('Saved ${posts.length} posts to SharedPreferences');
+    } catch (e) {
+      print('Error saving posts: $e');
+    }
+  }
+
+  /// Public wrapper to trigger immediate save (useful after explicit changes)
+  Future<void> savePosts() async {
+    await _savePosts();
+  }
+
+  Future<void> _loadSavedPosts() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final encoded = prefs.getString(_kPostsKey);
+      if (encoded != null && encoded.isNotEmpty) {
+        final List decoded = jsonDecode(encoded) as List;
+        final loaded = decoded.map((e) => Post.fromJson(e)).toList();
+        posts.assignAll(loaded);
+        // print('Loaded ${posts.length} saved posts');
+      }
+    } catch (e) {
+      print('Error loading saved posts: $e');
+    }
   }
 
   String getChangeIcon(double change) {

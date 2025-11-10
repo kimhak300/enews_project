@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:get/get.dart';
-import '../../app/models/article_model.dart';
-import '../../app/services/api_service.dart';
-import '../../app/routes/app_pages.dart';
 
 class SearchController extends GetxController {
   // Only use multi-video logic for trending videos
@@ -27,7 +24,6 @@ class SearchController extends GetxController {
 
   // Search
   final TextEditingController searchController = TextEditingController();
-  final RxList<Article> searchResults = <Article>[].obs;
   final RxBool isSearching = false.obs;
   final RxList<String> recentSearches = <String>['AI Technology', 'Sports News', 'Stock Market'].obs;
 
@@ -114,13 +110,11 @@ class SearchController extends GetxController {
 
   Future<void> search(String query) async {
     if (query.isEmpty) {
-      searchResults.clear();
       return;
     }
     isSearching.value = true;
     try {
-      final results = await ApiService.searchArticles(query);
-      searchResults.assignAll(results);
+      // Search functionality can be implemented with posts
       if (!recentSearches.contains(query)) {
         recentSearches.insert(0, query);
         if (recentSearches.length > 5) {
@@ -136,10 +130,6 @@ class SearchController extends GetxController {
 
   void removeRecentSearch(String query) {
     recentSearches.remove(query);
-  }
-
-  void goToArticleDetail(Article article) {
-    Get.toNamed(Routes.ARTICLE_DETAIL, arguments: article);
   }
 }
       

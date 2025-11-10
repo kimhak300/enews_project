@@ -3,11 +3,7 @@ import '../../modules/p1_home/home_binding.dart';
 import '../../modules/p1_home/home_screen/home_view.dart';
 import '../../modules/p3_search/search_binding.dart';
 import '../../modules/p3_search/search_screen/search_view.dart';
-import '../../modules/p4_saved/article_detail_binding.dart';
-import '../../modules/p4_saved/article_list_binding.dart';
 import '../../modules/p4_saved/bookmark_binding.dart';
-import '../../modules/p4_saved/saved_screen/article_detail_view.dart';
-import '../../modules/p4_saved/saved_screen/article_list_view.dart';
 import '../../modules/p4_saved/saved_screen/bookmark_view.dart';
 import '../../modules/p5_profile/about_binding.dart';
 import '../../modules/p5_profile/profile_binding.dart';
@@ -21,6 +17,8 @@ import '../../modules/auth/bindings/login_binding.dart';
 import '../../modules/auth/bindings/register_binding.dart';
 import '../../modules/auth/bindings/forgot_password_binding.dart';
 import '../../modules/p2_dashboard/dashboard_binding.dart';
+import '../../modules/p2_dashboard/edit_post/edit_post_binding.dart';
+import '../../modules/p2_dashboard/edit_post/edit_post_view.dart';
 import '../../modules/auth/views/login_view.dart';
 import '../../modules/auth/views/register_view.dart';
 import '../../modules/auth/views/forgot_password_view.dart';
@@ -67,16 +65,6 @@ class AppPages {
       binding: DashboardBinding(),
     ),
     GetPage(
-      name: _Paths.ARTICLE_LIST,
-      page: () => const ArticleListView(),
-      binding: ArticleListBinding(),
-    ),
-    GetPage(
-      name: _Paths.ARTICLE_DETAIL,
-      page: () => const ArticleDetailView(),
-      binding: ArticleDetailBinding(),
-    ),
-    GetPage(
       name: _Paths.SEARCH,
       page: () => const SearchView(),
       binding: SearchBinding(),
@@ -100,6 +88,11 @@ class AppPages {
       name: _Paths.ABOUT,
       page: () => const AboutView(),
       binding: AboutBinding(),
+    ),
+    GetPage(
+      name: _Paths.EDIT_POST,
+      page: () => const EditPostView(),
+      binding: EditPostBinding(),
     ),
   ];
 }

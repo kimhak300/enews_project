@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:newshub/core/controllers/language_controller.dart';
 import 'package:newshub/core/controllers/ratio_controller.dart';
 import 'package:newshub/core/controllers/theme_controller.dart';
-import 'core/controllers/language_controller.dart';
 import 'app/routes/app_pages.dart';
 import 'app/theme/app_theme.dart';
 import 'core/bindings/initial_bindings.dart';
-import 'core/translations/app_translations.dart';
+import 'core/localization/app_translations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

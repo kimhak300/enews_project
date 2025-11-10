@@ -39,6 +39,8 @@ const Map<String, String> enUs = {
   'profile': 'Profile',
   'about': 'About',
   'about_help': 'About & Help',
+  'refreshed': 'Refreshed',
+  'removed': 'Removed',
 
   //login
   'wellcome_back':'Welcome Back',
@@ -104,6 +106,15 @@ const Map<String, String> enUs = {
   'video':'Video',
   'image':'Image',
   'delete_category_confirmation':'Are you sure you want to delete',
+  'create_post':'Create Post',
+  'post':'Post',
+  'edit_info':'Edit Info',
+  'change_cover':'Change Cover',
+  'edit_cover':'Edit Cover',
+  'title':'Title',
+  'interested_headlines_for_more_people_to_see':'Interested headlines for more people to see',
+  'topics':'Topics',
+  'add':'Add',
 
   // Home
   'following': 'Following',
@@ -112,6 +123,29 @@ const Map<String, String> enUs = {
   'sports': 'Sports',
   'entertainment': 'Entertainment',
   'technology': 'Technology',
+  'latest_posts': 'Latest Posts',
+  'see_all': 'See All',
+  'like': 'Like',
+  'comment': 'Comment',
+  'report': 'Report',
+  'edit_this_post': 'Edit this Post',
+  'add_to_favorite_list': 'Add to Favorites List',
+  'remove_this_post_permanently': 'Remove this post permanently',
+  'report_inappropriate_content': 'Report Inappropriate Content',
+  'write_a_comment': 'Write a comment...',
+  'share_video': 'Share Video',
+  'copy_link': 'Copy Link',
+  'share_to_other_apps': 'Share to other apps',
+  'send_in_message': 'Send in Message',
+  'just_now': 'Just now',
+
+  //edit
+  'post_updated_successfully' : 'Post updated successfully',
+  'post_created_successfully' : 'Post created successfully',
+  'title_is_required' : 'Title is required',
+  'enter_topic' : 'Enter topic (with #)',
+  'add_topic' : 'Add Topic',
+  'topic' : 'Topic',
 
   // Profile
   'edit_profile': 'Edit Profile',

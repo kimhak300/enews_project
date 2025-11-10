@@ -38,6 +38,8 @@ const Map<String, String> kmKh = {
   'profile': 'ប្រវត្តិរូប',
   'about': 'អំពី',
   'about_help': 'អំពី និង ជំនួយ',
+  'refreshed': 'បានធ្វើបច្ចុប្បន្នភាព',
+  'removed': 'បានលុប',
 
    //login
   'wellcome_back':'ស្វាគមន៍មកកាន់',
@@ -102,6 +104,23 @@ const Map<String, String> kmKh = {
   'video':'វីដេអូ',
   'image':'រូបភាព',
   'delete_category_confirmation':'តើអ្នកប្រាកដថាចង់លុប',
+  'create_post':'បង្កើតប្រកាស',
+  'post':'ប្រកាស',
+  'edit_info':'កែប្រែព័ត៌មាន',
+  'change_cover':'ប្ដូរពណ៌ផ្ទាំង',
+  'edit_cover':'កែប្រែពណ៌ផ្ទាំង',
+  'title':'ចំណងជើង',
+  'interested_headlines_for_more_people_to_see':'ចំណងជើងដែលគួរឱ្យចាប់អារម្មណ៍សម្រាប់មនុស្សច្រើនមើល',
+  'topics':'ប្រធានបទ',
+  'add':'បន្ថែម',
+
+  //edit
+  'post_updated_successfully' : 'ប្រកាសត្រូវបានកែប្រែដោយជោគជ័យ',
+  'post_created_successfully' : 'ប្រកាសត្រូវបានបង្កើតដោយជោគជ័យ',
+  'title_is_required' : 'ចំណងជើងត្រូវការជាអប្បបរមា',
+  'enter_topic' : 'បញ្ចូលប្រធានបទ (ជាមួយ #)',
+  'add_topic' : 'បន្ថែមប្រធានបទ',
+  'topic' : 'ប្រធានបទ',
 
   // Home
   'following': 'កំពុងតាមដាន',
@@ -110,6 +129,21 @@ const Map<String, String> kmKh = {
   'sports': 'កីឡា',
   'entertainment': 'កម្សាន្ត',
   'technology': 'បច្ចេកវិទ្យា',
+  'latest_posts': 'ប្រកាសថ្មីៗ',
+  'see_all': 'មើលទាំងអស់',
+  'like': 'ចូលចិត្ត',
+  'comment': 'មតិយោបល់',
+  'report': 'រាយការណ៍',
+  'edit_this_post': 'កែប្រែប្រកាសនេះ',
+  'add_to_favorite_list': 'បន្ថែមទៅបញ្ជីចូលចិត្ត',
+  'remove_this_post_permanently': 'លុបប្រកាសនេះយ៉ាងស្ថាពរ',
+  'report_inappropriate_content': 'រាយការណ៍មាតិកាដែលមិនសមរម្យ',
+  'write_a_comment': 'សរសេរមតិយោបល់...',
+  'share_video': 'ចែករំលែកវីដេអូ',
+  'copy_link': 'ចម្លងតំណភ្ជាប់',
+  'share_to_other_apps': 'ចែករំលែកទៅកម្មវិធីផ្សេងទៀត',
+  'send_in_message': 'ផ្ញើក្នុងសារ',
+  'just_now': 'ឥឡូវនេះ',
 
   // Profile
   'edit_profile': 'កែប្រវត្តិរូប',

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:newshub/modules/auth/controllers/login_controller.dart';
 import 'package:video_player/video_player.dart';
-import '../../app/models/article_model.dart';
+import '../../app/models/post_model.dart';
 import '../../app/routes/app_pages.dart';
 
 class HomeController extends GetxController {
@@ -25,6 +28,9 @@ class HomeController extends GetxController {
   List<Rx<Duration>> positionList = [];
   List<Rx<Duration>> durationList = [];
 
+  // Persistent video posts (stored locally)
+  final RxList<Post> videoPosts = <Post>[].obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -36,6 +42,8 @@ class HomeController extends GetxController {
     }
     homeVideoUrls;
     _initVideos();
+    // load persisted video posts
+    _loadSavedVideos();
   }
     @override
   void onClose() {
@@ -111,58 +119,128 @@ class HomeController extends GetxController {
     currentNavIndex.value = index;
   }
 
+  // Persistence for video posts
+  static const String _kVideoPostsKey = 'video_posts_v1';
+
+  Future<void> _saveVideos() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final list = videoPosts.map((p) => p.toJson()).toList();
+      final encoded = jsonEncode(list);
+      await prefs.setString(_kVideoPostsKey, encoded);
+    } catch (e) {
+      debugPrint('Error saving video posts: $e');
+    }
+  }
+
+  Future<void> _loadSavedVideos() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final encoded = prefs.getString(_kVideoPostsKey);
+      if (encoded != null && encoded.isNotEmpty) {
+        final List decoded = jsonDecode(encoded) as List;
+        final loaded = decoded.map((e) => Post.fromJson(e)).toList();
+        videoPosts.assignAll(loaded);
+      }
+    } catch (e) {
+      debugPrint('Error loading video posts: $e');
+    }
+  }
+
+  Future<void> saveVideos() async {
+    await _saveVideos();
+  }
+
+  // Refresh method for pull-to-refresh
+  final RxBool isRefreshing = false.obs;
+  
+  Future<void> refreshHomePage() async {
+    try {
+      isRefreshing.value = true;
+      
+      // Reload saved video posts
+      await _loadSavedVideos();
+      
+      // Reinitialize videos
+      await _initVideos();
+      
+      // Simulate fetching new data
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      // Get.snackbar(
+      //   'refreshed'.tr,
+      //   'Content has been updated',
+      //   snackPosition: SnackPosition.TOP,
+      //   duration: const Duration(seconds: 2),0
+      //   backgroundColor: Colors.green.withOpacity(0.7),
+      //   colorText: Colors.white,
+      // );
+    } catch (e) {
+      debugPrint('Error refreshing: $e');
+      Get.snackbar(
+        'error'.tr,
+        'Failed to refresh content',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red.withOpacity(0.7),
+        colorText: Colors.white,
+      );
+    } finally {
+      isRefreshing.value = false;
+    }
+  }
+
   // Data for the home view tabs
-  final List<Map<String, dynamic>> newsItems = [
-    {
-      'image': 'assets/images/news1.png'.tr,
-      'title': 'ARCTIC FROST EXPOSED'.tr,
-      'subtitle':
-          'Biden DOJ chiefs personally signed off on Trump investigation in bombshell memo'.tr,
-      'readTime': '4 min read',
-      'isBreaking': true,
-    },
-    {
-      'image': 'assets/images/news2.png'.tr,
-      'title': 'CAMPUS RADICALS'.tr,
-      'subtitle': 'University protests escalate as demands grow'.tr,
-      'readTime': '3 min read'.tr,
-      'isBreaking': false,
-    },
-    {
-      'image': 'assets/images/news3.png'.tr,
-      'title': 'GOVERNMENT SHUTDOWN'.tr,
-      'subtitle': 'Latest developments in the ongoing budget crisis'.tr,
-      'readTime': '5 min read'.tr,
-      'isBreaking': true,
-    },
-  ];
+  // final List<Map<String, dynamic>> newsItems = [
+  //   {
+  //     'image': 'assets/images/news1.png'.tr,
+  //     'title': 'ARCTIC FROST EXPOSED'.tr,
+  //     'subtitle':
+  //         'Biden DOJ chiefs personally signed off on Trump investigation in bombshell memo'.tr,
+  //     'readTime': '4 min read',
+  //     'isBreaking': true,
+  //   },
+  //   {
+  //     'image': 'assets/images/news2.png'.tr,
+  //     'title': 'CAMPUS RADICALS'.tr,
+  //     'subtitle': 'University protests escalate as demands grow'.tr,
+  //     'readTime': '3 min read'.tr,
+  //     'isBreaking': false,
+  //   },
+  //   {
+  //     'image': 'assets/images/news3.png'.tr,
+  //     'title': 'GOVERNMENT SHUTDOWN'.tr,
+  //     'subtitle': 'Latest developments in the ongoing budget crisis'.tr,
+  //     'readTime': '5 min read'.tr,
+  //     'isBreaking': true,
+  //   },
+  // ];
 
-  final List<Map<String, dynamic>> campusNewsItems = [
-    {
-      'image': 'assets/images/campus1.png'.tr,
-      'title': 'STUDENT PROTESTS GROW'.tr,
-      'description': 'Students demand policy changes and increased transparency'.tr,
-      'readTime': '2 min read'.tr,
-      'isBreaking': false,
-    },
-    {
-      'image': 'assets/images/campus2.png'.tr,
-      'title': 'UNIVERSITY TO REVIEW CURRICULUM'.tr,
-      'description': 'Administration opens review following protests'.tr,
-      'readTime': '3 min read'.tr,
-      'isBreaking': false,
-    },
-  ];
+  // final List<Map<String, dynamic>> campusNewsItems = [
+  //   {
+  //     'image': 'assets/images/campus1.png'.tr,
+  //     'title': 'STUDENT PROTESTS GROW'.tr,
+  //     'description': 'Students demand policy changes and increased transparency'.tr,
+  //     'readTime': '2 min read'.tr,
+  //     'isBreaking': false,
+  //   },
+  //   {
+  //     'image': 'assets/images/campus2.png'.tr,
+  //     'title': 'UNIVERSITY TO REVIEW CURRICULUM'.tr,
+  //     'description': 'Administration opens review following protests'.tr,
+  //     'readTime': '3 min read'.tr,
+  //     'isBreaking': false,
+  //   },
+  // ];
 
-  final List<Map<String, dynamic>> governmentNewsItems = [
-    {
-      'image': 'assets/images/gov1.png'.tr,
-      'title': 'BUDGET TALKS INTENSIFY'.tr,
-      'description': 'Lawmakers push for compromise ahead of deadline'.tr,
-      'readTime': '6 min read'.tr,
-      'isBreaking': true,
-    },
-  ];
+  // final List<Map<String, dynamic>> governmentNewsItems = [
+  //   {
+  //     'image': 'assets/images/gov1.png'.tr,
+  //     'title': 'BUDGET TALKS INTENSIFY'.tr,
+  //     'description': 'Lawmakers push for compromise ahead of deadline'.tr,
+  //     'readTime': '6 min read'.tr,
+  //     'isBreaking': true,
+  //   },
+  // ];
 
   final List<String> topTabs = [
     'home',
@@ -178,18 +256,9 @@ class HomeController extends GetxController {
   void updateCarouselIndex(int index) {
     carouselCurrentIndex.value = index;
   }
-    void goToArticleDetail(Article article) {
-    Get.toNamed(Routes.ARTICLE_DETAIL, arguments: article);
-  }
 
   void goToSearch() {
     Get.toNamed(Routes.SEARCH);
-  }
-
-
-
-  void goToCategory(String category) {
-    Get.toNamed(Routes.ARTICLE_LIST, arguments: category);
   }
 
   void setTopTab(int index) {
@@ -207,7 +276,4 @@ class HomeController extends GetxController {
     }
   }
 
-  // Future<void> refreshNews() async {
-  //   await fetchNews();
-  // }
 }
