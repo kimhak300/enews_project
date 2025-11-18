@@ -247,9 +247,9 @@ class HomeController extends GetxController {
     'following',
     'popular',
     'news',
-    'sports',
-    'entertainment',
-    'technology',
+    // 'sports',
+    // 'entertainment',
+    // 'technology',
   ];
 
 

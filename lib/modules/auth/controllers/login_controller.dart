@@ -4,19 +4,10 @@ import '../../../app/routes/app_pages.dart';
 import '../auth_service.dart';
 
 class LoginController extends GetxController {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
   final isLoading = false.obs;
   final obscurePassword = true.obs;
 
   final _authService = AuthService();
-
-  @override
-  void onClose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.onClose();
-  }
 
   void togglePasswordVisibility() {
     obscurePassword.value = !obscurePassword.value;
@@ -36,17 +27,17 @@ class LoginController extends GetxController {
   // ===================================
   // 🔹 LOGIN PROCESS (API + LOCAL)
   // ===================================
-  Future<void> login() async {
-    final email = emailController.text.trim();
-    final password = passwordController.text;
+  Future<void> login({required String email, required String password}) async {
+    final trimmedEmail = email.trim();
+    final trimmedPassword = password;
 
     // Basic validation
-    if (email.isEmpty || password.isEmpty) {
+    if (trimmedEmail.isEmpty || trimmedPassword.isEmpty) {
       _showError('please_fill_in_all_fields'.tr);
       return;
     }
 
-    if (!_validateEmail(email)) {
+    if (!_validateEmail(trimmedEmail)) {
       _showError('please_enter_a_valid_email_address'.tr);
       return;
     }
@@ -55,7 +46,7 @@ class LoginController extends GetxController {
 
     try {
       // 🔹 1. Try login via DummyJSON API
-      final apiResponse = await _authService.login(email, password);
+      final apiResponse = await _authService.login(trimmedEmail, trimmedPassword);
 
       // 🔹 2. Fetch user profile using token
       final profile = await _fetchUserProfile();
@@ -70,8 +61,8 @@ class LoginController extends GetxController {
     } catch (e) {
       // 🔹 3. If API login fails, fallback to local validation
       final localUser = _authService.validateLogin(
-        email: email,
-        password: password,
+        email: trimmedEmail,
+        password: trimmedPassword,
       );
 
       if (localUser != null) {
@@ -80,7 +71,7 @@ class LoginController extends GetxController {
         _navigateToHome();
       } else {
         // 🔹 4. If neither works → show error
-        if (_authService.emailExists(email)) {
+  if (_authService.emailExists(trimmedEmail)) {
           _showError('incorrect_password'.tr);
         } else {
           _showError('account_not_found'.tr);

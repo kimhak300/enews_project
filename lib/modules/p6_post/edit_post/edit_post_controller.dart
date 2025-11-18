@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../app/models/post_model.dart';
 import '../../p1_home/home_controller.dart';
-import '../dashboard_controller.dart';
+import '../../p2_dashboard/dashboard_controller.dart';
 
 class EditPostController extends GetxController {
   final titleController = TextEditingController();

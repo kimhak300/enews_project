@@ -11,16 +11,20 @@ class ProfileView extends GetView<ProfileController> {
   Widget build(BuildContext context) {
     // Use Get.put to ensure controller exists when accessed from bottom nav
     final ctrl = Get.put(ProfileController());
+    final theme = Theme.of(context);
 
     return SafeArea(
-      child: Column(
-        children: [
+      child: Container(
+        color: theme.colorScheme.background,
+        child: Column(
+          children: [
             Container(
-              padding: const EdgeInsets.all(32),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
-                gradient: AppTheme.primaryGradient,
+                color: theme.cardColor,
                 borderRadius:
-                    const BorderRadius.vertical(bottom: Radius.circular(30)),
+                    BorderRadius.vertical(bottom: Radius.circular(8)),
               ),
               child: Column(
                 children: [
@@ -31,18 +35,22 @@ class ProfileView extends GetView<ProfileController> {
                                 ? ctrl.showImageSourceDialog
                                 : null,
                             child: CircleAvatar(
-                              radius: 50,
-                              backgroundColor: Colors.white,
-                              backgroundImage: ctrl.profileImage.value != null
-                                  ? FileImage(ctrl.profileImage.value!)
-                                  : null,
-                              child: ctrl.profileImage.value == null
-                                  ? const Icon(
-                                      Icons.person,
-                                      size: 60,
-                                      color: AppTheme.primaryColor,
-                                    )
-                                  : null,
+                              radius: 54,
+                              backgroundColor: theme.colorScheme.primary,
+                              child: CircleAvatar(
+                                radius: 50,
+                                backgroundColor: theme.colorScheme.onPrimary,
+                                backgroundImage: ctrl.profileImage.value != null
+                                    ? FileImage(ctrl.profileImage.value!)
+                                    : null,
+                                child: ctrl.profileImage.value == null
+                                    ? Icon(
+                                        Icons.person,
+                                        size: 56,
+                                        color: theme.colorScheme.primary,
+                                      )
+                                    : null,
+                              ),
                             ),
                           )),
                       Obx(() => ctrl.isEditing.value
@@ -65,7 +73,7 @@ class ProfileView extends GetView<ProfileController> {
                           : const SizedBox()),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 4),
                   Obx(() => ctrl.isEditing.value
                       ? Column(
                           children: [
@@ -122,7 +130,7 @@ class ProfileView extends GetView<ProfileController> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 8),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -152,18 +160,17 @@ class ProfileView extends GetView<ProfileController> {
                           children: [
                             Text(
                               ctrl.userName.value,
-                              style: const TextStyle(
-                                fontSize: 24,
+                              style: theme.textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: theme.colorScheme.onSurface,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            // const SizedBox(height: 4),
                             Text(
                               ctrl.userEmail.value,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white.withValues(alpha: 0.9),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurface
+                                    .withOpacity(0.6),
                               ),
                             ),
                           ],
@@ -173,45 +180,72 @@ class ProfileView extends GetView<ProfileController> {
             ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
                 children: [
+                  _buildSectionTitle('Account Settings'.tr, theme),
                   _buildMenuItem(
                     icon: Icons.edit,
                     title: 'edit_profile'.tr,
                     onTap: ctrl.enableEditing,
+                    theme: theme,
                   ),
                   _buildMenuItem(
                     icon: Icons.bookmark,
                     title: 'my_bookmarks'.tr,
                     onTap: ctrl.goToBookmarks,
+                    theme: theme,
                   ),
+                  // const SizedBox(height: 8),
+                  _buildSectionTitle('App Preferences'.tr, theme),
                   _buildMenuItem(
                     icon: Icons.notifications,
                     title: 'notification'.tr,
                     onTap: ctrl.goToNotifications,
+                    theme: theme,
                   ),
                   _buildMenuItem(
                     icon: Icons.settings,
                     title: 'setting'.tr,
                     onTap: ctrl.goToSettings,
+                    theme: theme,
                   ),
+                  // const SizedBox(height: 8),
+                  _buildSectionTitle('Help & Support'.tr, theme),
                   _buildMenuItem(
-                    icon: Icons.info,
+                    icon: Icons.info_outline,
                     title: 'about_help'.tr,
                     onTap: ctrl.goToAbout,
+                    theme: theme,
                   ),
-                  const SizedBox(height: 16),
+                  // const SizedBox(height: 8),
                   _buildMenuItem(
                     icon: Icons.logout,
                     title: 'logout'.tr,
                     onTap: ctrl.logout,
-                    iconColor: Colors.red,
-                    textColor: Colors.red,
+                    iconColor: theme.colorScheme.error,
+                    textColor: theme.colorScheme.error,
+                    backgroundColor:
+                        theme.colorScheme.errorContainer.withOpacity(0.3),
+                    showArrow: false,
+                    theme: theme,
                   ),
                 ],
               ),
             ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title, ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Text(
+        title,
+        style: theme.textTheme.labelLarge?.copyWith(
+          color: theme.colorScheme.onSurface.withOpacity(0.6),
+        ),
       ),
     );
   }
@@ -222,21 +256,50 @@ class ProfileView extends GetView<ProfileController> {
     required VoidCallback onTap,
     Color? iconColor,
     Color? textColor,
+    Color? backgroundColor,
+    bool showArrow = true,
+    ThemeData? theme,
   }) {
 
-    
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
+    final resolvedTheme = theme ?? Theme.of(Get.context!);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: backgroundColor ?? resolvedTheme.cardColor,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: ListTile(
-        leading: Icon(icon, color: iconColor ?? AppTheme.primaryColor),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        leading: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: (iconColor ?? resolvedTheme.colorScheme.primary)
+                .withOpacity(0.12),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon,
+              color: iconColor ?? resolvedTheme.colorScheme.primary, size: 22),
+        ),
         title: Text(
           title,
           style: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: textColor,
+            fontWeight: FontWeight.w600,
+            color: textColor ?? resolvedTheme.colorScheme.onSurface,
           ),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+        trailing: showArrow
+            ? Icon(Icons.chevron_right,
+                color: resolvedTheme.iconTheme.color?.withOpacity(0.6))
+            : null,
         onTap: onTap,
       ),
     );
