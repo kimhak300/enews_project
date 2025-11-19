@@ -9,9 +9,11 @@ class SplashView extends GetView<SplashController> {
   @override
   Widget build(BuildContext context) {
     // Auto navigate after 1 second
-    Future.delayed(const Duration(seconds: 2), () {
-      Get.offNamed('/login');
-    });
+    if (!Get.testMode) {
+      Future.delayed(const Duration(seconds: 2), () {
+        Get.offNamed('/login');
+      });
+    }
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(

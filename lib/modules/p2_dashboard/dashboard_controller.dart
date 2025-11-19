@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,14 +16,14 @@ class DashboardController extends GetxController {
   final RxList<Post> posts = <Post>[].obs;
 
   // Dashboard metrics
-  final RxInt views = 7265.obs;
-  final RxDouble viewsChange = 11.01.obs;
-  final RxInt visits = 3671.obs;
-  final RxDouble visitsChange = (-0.03).obs;
-  final RxInt newUsers = 256.obs;
-  final RxDouble newUsersChange = 15.03.obs;
-  final RxInt activeUsers = 2318.obs;
-  final RxDouble activeUsersChange = 6.08.obs;
+  final RxInt views = 1200000.obs;
+  final RxDouble viewsChange = 12.5.obs;
+  final RxInt visits = 890000.obs;
+  final RxDouble visitsChange = 9.8.obs;
+  final RxInt newUsers = 5600.obs;
+  final RxDouble newUsersChange = (-2.1).obs;
+  final RxInt activeUsers = 125000.obs;
+  final RxDouble activeUsersChange = 5.3.obs;
 
   // Chart data
   final RxList<double> chartData = [45.0, 52.0, 38.0, 65.0, 48.0, 58.0, 54.0].obs;
@@ -38,10 +39,42 @@ class DashboardController extends GetxController {
     'Other': 35.0,
   }.obs;
 
+  // Date filter
+  final List<String> rangeOptions = const [
+    'Last 7 Days',
+    'Last 30 Days',
+    'This Month',
+    'Custom Range',
+  ];
+
+  final RxString selectedRangeLabel = 'Last 7 Days'.obs;
+  final Rxn<DateTimeRange> customRange = Rxn<DateTimeRange>();
+
+  // Audience age groups (percent values)
+  final RxList<Map<String, dynamic>> audienceAgeGroups = <Map<String, dynamic>>[
+    {'label': '18-24', 'value': 35},
+    {'label': '25-34', 'value': 45},
+    {'label': '35-44', 'value': 15},
+    {'label': '45+', 'value': 5},
+  ].obs;
+
+  // Active user trends (daily values)
+  final RxList<Map<String, dynamic>> activeUserTrends = <Map<String, dynamic>>[
+    {'label': '9', 'value': 12.0},
+    {'label': '10', 'value': 14.0},
+    {'label': '11', 'value': 18.0},
+    {'label': '12', 'value': 24.0},
+    {'label': '13', 'value': 28.0},
+    {'label': '14', 'value': 32.0},
+    {'label': '15', 'value': 40.0},
+  ].obs;
+
   @override
   void onInit() {
     super.onInit();
-    loadDashboardData();
+    if (!Get.testMode) {
+      loadDashboardData();
+    }
     // Load saved posts from local storage
     _loadSavedPosts();
     // Persist posts whenever they change
@@ -51,6 +84,9 @@ class DashboardController extends GetxController {
   }
 
   Future<void> loadDashboardData() async {
+    if (Get.testMode) {
+      return;
+    }
     try {
       isLoading.value = true;
       
@@ -113,6 +149,16 @@ class DashboardController extends GetxController {
     } catch (e) {
       print('Error loading saved posts: $e');
     }
+  }
+
+  void setPredefinedRange(String label) {
+    selectedRangeLabel.value = label;
+    customRange.value = null;
+  }
+
+  void updateCustomRange(DateTimeRange range) {
+    customRange.value = range;
+    selectedRangeLabel.value = 'Custom Range';
   }
 
   String getChangeIcon(double change) {

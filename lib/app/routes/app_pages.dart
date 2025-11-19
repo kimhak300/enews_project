@@ -1,4 +1,8 @@
 import 'package:get/get.dart';
+import 'package:newshub/modules/p6_post/edit_article/edit_article_binding.dart';
+import 'package:newshub/modules/p6_post/edit_article/edit_article_view.dart';
+import 'package:newshub/modules/p6_post/edit_video/edit_video_binding.dart';
+import 'package:newshub/modules/p6_post/edit_video/edit_video_view.dart';
 import '../../modules/p1_home/home_binding.dart';
 import '../../modules/p1_home/home_screen/home_view.dart';
 import '../../modules/p3_search/search_binding.dart';
@@ -93,6 +97,16 @@ class AppPages {
       name: _Paths.EDIT_POST,
       page: () => const EditPostView(),
       binding: EditPostBinding(),
+    ),
+    GetPage(
+      name: _Paths.EDIT_ARTICLE,
+      page: () => const EditArticleView(),
+      binding: EditArticleBinding(),
+    ),
+        GetPage(
+      name: _Paths.EDIT_VIDEO,
+      page: () => const EditVideoView(),
+      binding: EditVideoBinding(),
     ),
   ];
 }

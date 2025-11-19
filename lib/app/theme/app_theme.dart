@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import 'app_colors.dart';
 
 class AppTheme {
@@ -18,7 +19,7 @@ class AppTheme {
       primary: AppColors.primary,
       secondary: AppColors.secondary,
     ),
-  textTheme: GoogleFonts.kantumruyProTextTheme(),
+  textTheme: _buildTextTheme(ThemeData.light().textTheme),
     appBarTheme: const AppBarTheme(
       elevation: 0,
       centerTitle: true,
@@ -80,7 +81,7 @@ class AppTheme {
       secondary: AppColors.secondary,
     ),
     scaffoldBackgroundColor: const Color(0xFF121212),
-  textTheme: GoogleFonts.kantumruyProTextTheme(ThemeData.dark().textTheme),
+  textTheme: _buildTextTheme(ThemeData.dark().textTheme),
     appBarTheme: const AppBarTheme(
       elevation: 0,
       centerTitle: true,
@@ -128,4 +129,15 @@ class AppTheme {
       unselectedItemColor: Colors.grey,
     ),
   );
+}
+
+TextTheme _buildTextTheme(TextTheme base) {
+  try {
+    if (GoogleFonts.config.allowRuntimeFetching) {
+      return GoogleFonts.kantumruyProTextTheme(base);
+    }
+  } catch (_) {
+    // Ignore font loading errors in environments where fonts are unavailable
+  }
+  return base;
 }

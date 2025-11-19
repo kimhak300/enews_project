@@ -21,13 +21,27 @@ class BookmarkView extends GetView<BookmarkController> {
         child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              'bookmarks'.tr,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  onPressed: () => Get.back(),
+                  splashRadius: 20,
+                ),
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      'bookmarks'.tr,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 48),
+              ],
             ),
           ),
           Expanded(

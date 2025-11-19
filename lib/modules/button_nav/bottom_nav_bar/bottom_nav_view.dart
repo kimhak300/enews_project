@@ -95,14 +95,12 @@ class BottomNavView extends GetView<HomeController> {
                 label: 'video'.tr,
                 onTap: () {
                   Get.back();
-                  Get.snackbar('video'.tr, 'coming_soon'.tr,
-                      snackPosition: SnackPosition.BOTTOM,
-                      duration: const Duration(seconds: 2));
+                  Get.toNamed(Routes.EDIT_VIDEO);
                 },
               ),
               _buildPostOption(
                 context: context,
-                icon: Icons.send,
+                icon: Icons.telegram,
                 color: const Color(0xFFFF7A18),
                 label: 'news_feed'.tr,
                 onTap: () {
@@ -117,9 +115,7 @@ class BottomNavView extends GetView<HomeController> {
                 label: 'article'.tr,
                 onTap: () {
                   Get.back();
-                  Get.snackbar('article'.tr, 'coming_soon'.tr,
-                      snackPosition: SnackPosition.BOTTOM,
-                      duration: const Duration(seconds: 2));
+                  Get.toNamed(Routes.EDIT_ARTICLE);
                 },
               ),
             ],

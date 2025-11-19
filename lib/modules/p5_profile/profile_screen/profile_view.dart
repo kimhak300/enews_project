@@ -59,8 +59,8 @@ class ProfileView extends GetView<ProfileController> {
                               right: 0,
                               child: Container(
                                 padding: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.background,
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -81,17 +81,22 @@ class ProfileView extends GetView<ProfileController> {
                               width: 200,
                               child: TextField(
                                 controller: ctrl.nameController,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.grey,
+                                  color:
+                                      theme.colorScheme.onSurface.withOpacity(0.8),
                                 ),
                                 textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   hintText: 'Username',
-                                  hintStyle: TextStyle(color: Colors.blue),
+                                  hintStyle: TextStyle(
+                                    color: theme.colorScheme.primary,
+                                  ),
                                   border: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.blue),
+                                    borderSide: BorderSide(
+                                      color: theme.colorScheme.primary,
+                                    ),
 
                                   ),
                                   // enabledBorder: UnderlineInputBorder(
@@ -110,15 +115,20 @@ class ProfileView extends GetView<ProfileController> {
                                 controller: ctrl.emailController,
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey,
+                                  color:
+                                      theme.colorScheme.onSurface.withOpacity(0.7),
                                 ),
                                 textAlign: TextAlign.center,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   hintText: 'Email',
-                                  hintStyle: TextStyle(color: Colors.blue),
+                                  hintStyle: TextStyle(
+                                    color: theme.colorScheme.primary,
+                                  ),
                                   border: UnderlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.white60),
+                                    borderSide: BorderSide(
+                                      color: theme.colorScheme.onSurface
+                                          .withOpacity(0.4),
+                                    ),
                                   ),
                                   // enabledBorder: UnderlineInputBorder(
                                   //   borderSide:
@@ -136,16 +146,20 @@ class ProfileView extends GetView<ProfileController> {
                               children: [
                                 TextButton(
                                   onPressed: ctrl.cancelEditing,
-                                  child: const Text(
+                                  child: Text(
                                     'Cancel',
-                                    style: TextStyle(color: Colors.white70),
+                                    style: TextStyle(
+                                      color: theme.colorScheme.onSurface
+                                          .withOpacity(0.7),
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 ElevatedButton(
                                   onPressed: ctrl.saveProfile,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
+                                    backgroundColor:
+                                        theme.colorScheme.background,
                                     foregroundColor: AppTheme.primaryColor,
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 24, vertical: 8),
@@ -270,7 +284,7 @@ class ProfileView extends GetView<ProfileController> {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: resolvedTheme.shadowColor.withOpacity(0.04),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),

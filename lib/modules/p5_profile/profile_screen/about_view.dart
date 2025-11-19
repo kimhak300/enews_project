@@ -8,7 +8,9 @@ class AboutView extends GetView<AboutController> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(Get.context!);
     return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         title: const Text('About & Help'),
       ),
@@ -23,7 +25,7 @@ class AboutView extends GetView<AboutController> {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: Colors.white,
+                    color: theme.cardColor,
                   ),
                   child: Image.asset(
                     'assets/images/logo.png',
@@ -52,7 +54,7 @@ class AboutView extends GetView<AboutController> {
                   'Version ${controller.appVersion.value}',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey[600],
+                    color: theme.colorScheme.onSurface.withOpacity(0.6),
                   ),
                 )),
                 const SizedBox(height: 4),
@@ -60,7 +62,7 @@ class AboutView extends GetView<AboutController> {
                   '© 2024 eNews. All rights reserved.',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey[600],
+                    color: theme.colorScheme.onSurface.withOpacity(0.6),
                   ),
                 ),
               ],
@@ -68,6 +70,7 @@ class AboutView extends GetView<AboutController> {
           ),
           const SizedBox(height: 16),
           Card(
+            color: theme.cardColor,
             child: Column(
               children: [
                 ListTile(

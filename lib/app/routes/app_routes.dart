@@ -17,6 +17,8 @@ abstract class Routes {
   static const ABOUT = _Paths.ABOUT;
   static const BOTTOM_NAV = _Paths.BOTTOM_NAV;
   static const EDIT_POST = _Paths.EDIT_POST;
+  static const EDIT_VIDEO = _Paths.EDIT_VIDEO;
+  static const EDIT_ARTICLE = _Paths.EDIT_ARTICLE;
 }
 
 abstract class _Paths {
@@ -36,6 +38,8 @@ abstract class _Paths {
   static const BOTTOM_NAV = '/bottomNav';
   static const ABOUT = '/about';
   static const EDIT_POST = '/edit-post';
+  static const EDIT_VIDEO = '/edit-video';
+  static const EDIT_ARTICLE = '/edit-article';
 }
 
 
