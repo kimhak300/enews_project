@@ -6,7 +6,7 @@ import '../../data/local/storage_service.dart';
 import '../../data/local/cache_manager.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/notification_repository.dart';
-import '../controllers/language_controller.dart';
+import '../../app/controllers/language_controller.dart';
 
 class InitialBindings extends Bindings {
   @override

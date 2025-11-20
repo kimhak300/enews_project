@@ -128,77 +128,145 @@ class SearchView extends GetView<search.SearchController> {
                           ctrl.isInitializedList.length
                         ].reduce((a, b) => a < b ? a : b),
                         itemBuilder: (context, index) {
+                          final videoTitle = index == 0
+                              ? "First lady Melania Trump accepts the 'Patriot of the Year' award at Fox Nation Patriot Awards"
+                              : index == 1
+                                  ? "Breaking News: World Event"
+                                  : index == 2
+                                      ? "News Anchor Talking on TV"
+                                      : index == 3
+                                          ? "Tech Innovations 2024"
+                                          : index == 4
+                                              ? "Sports Highlights"
+                                              : "Trending Video";
+                          
                           return Container(
                             margin: const EdgeInsets.only(bottom: 16),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
-                            padding: const EdgeInsets.all(12),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) => FullScreenVideoPage(
-                                          controller:
-                                              ctrl.videoControllers[index],
-                                          title: index == 0
-                                              ? "First lady Melania Trump accepts the 'Patriot of the Year' award at Fox Nation Patriot Awards"
-                                              : index == 1
-                                                  ? "Breaking News: World Event"
-                                                  : index == 2
-                                                      ? "News Anchor Talking on TV"
-                                                      : index == 3
-                                                          ? "Tech Innovations 2024"
-                                                          : index == 4
-                                                              ? "Sports Highlights"
-                                                              : "Trending Video",
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Obx(() {
+                                    if (!ctrl.isInitializedList[index].value) {
+                                      return Container(
+                                        color: Colors.black,
+                                        height: 220,
+                                        child: const Center(
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                          ),
                                         ),
-                                      ),
+                                      );
+                                    }
+                                    
+                                    // Check if video has error
+                                    if (ctrl.videoControllers[index].value.hasError) {
+                                      return Container(
+                                        color: Colors.black,
+                                        height: 220,
+                                        child: const Center(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(Icons.error_outline, color: Colors.white, size: 48),
+                                              SizedBox(height: 8),
+                                              Text(
+                                                'Video unavailable',
+                                                style: TextStyle(color: Colors.white70),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    
+                                    return Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        AspectRatio(
+                                          aspectRatio: ctrl.videoControllers[index].value.aspectRatio,
+                                          child: VideoPlayer(ctrl.videoControllers[index]),
+                                        ),
+                                        // Play/Pause overlay
+                                        Positioned.fill(
+                                          child: GestureDetector(
+                                            onTap: () => ctrl.playPause(index),
+                                            child: Container(
+                                              color: Colors.transparent,
+                                              child: Center(
+                                                child: Obx(() => !ctrl.isPlayingList[index].value
+                                                    ? Container(
+                                                        padding: const EdgeInsets.all(16),
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.black.withOpacity(0.6),
+                                                          shape: BoxShape.circle,
+                                                        ),
+                                                        child: const Icon(
+                                                          Icons.play_arrow,
+                                                          size: 50,
+                                                          color: Colors.white,
+                                                        ),
+                                                      )
+                                                    : const SizedBox.shrink()),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        // Fullscreen button
+                                        Positioned(
+                                          bottom: 8,
+                                          right: 8,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (_) => FullScreenVideoPage(
+                                                    controller: ctrl.videoControllers[index],
+                                                    title: videoTitle,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.all(6),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black.withOpacity(0.6),
+                                                borderRadius: BorderRadius.circular(6),
+                                              ),
+                                              child: const Icon(
+                                                Icons.fullscreen,
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     );
-                                  },
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Obx(() {
-                                      if (ctrl.isInitializedList[index].value) {
-                                        return AspectRatio(
-                                          aspectRatio: ctrl
-                                              .videoControllers[index]
-                                              .value
-                                              .aspectRatio,
-                                          child: VideoPlayer(
-                                              ctrl.videoControllers[index]),
-                                        );
-                                      } else {
-                                        return Container(
-                                          color: Colors.black,
-                                          height: 180,
-                                          child: const Center(
-                                              child:
-                                                  CircularProgressIndicator()),
-                                        );
-                                      }
-                                    }),
-                                  ),
+                                  }),
                                 ),
                                 const SizedBox(height: 12),
-                                Text(
-                                  index == 0
-                                      ? "First lady Melania Trump accepts the 'Patriot of the Year' award at Fox Nation Patriot Awards"
-                                      : index == 1
-                                          ? "Breaking News: World Event"
-                                          : index == 2
-                                              ? "News Anchor Talking on TV"
-                                              : index == 3
-                                                  ? "Tech Innovations 2024"
-                                                  : index == 4
-                                                      ? "Sports Highlights"
-                                                      : "Trending Video",
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Text(
+                                    videoTitle,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],

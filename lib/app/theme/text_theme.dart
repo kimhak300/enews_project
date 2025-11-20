@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newshub/app/theme/app_colors.dart';
-import '../../core/constants/app_font_size.dart';
+import '../constants/app_font_size.dart';
 
 class AppTextTheme {
 

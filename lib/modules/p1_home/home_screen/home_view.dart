@@ -11,7 +11,7 @@ import '../../p3_search/search_screen/search_view.dart';
 import '../../p4_saved/bookmark_controller.dart';
 import '../../p5_profile/profile_screen/profile_view.dart';
 import '../../p5_profile/profile_controller.dart';
-import '../../../core/controllers/language_controller.dart';
+import '../../../app/controllers/language_controller.dart';
 import '../../../app/models/comment_model.dart';
 import '../../../app/models/post_model.dart';
 

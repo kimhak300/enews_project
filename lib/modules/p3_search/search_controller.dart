@@ -1,50 +1,114 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:newshub/app/models/post_model.dart';
+import 'package:newshub/modules/p1_home/home_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import 'package:get/get.dart';
 
 class SearchController extends GetxController {
+  HomeController? _homeController;
+  bool _ownsVideoControllers = true;
   // Only use multi-video logic for trending videos
 
   // Trending videos
+  final currentTopTab = 0.obs;
+  final currentNavIndex = 0.obs;
+  final carouselCurrentIndex = 0.obs;
   final List<String> trendingVideoUrls = [
-    'https://v.ftcdn.net/04/16/40/07/700_F_416400718_QNEWtuTZxcZsJM5ZJRZT5KQIGeCHH1vX_ST.mp4',
-    'https://v.ftcdn.net/04/87/46/71/700_F_487467184_HunAD0le8m3apdReGPWQ2e0LvVZaeHeb_ST.mp4',
-    'https://v.ftcdn.net/17/51/39/37/700_F_1751393724_1ULD2fo6f6bZCSvi6I31N24JXZIKR9JP_ST.mp4',
-    'https://v.ftcdn.net/17/40/21/49/240_F_1740214971_5s4AQn4g8GvD7viDNfFkctsii3atPhUi_ST.mp4',
+    'https://v.ftcdn.net/04/56/03/45/240_F_456034564_6ZArfnOEnU26iDfQchh2pcTEBTmneK65_ST.mp4',
+    'https://v.ftcdn.net/15/27/13/84/240_F_1527138400_4rjdTWqXmkEiAhT15iKbV86wQNQHxMU9_ST.mp4',
+    'https://v.ftcdn.net/06/76/59/08/240_F_676590824_X5y86CIBTpOfqhOb0Xp2N1A6xquPZ0bX_ST.mp4',
+    'https://v.ftcdn.net/02/82/49/07/240_F_282490702_ZCYI9D54mVuSKHpuv23avtk0fcYKckM1_ST.mp4',
     'https://v.ftcdn.net/17/64/37/54/240_F_1764375479_Ej16KjEH40IOYOyA5Qb3DZofIDVtYXgL_ST.mp4',
-    
   ];
-
 
   List<VideoPlayerController> videoControllers = [];
   List<RxBool> isInitializedList = [];
   List<RxBool> isPlayingList = [];
   List<Rx<Duration>> positionList = [];
   List<Rx<Duration>> durationList = [];
-
+  // Persistent video posts (stored locally)
+  final RxList<Post> videoPosts = <Post>[].obs;
   // Search
   final TextEditingController searchController = TextEditingController();
   final RxBool isSearching = false.obs;
-  final RxList<String> recentSearches = <String>['AI Technology', 'Sports News', 'Stock Market'].obs;
+  final RxList<String> recentSearches =
+      <String>['AI Technology', 'Sports News', 'Stock Market'].obs;
 
- @override
+  @override
   void onInit() {
     super.onInit();
-    trendingVideoUrls;
-    _initVideos();
+    try {
+      _homeController = Get.find<HomeController>();
+    } catch (_) {
+      _homeController = null;
+    }
+
+    if (_homeController != null) {
+      _ownsVideoControllers = false;
+      // Reuse the initialized controllers from Home to ensure identical playback
+      videoControllers = _homeController!.videoControllers;
+      isInitializedList = _homeController!.isInitializedList;
+      isPlayingList = _homeController!.isPlayingList;
+      positionList = _homeController!.positionList;
+      durationList = _homeController!.durationList;
+      trendingVideoUrls
+        ..clear()
+        ..addAll(_homeController!.homeVideoUrls);
+    } else {
+      _initVideos();
+    }
+
+    _loadSavedVideos();
   }
-    @override
+
+  @override
   void onClose() {
-    for (final c in videoControllers) {
-      try {
-        c.dispose();
-      } catch (_) {}
+    if (_ownsVideoControllers) {
+      for (final c in videoControllers) {
+        try {
+          c.dispose();
+        } catch (_) {}
+      }
     }
     searchController.dispose();
     super.onClose();
   }
 
-    Future<void> _initVideos() async {
+  Future<void> _saveVideos() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final list = videoPosts.map((p) => p.toJson()).toList();
+      final encoded = jsonEncode(list);
+      await prefs.setString(_kVideoPostsKey, encoded);
+    } catch (e) {
+      debugPrint('Error saving video posts: $e');
+    }
+  }
+
+  Future<void> _loadSavedVideos() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final encoded = prefs.getString(_kVideoPostsKey);
+      if (encoded != null && encoded.isNotEmpty) {
+        final List decoded = jsonDecode(encoded) as List;
+        final loaded = decoded.map((e) => Post.fromJson(e)).toList();
+        videoPosts.assignAll(loaded);
+      }
+    } catch (e) {
+      debugPrint('Error loading video posts: $e');
+    }
+  }
+
+  // Persistence for video posts
+  static const String _kVideoPostsKey = 'video_posts_v1';
+  Future<void> saveVideos() async {
+    await _saveVideos();
+  }
+
+  Future<void> _initVideos() async {
     // Initialize all videos in parallel so they all show up at once
     final initFutures = <Future<void>>[];
 
@@ -59,29 +123,32 @@ class SearchController extends GetxController {
       isPlayingList.add(isPlay);
       positionList.add(pos);
       durationList.add(dur);
-      
+
       // Initialize each video in parallel
-      initFutures.add(
-        controller.initialize().then((_) {
-          controller.setLooping(true);
-          isInit.value = true;
+      initFutures.add(controller.initialize().then((_) {
+        controller.setLooping(true);
+        controller.setVolume(1.0);
+        isInit.value = true;
+        pos.value = controller.value.position;
+        dur.value = controller.value.duration;
+        isPlay.value = controller.value.isPlaying;
+        controller.addListener(() {
+          if (!isInit.value) return;
           pos.value = controller.value.position;
           dur.value = controller.value.duration;
           isPlay.value = controller.value.isPlaying;
-          controller.addListener(() {
-            if (!isInit.value) return;
-            pos.value = controller.value.position;
-            dur.value = controller.value.duration;
-            isPlay.value = controller.value.isPlaying;
-          });
-        }).catchError((e, s) {
-          debugPrint('Trending video init failed: $e\n$s');
-        })
-      );
+        });
+        debugPrint('Search video initialized successfully: $url');
+      }).catchError((e, s) {
+        debugPrint('Trending video init failed: $e\n$s');
+        // Still mark as initialized to show error state instead of infinite loading
+        isInit.value = true;
+      }));
     }
-    
+
     // Wait for all videos to initialize
     await Future.wait(initFutures);
+    debugPrint('All ${trendingVideoUrls.length} search videos initialized');
   }
 
   void playPause(int index) {
@@ -99,8 +166,7 @@ class SearchController extends GetxController {
     } else {
       controller.play();
       isPlayingList[index].value = true;
-    } 
-
+    }
   }
 
   void seekTo(int index, Duration newPosition) {
@@ -132,4 +198,3 @@ class SearchController extends GetxController {
     recentSearches.remove(query);
   }
 }
-      

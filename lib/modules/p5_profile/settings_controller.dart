@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import '../../core/controllers/theme_controller.dart';
+import '../../app/controllers/theme_controller.dart';
 
 class SettingsController extends GetxController {
   final ThemeController _themeController = Get.find<ThemeController>();

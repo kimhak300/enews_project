@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
-import '../../app/services/theme_service.dart';
-import '../../app/theme/dark_theme.dart';
-import '../../app/theme/light_theme.dart';
+import '../services/theme_service.dart';
+import '../theme/dark_theme.dart';
+import '../theme/light_theme.dart';
 
 class ThemeController extends GetxController {
   final ThemeService _service = ThemeService();
