@@ -32,23 +32,21 @@ class ENewsApp extends StatelessWidget {
       minTextAdapt: true,
       builder: (context, child) {
         return Obx(() => GetMaterialApp(
-              title: 'ENews',
-              debugShowCheckedModeBanner: false,
-              translations: AppTranslations(),
-              locale: Get.find<LanguageController>().isKhmer.value
-                  ? const Locale('km', 'KH')
-                  : const Locale('en', 'US'),
-              fallbackLocale: const Locale('en', 'US'),
-              theme: AppTheme.lightTheme,
-              darkTheme: AppTheme.darkTheme,
-              themeMode: themeController.isDarkMode.value
-                  ? ThemeMode.dark
-                  : ThemeMode.light,
-              initialBinding: InitialBindings(),
-              initialRoute: AppPages.INITIAL,
-              getPages: AppPages.routes,
-              defaultTransition: Transition.cupertino,
-            ));
+          title: 'ENews',
+          debugShowCheckedModeBanner: false,
+          translations: AppTranslations(),
+          locale: Get.find<LanguageController>().isKhmer.value
+              ? const Locale('km', 'KH')
+              : const Locale('en', 'US'),
+          fallbackLocale: const Locale('en', 'US'),
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: themeController.themeMode.value,
+          initialBinding: InitialBindings(),
+          initialRoute: AppPages.INITIAL,
+          getPages: AppPages.routes,
+          defaultTransition: Transition.cupertino,
+        ));
       },
     );
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../app/theme/app_theme.dart';
 import '../about_controller.dart';
 
 class AboutView extends GetView<AboutController> {
@@ -33,10 +32,10 @@ class AboutView extends GetView<AboutController> {
                     height: 100,
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
+                      return Icon(
                         Icons.newspaper,
                         size: 60,
-                        color: AppTheme.primaryColor,
+                        color: Theme.of(context).colorScheme.primary,
                       );
                     },
                   ),

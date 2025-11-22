@@ -44,14 +44,14 @@ class SettingsView extends GetView<SettingsController> {
                   ),
                 ),
                 const Divider(height: 1),
-                Obx(
-                  () => SwitchListTile(
-                    title: Text('dark_mode'.tr),
-                    subtitle: Text('enable_dark_theme'.tr),
-                    value: controller.darkMode.value,
-                    onChanged: controller.toggleDarkMode,
-                  ),
-                ),
+                // Obx(
+                //   () => SwitchListTile(
+                //     title: Text('dark_mode'.tr),
+                //     subtitle: Text('enable_dark_theme'.tr),
+                //     value: controller.darkMode.value,
+                //     onChanged: controller.toggleDarkMode,
+                //   ),
+                // ),
                 // const Divider(height: 1),
                 // GetX<LanguageController>(
                 //   builder: (languageController) => SwitchListTile(

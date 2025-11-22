@@ -1,7 +1,5 @@
-// import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../app/theme/app_theme.dart';
 import '../profile_controller.dart';
 
 class ProfileView extends GetView<ProfileController> {
@@ -63,10 +61,10 @@ class ProfileView extends GetView<ProfileController> {
                                   color: theme.colorScheme.background,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.camera_alt,
                                   size: 20,
-                                  color: AppTheme.primaryColor,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                             )
@@ -160,7 +158,7 @@ class ProfileView extends GetView<ProfileController> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor:
                                         theme.colorScheme.background,
-                                    foregroundColor: AppTheme.primaryColor,
+                                    foregroundColor: Theme.of(context).colorScheme.primary,
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 24, vertical: 8),
                                   ),

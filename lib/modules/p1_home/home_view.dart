@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // import 'package:carousel_slider/carousel_slider.dart';
 import 'package:video_player/video_player.dart';
-import '../home_controller.dart';
-import '../../button_nav/bottom_nav_bar/bottom_nav_view.dart';
-import '../../p2_dashboard/dashboard_screen/dashboard_view.dart';
-import '../../p2_dashboard/dashboard_controller.dart';
-import '../../p3_search/search_screen/search_view.dart';
-import '../../p4_saved/bookmark_controller.dart';
-import '../../p5_profile/profile_screen/profile_view.dart';
-import '../../p5_profile/profile_controller.dart';
-import '../../../app/controllers/language_controller.dart';
-import '../../../app/models/comment_model.dart';
-import '../../../app/models/post_model.dart';
+import 'home_controller.dart';
+import '../button_nav/bottom_nav_bar/bottom_nav_view.dart';
+import '../p2_dashboard/dashboard_screen/dashboard_view.dart';
+import '../p2_dashboard/dashboard_controller.dart';
+import '../p3_search/search_screen/search_view.dart';
+import '../p4_saved/bookmark_controller.dart';
+import '../p5_profile/profile_screen/profile_view.dart';
+import '../p5_profile/profile_controller.dart';
+import '../../app/controllers/language_controller.dart';
+import '../../app/models/comment_model.dart';
+import '../../app/models/post_model.dart';
 
 class HomeView extends GetView<HomeController> {
   HomeView({super.key});
@@ -21,17 +21,15 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> pages = [
-      _HomeContent(controller: controller),
-      const DashboardView(),
-      const SizedBox.shrink(),
-      const SearchView(),
-      const ProfileView(),
-    ];
-
     return Scaffold(
-      body: Obx(() => pages[controller.currentNavIndex.value]),
-      bottomNavigationBar: BottomNavView(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // _buildHeader(context),
+          // _buildTopTabs(),
+          // _buildNewsCart(),
+        ],
+      ),
     );
   }
 }
@@ -158,10 +156,9 @@ class _HomeContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(context),
-              _buildTopTabs(),
-              // _buildNewsCarousel(),
-              _buildNewsCart(),
+              // _buildHeader(context),
+              // _buildTopTabs(),
+              // _buildNewsCart(),
             ],
           ),
         ),

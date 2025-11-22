@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../app/routes/app_pages.dart';
+import 'package:newshub/app/routes/app_routes.dart';
 import '../../app/services/storage_service.dart';
 
 class ProfileController extends GetxController {

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-
 import 'package:get/get.dart';
+import 'package:newshub/app/routes/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:newshub/modules/auth/controllers/login_controller.dart';
 import 'package:video_player/video_player.dart';
 import '../../app/models/post_model.dart';
-import '../../app/routes/app_pages.dart';
 
 class HomeController extends GetxController {
   LoginController? _loginController;

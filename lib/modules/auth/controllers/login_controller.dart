@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../app/routes/app_pages.dart';
+import 'package:newshub/app/routes/app_routes.dart';
 import '../auth_service.dart';
 
 class LoginController extends GetxController {
@@ -24,9 +24,7 @@ class LoginController extends GetxController {
     return token != null;
   }
 
-  // ===================================
-  // 🔹 LOGIN PROCESS (API + LOCAL)
-  // ===================================
+  /// LOGIN PROCESS (API + LOCAL)
   Future<void> login({required String email, required String password}) async {
     final trimmedEmail = email.trim();
     final trimmedPassword = password;
@@ -82,9 +80,7 @@ class LoginController extends GetxController {
     }
   }
 
-  // ===================================
-  // 🔹 Fetch user profile from API
-  // ===================================
+  /// Fetch user profile from API
   Future<Map<String, dynamic>?> _fetchUserProfile() async {
     try {
       final user = await _authService.getUserProfile();

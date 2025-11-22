@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../app/theme/app_theme.dart';
 import 'controllers/splash_controller.dart';
 
 class SplashView extends GetView<SplashController> {
@@ -16,9 +15,6 @@ class SplashView extends GetView<SplashController> {
     }
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: AppTheme.primaryGradient,
-        ),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
