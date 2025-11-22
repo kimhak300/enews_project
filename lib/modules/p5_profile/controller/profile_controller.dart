@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:newshub/app/routes/app_routes.dart';
-import '../../app/services/storage_service.dart';
+import '../../../app/services/storage_service.dart';
 
 class ProfileController extends GetxController {
   final userName = 'kim hak'.obs;

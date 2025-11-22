@@ -3,7 +3,7 @@ import 'package:newshub/modules/p2_dashboard/dashboard_controller.dart';
 import 'home_controller.dart';
 import '../p3_search/search_controller.dart';
 import '../p4_saved/bookmark_controller.dart';
-import '../p5_profile/profile_controller.dart';
+import '../p5_profile/controller/profile_controller.dart';
 
 class HomeBinding extends Bindings {
   @override

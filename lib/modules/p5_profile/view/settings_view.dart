@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../settings_controller.dart';
+import '../controller/settings_controller.dart';
 // import '../../../core/controllers/language_controller.dart';
 
 class SettingsView extends GetView<SettingsController> {

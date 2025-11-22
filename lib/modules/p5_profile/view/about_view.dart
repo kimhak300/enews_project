@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../about_controller.dart';
+import '../controller/about_controller.dart';
 
 class AboutView extends GetView<AboutController> {
   const AboutView({super.key});

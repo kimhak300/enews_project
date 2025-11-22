@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 import '../../../app/models/post_model.dart';
 import '../../../app/models/comment_model.dart';
-import '../../p5_profile/profile_controller.dart';
+import '../../p5_profile/controller/profile_controller.dart';
 import '../bookmark_controller.dart';
 
 class PostDetailView extends StatefulWidget {

@@ -12,7 +12,7 @@ import 'core/localization/app_translations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await GetStorage.init();
+  // await GetStorage.init();
   
   Get.put(ThemeController(), permanent: true);
   Get.put(RatioController());

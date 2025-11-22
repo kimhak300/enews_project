@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../bookmark_controller.dart';
-import '../../p5_profile/profile_controller.dart';
+import '../../p5_profile/controller/profile_controller.dart';
 import '../../../app/models/post_model.dart';
 import 'post_detail_view.dart';
 

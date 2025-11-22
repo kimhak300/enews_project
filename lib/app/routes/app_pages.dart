@@ -2,6 +2,9 @@ import 'package:get/get.dart';
 import 'package:newshub/app/routes/app_routes.dart';
 import 'package:newshub/modules/button_nav/bottom_nav_bar/bottom_nav_binding.dart';
 import 'package:newshub/modules/button_nav/bottom_nav_bar/bottom_nav_view.dart';
+import 'package:newshub/modules/p5_profile/view/about_view.dart';
+import 'package:newshub/modules/p5_profile/view/profile_view.dart';
+import 'package:newshub/modules/p5_profile/view/settings_view.dart';
 import 'package:newshub/modules/p6_post/edit_article/edit_article_binding.dart';
 import 'package:newshub/modules/p6_post/edit_article/edit_article_view.dart';
 import 'package:newshub/modules/p6_post/edit_video/edit_video_binding.dart';
@@ -12,12 +15,9 @@ import '../../modules/p3_search/search_binding.dart';
 import '../../modules/p3_search/search_screen/search_view.dart';
 import '../../modules/p4_saved/bookmark_binding.dart';
 import '../../modules/p4_saved/saved_screen/bookmark_view.dart';
-import '../../modules/p5_profile/about_binding.dart';
-import '../../modules/p5_profile/profile_binding.dart';
-import '../../modules/p5_profile/profile_screen/about_view.dart';
-import '../../modules/p5_profile/profile_screen/profile_view.dart';
-import '../../modules/p5_profile/profile_screen/settings_view.dart';
-import '../../modules/p5_profile/settings_binding.dart';
+import '../../modules/p5_profile/binding/about_binding.dart';
+import '../../modules/p5_profile/binding/profile_binding.dart';
+import '../../modules/p5_profile/binding/settings_binding.dart';
 import '../../modules/splash/splash_view.dart';
 import '../../modules/splash/bindings/splash_binding.dart';
 import '../../modules/auth/bindings/login_binding.dart';
@@ -110,7 +110,7 @@ class AppPages {
     ),
     GetPage(
       name: Routes.BOTTOM_NAV,
-      page: () => const BottomNavView(),
+      page: () => BottomNavView(),
       binding: BottomNavBinding(),
     ),
   ];

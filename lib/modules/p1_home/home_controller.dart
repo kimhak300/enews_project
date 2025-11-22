@@ -2,12 +2,30 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:newshub/app/routes/app_routes.dart';
+import 'package:newshub/data/models/category_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:newshub/modules/auth/controllers/login_controller.dart';
 import 'package:video_player/video_player.dart';
 import '../../app/models/post_model.dart';
 
 class HomeController extends GetxController {
+
+  var categories = <CategoryModel>[].obs;
+
+  void fetchCategories() {
+    var serverResponse = [
+      CategoryModel(id: 1, name: 'Home', imageUrl: 'https://i.imgur.com/4YxF7.jpg'),
+      CategoryModel(id: 2, name: 'Following', imageUrl: 'https://i.imgur.com/1G2T.jpg'),
+      CategoryModel(id: 3, name: 'Popular', imageUrl: 'https://i.imgur.com/7pL0.jpg'),
+      CategoryModel(id: 4, name: 'News', imageUrl: 'https://i.imgur.com/Nj3Q.jpg'),
+      CategoryModel(id: 5, name: 'Home', imageUrl: 'https://i.imgur.com/4YxF7.jpg'),
+      CategoryModel(id: 6, name: 'Following', imageUrl: 'https://i.imgur.com/1G2T.jpg'),
+      CategoryModel(id: 7, name: 'Popular', imageUrl: 'https://i.imgur.com/7pL0.jpg'),
+      CategoryModel(id: 8, name: 'News', imageUrl: 'https://i.imgur.com/Nj3Q.jpg'),
+    ];
+    categories.assignAll(serverResponse);
+  }
+
   LoginController? _loginController;
   final TextEditingController homeController = TextEditingController();
   final currentTopTab = 0.obs;
@@ -34,31 +52,34 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     // Try to find LoginController if it exists
-    try {
-      _loginController = Get.find<LoginController>();
-    } catch (e) {
-      // LoginController not initialized yet, that's okay
-    }
-    homeVideoUrls;
-    _initVideos();
-    // load persisted video posts
-    _loadSavedVideos();
+    fetchCategories();
+
+
+    // try {
+    //   _loginController = Get.find<LoginController>();
+    // } catch (e) {
+    //   // LoginController not initialized yet, that's okay
+    // }
+    // homeVideoUrls;
+    // _initVideos();
+    // // load persisted video posts
+    // _loadSavedVideos();
   }
     @override
   void onClose() {
-    for (final c in videoControllers) {
-      try {
-        c.dispose();
-      } catch (_) {}
-    }
-    homeController.dispose();
-    super.onClose();
+    // for (final c in videoControllers) {
+    //   try {
+    //     c.dispose();
+    //   } catch (_) {}
+    // }
+    // homeController.dispose();
+    // super.onClose();
   }
 
     Future<void> _initVideos() async {
     // Initialize all videos in parallel so they all show up at once
     final initFutures = <Future<void>>[];
-    
+
     for (final url in homeVideoUrls) {
       final controller = VideoPlayerController.network(url);
       final isInit = false.obs;
@@ -70,7 +91,7 @@ class HomeController extends GetxController {
       isPlayingList.add(isPlay);
       positionList.add(pos);
       durationList.add(dur);
-      
+
       // Initialize each video in parallel
       initFutures.add(
         controller.initialize().then((_) {
@@ -90,7 +111,7 @@ class HomeController extends GetxController {
         })
       );
     }
-    
+
     // Wait for all videos to initialize
     await Future.wait(initFutures);
   }
@@ -110,7 +131,7 @@ class HomeController extends GetxController {
     } else {
       controller.play();
       isPlayingList[index].value = true;
-    } 
+    }
 
   }
 
@@ -152,20 +173,20 @@ class HomeController extends GetxController {
 
   // Refresh method for pull-to-refresh
   final RxBool isRefreshing = false.obs;
-  
+
   Future<void> refreshHomePage() async {
     try {
       isRefreshing.value = true;
-      
+
       // Reload saved video posts
       await _loadSavedVideos();
-      
+
       // Reinitialize videos
       await _initVideos();
-      
+
       // Simulate fetching new data
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       // Get.snackbar(
       //   'refreshed'.tr,
       //   'Content has been updated',
