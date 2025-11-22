@@ -4,8 +4,9 @@ class AppConfig {
   static const String appVersion = '1.0.0';
 
   // API Endpoints
-  static const String apiBaseUrl = "http://10.0.2.2:9055/api";
-  static const String fileBaseUrl = "http://10.0.2.2:9056/";
+  // Updated for local Docker Laravel API mapped to host port 8000
+  static const String apiBaseUrl = "http://10.0.2.2:8000/api";
+  static const String fileBaseUrl = "http://10.0.2.2:8000/";
   // 🌐 For iOS Simulator (uncomment if needed)
   // static const String apiBaseUrl = "http://localhost:9055/api";
   // static const String fileBaseUrl = "http://localhost:9056/";

@@ -18,8 +18,16 @@ class DashboardController extends GetxController {
   // Dashboard metrics
   final RxInt views = 1200000.obs;
   final RxDouble viewsChange = 12.5.obs;
-  final RxInt visits = 890000.obs;
-  final RxDouble visitsChange = 9.8.obs;
+  final RxInt totalPosts = 1766.obs;
+  final RxDouble postsChange = (-99.6).obs;
+  final RxInt profiles = 80.obs;
+  final RxDouble profilesChange = (-97.3).obs;
+  final RxInt likes = 470.obs;
+  final RxDouble likesChange = (-99.7).obs;
+  final RxInt comments = 6.obs;
+  final RxDouble commentsChange = (-99.8).obs;
+  final RxInt shares = 24.obs;
+  final RxDouble sharesChange = (-99.7).obs;
   final RxInt newUsers = 5600.obs;
   final RxDouble newUsersChange = (-2.1).obs;
   final RxInt activeUsers = 125000.obs;

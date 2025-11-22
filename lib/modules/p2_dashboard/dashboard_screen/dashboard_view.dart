@@ -243,9 +243,29 @@ class DashboardView extends GetView<DashboardController> {
         change: ctrl.viewsChange.value,
       ),
       _MetricCardData(
-        label: 'Visits',
-        value: ctrl.visits.value,
-        change: ctrl.visitsChange.value,
+        label: 'Post views',
+        value: ctrl.totalPosts.value,
+        change: ctrl.postsChange.value,
+      ),
+            _MetricCardData(
+        label: 'Profile Views',
+        value: ctrl.profiles.value,
+        change: ctrl.profilesChange.value,
+      ),
+      _MetricCardData(
+        label: 'Likes',
+        value: ctrl.likes.value,
+        change: ctrl.likesChange.value,
+      ),
+                  _MetricCardData(
+        label: 'Comments',
+        value: ctrl.comments.value,
+        change: ctrl.commentsChange.value,
+      ),
+      _MetricCardData(
+        label: 'Shares',
+        value: ctrl.shares.value,
+        change: ctrl.sharesChange.value,
       ),
       _MetricCardData(
         label: 'New Users',

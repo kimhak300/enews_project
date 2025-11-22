@@ -20,18 +20,14 @@ class ApiConstants {
   static const String updateProfile = '/auth/profile';
   static const String uploadAvatar = '/auth/avatar';
 
-  // Article Endpoints
-  static const String articles = '/articles';
-  static const String trending = '/articles/trending';
-  static const String latest = '/articles/latest';
-  static const String articlesByCategory = '/articles/category'; // + /{slug}
-  static const String articleById = '/articles'; // + /{id}
-  static const String articleBySlug = '/articles/slug'; // + /{slug}
-  static const String incrementView = '/articles'; // + /{id}/view
-
-  // Category Endpoints
-  static const String categories = '/categories';
-  static const String categoryBySlug = '/categories'; // + /{slug}
+  // Feed Endpoints
+  static const String feedPosts = '/feed/posts';
+  static const String feedTrending = '/feed/posts/trending';
+  static const String feedLatest = '/feed/posts/latest';
+  static const String feedPostBySlug = '/feed/posts/slug'; // + /{slug}
+  static const String feedPostById = '/feed/posts'; // + /{id}
+  static const String feedPostView = '/feed/posts'; // + /{id}/view
+  static const String feedTopics = '/feed/topics';
 
   // Bookmark Endpoints
   static const String bookmarks = '/bookmarks';
