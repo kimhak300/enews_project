@@ -1,51 +1,43 @@
-import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
+import 'package:newshub/app/services/language_service.dart';
 
 class LanguageController extends GetxController {
-  final _box = GetStorage();
-  final _key = 'isKhmer';
 
-  // Observable for current language state
-  final RxBool isKhmer = false.obs;
+  final LanguageService _service = LanguageService();
 
-  // Get saved language on init
+  RxBool isKhmer = false.obs;
+
   @override
   void onInit() {
     super.onInit();
-    isKhmer.value = _loadCurrentLanguage();
-    _updateLocale();
+    _loadLanguage();
   }
 
-  // Load saved language preference
-  bool _loadCurrentLanguage() {
-    return _box.read(_key) ?? false;
+  /// Load saved language asynchronously
+  Future<void> _loadLanguage() async {
+    isKhmer.value = await _service.loadLanguage();
+    updateLocale();
   }
 
-  // Save language preference
-  Future<void> _saveLanguage(bool isKh) async {
-    await _box.write(_key, isKh);
-  }
-
-  // Update app locale based on selection
-  void _updateLocale() {
+  /// Update app language
+  void updateLocale() {
     Get.updateLocale(
-      isKhmer.value ? const Locale('km', 'KH') : const Locale('en', 'US')
+      isKhmer.value ? const Locale('km', 'KH') : const Locale('en', 'US'),
     );
   }
 
-  // Toggle language
+  /// Toggle between Khmer <-> English
   void toggleLanguage() {
     isKhmer.value = !isKhmer.value;
-    _saveLanguage(isKhmer.value);
-    _updateLocale();
+    _service.saveLanguage(isKhmer.value);
+    updateLocale();
   }
 
-  // Change to specific language
-  void changeLanguage(bool toKhmer) {
-    isKhmer.value = toKhmer;
-    _saveLanguage(toKhmer);
-    _updateLocale();
+  /// Change language directly
+  void changeLanguage(bool kh) {
+    isKhmer.value = kh;
+    _service.saveLanguage(kh);
+    updateLocale();
   }
 }

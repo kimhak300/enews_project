@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:newshub/app/routes/app_routes.dart';
+import 'package:newshub/modules/auth/auth_binding.dart';
 import 'package:newshub/modules/button_nav/bottom_nav_bar/bottom_nav_binding.dart';
 import 'package:newshub/modules/button_nav/bottom_nav_bar/bottom_nav_view.dart';
 import 'package:newshub/modules/p5_profile/view/about_view.dart';
@@ -12,7 +13,7 @@ import 'package:newshub/modules/p6_post/edit_video/edit_video_view.dart';
 import '../../modules/p1_home/home_binding.dart';
 import '../../modules/p1_home/home_view.dart';
 import '../../modules/p3_search/search_binding.dart';
-import '../../modules/p3_search/search_screen/search_view.dart';
+import '../../modules/p3_search/search_view.dart';
 import '../../modules/p4_saved/bookmark_binding.dart';
 import '../../modules/p4_saved/saved_screen/bookmark_view.dart';
 import '../../modules/p5_profile/binding/about_binding.dart';
@@ -20,8 +21,6 @@ import '../../modules/p5_profile/binding/profile_binding.dart';
 import '../../modules/p5_profile/binding/settings_binding.dart';
 import '../../modules/splash/splash_view.dart';
 import '../../modules/splash/bindings/splash_binding.dart';
-import '../../modules/auth/bindings/login_binding.dart';
-import '../../modules/auth/bindings/register_binding.dart';
 import '../../modules/auth/bindings/forgot_password_binding.dart';
 import '../../modules/p2_dashboard/dashboard_binding.dart';
 import '../../modules/p6_post/edit_post/edit_post_binding.dart';
@@ -33,23 +32,23 @@ import '../../modules/p2_dashboard/dashboard_screen/dashboard_view.dart';
 
 class AppPages {
 
-  static const INITIAL = Routes.BOTTOM_NAV;
+  static const INITIAL = Routes.SPLASH;
 
   static final routes = [
     GetPage(
       name: Routes.SPLASH,
-      page: () => const SplashView(),
+      page: () => SplashView(),
       binding: SplashBinding(),
     ),
     GetPage(
       name: Routes.LOGIN,
       page: () => LoginView(),
-      binding: LoginBinding(),
+      binding: AuthBinding(),
     ),
     GetPage(
       name: Routes.REGISTER,
-      page: () => const RegisterView(),
-      binding: RegisterBinding(),
+      page: () => RegisterView(),
+      binding: AuthBinding(),
     ),
     GetPage(
       name: Routes.FORGOT_PASSWORD,
@@ -80,7 +79,7 @@ class AppPages {
     ),
     GetPage(
       name: Routes.PROFILE,
-      page: () => const ProfileView(),
+      page: () => ProfileView(),
       binding: ProfileBinding(),
     ),
     GetPage(

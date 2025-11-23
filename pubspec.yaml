@@ -20,8 +20,8 @@ dependencies:
   flutter_secure_storage: ^9.2.2 # save simple data to storage device
   google_fonts: ^4.0.4 #change font (compatible with http 0.13.x)
   carousel_slider: ^5.0.0 # slide
-  sqflite: ^2.4.1 #handle local database (sql query)
-  path: ^1.9.0 # get app directory
+  sqflite: ^2.4.2 #handle local database (sql query)
+  path: ^1.9.1 # get app directory
   badges: ^3.1.2 # badege count
   modal_bottom_sheet: ^3.0.0 #modal
   flutter_screenutil: ^5.9.0

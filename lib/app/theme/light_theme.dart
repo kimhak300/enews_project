@@ -48,6 +48,7 @@ final ThemeData lightTheme = ThemeData(
     fillColor: AppColors.grey100,
     hintStyle: const TextStyle(color: AppColors.grey500),
     labelStyle: const TextStyle(color: AppColors.grey700),
+    prefixIconColor: AppColors.textPrimary.withOpacity(0.6),
     border: OutlineInputBorder(
       borderSide: const BorderSide(color: AppColors.border),
       borderRadius: BorderRadius.circular(10),

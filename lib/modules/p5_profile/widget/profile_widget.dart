@@ -6,6 +6,7 @@ class ProfileWidget extends StatelessWidget {
   final String title;
   final String description;
   final double avatarRadius;
+  final List<Color>? gradientColors;
 
   const ProfileWidget({
     super.key,
@@ -13,11 +14,17 @@ class ProfileWidget extends StatelessWidget {
     required this.title,
     required this.description,
     this.avatarRadius = 50,
+    this.gradientColors,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = gradientColors ??
+        [
+          theme.colorScheme.primary.withOpacity(0.8),
+          theme.colorScheme.primary.withOpacity(0.4),
+        ];
 
     return SizedBox(
       width: double.infinity,
@@ -25,7 +32,16 @@ class ProfileWidget extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Padding(
+        elevation: 4,
+        clipBehavior: Clip.antiAlias,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: colors,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
           padding: EdgeInsets.all(AppSpacing.paddingL),
           child: Column(
             children: [
@@ -33,19 +49,19 @@ class ProfileWidget extends StatelessWidget {
               /// Avatar
               CircleAvatar(
                 radius: avatarRadius + 4,
-                backgroundColor: theme.colorScheme.primary.withOpacity(0.2),
+                backgroundColor: Colors.white.withOpacity(0.3),
                 child: CircleAvatar(
                   radius: avatarRadius,
                   backgroundColor: theme.colorScheme.surface,
-                  backgroundImage: imageUrl.isNotEmpty
-                      ? NetworkImage(imageUrl)
-                      : null,
+                  backgroundImage:
+                  imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
                   child: imageUrl.isEmpty
                       ? Icon(
                     Icons.person,
                     size: avatarRadius,
                     color: theme.colorScheme.primary,
-                  ) : null,
+                  )
+                      : null,
                 ),
               ),
               SizedBox(height: AppSpacing.paddingM),
@@ -54,7 +70,7 @@ class ProfileWidget extends StatelessWidget {
               Text(
                 title,
                 style: theme.textTheme.titleLarge
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                    ?.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
                 textAlign: TextAlign.center,
               ),
 
@@ -62,7 +78,7 @@ class ProfileWidget extends StatelessWidget {
               Text(
                 description,
                 style: theme.textTheme.bodyMedium
-                    ?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    ?.copyWith(color: Colors.white.withOpacity(0.8)),
                 textAlign: TextAlign.center,
               ),
             ],

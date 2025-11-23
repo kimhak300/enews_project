@@ -38,8 +38,7 @@ class ForgotPasswordView extends GetView<ForgotPasswordController> {
               ),
               const SizedBox(height: 16),
               Text(
-                'enter_your_email_address_and_we\'ll_send_you_a_link_to_reset_your_password'
-                    .tr,
+                'enter_your_email_address_and_we\'ll_send_you_a_link_to_reset_your_password'.tr,
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey[600],
@@ -89,7 +88,8 @@ class ForgotPasswordView extends GetView<ForgotPasswordController> {
                               ),
                             ),
                     ),
-                  )),
+                  )
+              ),
             ],
           ),
         ),

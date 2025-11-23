@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newshub/app/constants/app_spacing.dart';
-import '../controllers/login_controller.dart';
+import 'package:newshub/app/routes/app_routes.dart';
+import 'package:newshub/modules/auth/controllers/auth_controller.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -12,15 +13,10 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
 
-  late final LoginController controller;
+  final AuthController authController = Get.put(AuthController());
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    controller = Get.find<LoginController>();
-  }
 
   @override
   void dispose() {
@@ -31,6 +27,10 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
+
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -45,7 +45,7 @@ class _LoginViewState extends State<LoginView> {
               SizedBox(height: AppSpacing.paddingS),
               _forgotPassword(),
               SizedBox(height: AppSpacing.paddingXXL),
-              _signInButton(),
+              _signInButton(context, theme, textTheme),
               SizedBox(height: AppSpacing.paddingS),
               _registerButton(),
             ],
@@ -87,27 +87,18 @@ class _LoginViewState extends State<LoginView> {
           decoration: InputDecoration(
             labelText: 'email'.tr,
             hintText: 'your@email.com'.tr,
-            prefixIcon: Icon(Icons.email_outlined, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+            prefixIcon: Icon(Icons.email_outlined),
           ),
         ),
         SizedBox(height: AppSpacing.paddingS),
-        Obx(() => TextField(
+        TextField(
           controller: _passwordController,
-          obscureText: controller.obscurePassword.value,
           decoration: InputDecoration(
             labelText: 'password'.tr,
             hintText: '••••••••',
-            prefixIcon: Icon(Icons.lock_outline, color: theme.colorScheme.onSurface.withOpacity(0.6)),
-            suffixIcon: IconButton(
-              icon: Icon(controller.obscurePassword.value
-                    ? Icons.visibility_outlined
-                    : Icons.visibility_off_outlined,
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
-              ),
-              onPressed: controller.togglePasswordVisibility,
-            ),
+            prefixIcon: Icon(Icons.lock_outline),
           ),
-        )),
+        ),
       ],
     );
   }
@@ -120,7 +111,7 @@ class _LoginViewState extends State<LoginView> {
       alignment: Alignment.centerRight,
       child: GestureDetector(
         onTap: (){
-          controller.goToForgotPassword;
+          // controller.goToForgotPassword;
         },
         child: Text(
           'forgot_password'.tr,
@@ -133,35 +124,24 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  Widget _signInButton(){
-    final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
-
-    return Obx(() => SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed: controller.isLoading.value
-              ? null
-              : () => controller.login(
-            email: _emailController.text,
-            password: _passwordController.text,
-          ),
-          child: controller.isLoading.value ? SizedBox(
-            height: 20,
-            width: 20,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation(theme.colorScheme.onPrimary),
-            ),
-          ) : Text(
-            'sign_in'.tr,
-            style: textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.onPrimary,
-              fontWeight: FontWeight.bold,
-            ),
+  Widget _signInButton(BuildContext context, ThemeData theme, TextTheme textTheme) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: (){
+          authController.login(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
+        },
+        child: Text('Sign In',
+          style: textTheme.titleMedium?.copyWith(
+            color: theme.colorScheme.onPrimary,
+            fontWeight: FontWeight.bold,
           ),
         ),
-      ));
+      ),
+    );
   }
 
   Widget _registerButton(){
@@ -175,8 +155,11 @@ class _LoginViewState extends State<LoginView> {
             'dont_have_account'.tr,
             style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onBackground.withOpacity(0.6)),
           ),
+          SizedBox(width: AppSpacing.paddingXS),
           GestureDetector(
-            onTap: controller.goToRegister,
+            onTap: (){
+              Get.toNamed(Routes.REGISTER);
+            },
             child: Text(
               'register'.tr,
               style: textTheme.bodyMedium?.copyWith(

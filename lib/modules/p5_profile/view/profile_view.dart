@@ -4,29 +4,33 @@ import 'package:newshub/app/constants/app_spacing.dart';
 import 'package:newshub/app/widget/app_layout_widget.dart';
 import 'package:newshub/app/widget/item_widget.dart';
 import 'package:newshub/app/widget/title_widget.dart';
+import 'package:newshub/modules/auth/controllers/auth_controller.dart';
+import 'package:newshub/modules/p5_profile/widget/logout_dialog.dart';
 import 'package:newshub/modules/p5_profile/widget/profile_widget.dart';
 import '../controller/profile_controller.dart';
 
-class ProfileView extends GetView<ProfileController> {
-  const ProfileView({super.key});
+class ProfileView extends StatelessWidget {
+  ProfileView({super.key});
+
+  final AuthController authController = Get.put(AuthController());
 
   @override
   Widget build(BuildContext context) {
 
     return AppLayoutWidget(
-      title: "profile".tr,
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _profile(context),
-              SizedBox(height: AppSpacing.paddingXXL),
-              _settingList(context),
-            ],
+        title: "profile".tr,
+        body: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _profile(context),
+                SizedBox(height: AppSpacing.paddingXXL),
+                _settingList(context),
+              ],
+            ),
           ),
-        ),
-      )
+        )
     );
   }
 
@@ -78,7 +82,19 @@ class ProfileView extends GetView<ProfileController> {
           iconColor: Colors.red,
           icon: Icons.logout,
           title: 'logout'.tr,
-          onRightTap: ctrl.logout,
+          onTap: () {
+            Get.dialog(
+              LogoutDialog(
+                title: "Logout",
+                message: "Are you sure you want to log out?",
+                confirmText: "Yes",
+                cancelText: "Cancel",
+                onConfirm: () {
+                  authController.logout();
+                },
+              ),
+            );
+          },
         ),
       ],
     );
