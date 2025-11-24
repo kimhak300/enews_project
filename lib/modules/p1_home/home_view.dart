@@ -157,8 +157,9 @@ class HomeView extends StatelessWidget {
                 username: article.authorName ?? 'Unknown',
                 time: _formatTime(article.publishedAt),
                 caption: article.content,
-                imageUrl: article.imageUrl ?? '',
+                mediaUrl: article.imageUrl ?? '',
                 authorId: article.authorId,
+                articleId: article.articleId,
               ),
             );
           }).toList(),

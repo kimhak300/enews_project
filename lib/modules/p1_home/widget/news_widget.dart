@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:newshub/app/constants/app_widget_size.dart';
 import 'package:newshub/app/controllers/id_controller.dart';
 import 'package:newshub/app/constants/app_colors.dart';
 import 'package:newshub/sqflite_db/controller/follow_controller.dart';
+import 'package:newshub/sqflite_db/controller/like_controller.dart';
+import 'package:video_player/video_player.dart';
 
 class NewsWidget extends StatelessWidget {
   final String username;
   final String time;
   final String caption;
-  final String imageUrl;
+  final String mediaUrl; // can be image or video
   final int authorId;
-  final int likeCount;
-  final int commentCount;
-  final int followCount;
+  final int articleId;
 
   NewsWidget({
     super.key,
     required this.username,
     required this.time,
     required this.caption,
-    required this.imageUrl,
+    required this.mediaUrl,
     required this.authorId,
-    this.likeCount = 0,
-    this.commentCount = 0,
-    this.followCount = 0,
+    required this.articleId,
   });
 
   final FollowController followController = Get.find();
@@ -32,8 +31,19 @@ class NewsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     final bool isMine = idController.currentUserId.value == authorId;
+
+    // Unique LikeController per article
+    final likeController = Get.put(
+      LikeController(),
+      tag: 'like_$articleId',
+    );
+
+    // Load initial like status + total likes
+    likeController.loadLikeStatus(idController.currentUserId.value, articleId);
+
+    // Load follower count for this author
+    if (!isMine) followController.loadFollowersCount(authorId);
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -51,7 +61,7 @@ class NewsWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// Top Row: Logo, Username + Time, Options
+          /// Top Row: Avatar, Username + Time
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -66,11 +76,9 @@ class NewsWidget extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      username,
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
+                    Text(username,
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 2),
                     Text(
                       time,
@@ -82,7 +90,7 @@ class NewsWidget extends StatelessWidget {
                 ),
               ),
 
-              /// Options: Edit/Delete for own posts
+              /// Options for own posts
               if (isMine)
                 PopupMenuButton<String>(
                   icon: Icon(Icons.more_horiz,
@@ -95,21 +103,15 @@ class NewsWidget extends StatelessWidget {
                     if (value == 'edit') {
                       Get.defaultDialog(
                         title: 'Edit Post',
-                        middleText: 'Are you sure you want to edit this post?',
-                        onConfirm: () {
-                          print('Edit confirmed for $authorId');
-                          Get.back();
-                        },
+                        middleText: 'Edit this post?',
+                        onConfirm: () => Get.back(),
                         onCancel: () {},
                       );
                     } else if (value == 'delete') {
                       Get.defaultDialog(
                         title: 'Delete Post',
-                        middleText: 'Are you sure you want to delete this post?',
-                        onConfirm: () {
-                          print('Delete confirmed for $authorId');
-                          Get.back();
-                        },
+                        middleText: 'Delete this post?',
+                        onConfirm: () => Get.back(),
                         onCancel: () {},
                       );
                     }
@@ -121,54 +123,49 @@ class NewsWidget extends StatelessWidget {
           const SizedBox(height: 12),
 
           /// Caption
-          Text(
-            caption,
-            style: theme.textTheme.bodyMedium,
-          ),
+          Text(caption, style: theme.textTheme.bodyMedium),
           const SizedBox(height: 12),
 
-          /// Image
-          if (imageUrl.isNotEmpty)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                imageUrl,
-                width: double.infinity,
-                height: 200,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const SizedBox(),
-              ),
-            ),
+          /// Media (Image or Video)
+          if (mediaUrl.isNotEmpty)
+            _MediaWidget(url: mediaUrl),
+
           const SizedBox(height: 12),
 
           /// Actions Row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              /// Own post: counts only (non-clickable)
-              if (isMine) ...[
-                _CountIcon(icon: Icons.thumb_up_alt_outlined),
-                _CountIcon(icon: Icons.comment_outlined),
-                _CountIcon(icon: Icons.person_add_alt_1_outlined),
-              ]
-              else ...[
-                _InteractiveIcon(
+              /// Likes
+              Obx(() {
+                return _IconWithCount(
                   icon: Icons.thumb_up_alt_outlined,
-                  onTap: () => Get.snackbar('Like', 'You liked the post'),
-                ),
-                _InteractiveIcon(
-                  icon: Icons.comment_outlined,
-                  onTap: () => Get.snackbar('Comment', 'Comment tapped'),
-                ),
+                  count: likeController.likeCount.value,
+                  isActive: likeController.isLiked.value,
+                  isClickable: !isMine,
+                  onTap: () => !isMine
+                      ? likeController.toggleLike(
+                      idController.currentUserId.value, articleId)
+                      : null,
+                );
+              }),
+
+              /// Comments (optional)
+              _IconWithCount(icon: Icons.comment_outlined),
+
+              /// Followers (hide for current user)
+              if (!isMine)
                 Obx(() {
-                  final isFollowing = followController.followingAuthors.contains(authorId);
-                  return _InteractiveIcon(
+                  final isFollowing =
+                  followController.followingAuthors.contains(authorId);
+                  return _IconWithCount(
                     icon: Icons.person_add_alt_1_outlined,
-                    onTap: () => followController.toggleFollow(authorId),
+                    count: followController.followersCount[authorId] ?? 0,
                     isActive: isFollowing,
+                    isClickable: true,
+                    onTap: () => followController.toggleFollow(authorId),
                   );
                 }),
-              ],
             ],
           )
         ],
@@ -177,38 +174,97 @@ class NewsWidget extends StatelessWidget {
   }
 }
 
-/// Non-clickable grey icon
-class _CountIcon extends StatelessWidget {
-  final IconData icon;
-  const _CountIcon({required this.icon});
+/// Widget to show image or video based on URL
+class _MediaWidget extends StatefulWidget {
+  final String url;
+  const _MediaWidget({required this.url});
+
+  @override
+  State<_MediaWidget> createState() => _MediaWidgetState();
+}
+
+class _MediaWidgetState extends State<_MediaWidget> {
+  VideoPlayerController? _videoController;
+  bool isVideo = false;
+
+  @override
+  void initState() {
+    super.initState();
+    isVideo = widget.url.endsWith('.mp4') || widget.url.endsWith('.mov');
+
+    if (isVideo) {
+      _videoController = VideoPlayerController.network(widget.url)
+        ..initialize().then((_) {
+          setState(() {});
+          _videoController!.setLooping(true);
+          _videoController!.play();
+        });
+    }
+  }
+
+  @override
+  void dispose() {
+    _videoController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Icon(icon, size: 24, color: Colors.grey);
+    if (isVideo && _videoController != null && _videoController!.value.isInitialized) {
+      return AspectRatio(
+        aspectRatio: _videoController!.value.aspectRatio,
+        child: VideoPlayer(_videoController!),
+      );
+    } else if (!isVideo) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.network(
+          widget.url,
+          width: double.infinity,
+          height: 200,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => const SizedBox(),
+        ),
+      );
+    } else {
+      return const SizedBox();
+    }
   }
 }
 
-/// Clickable icon, changes color when active
-class _InteractiveIcon extends StatelessWidget {
+/// Icon with count displayed **next to the icon**
+class _IconWithCount extends StatelessWidget {
   final IconData icon;
-  final VoidCallback onTap;
+  final int? count;
   final bool isActive;
+  final bool isClickable;
+  final VoidCallback? onTap;
 
-  const _InteractiveIcon({
+  const _IconWithCount({
     required this.icon,
-    required this.onTap,
+    this.count,
     this.isActive = false,
+    this.isClickable = false,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: isClickable ? onTap : null,
       borderRadius: BorderRadius.circular(8),
-      child: Icon(
-        icon,
-        size: 24,
-        color: isActive ? AppColors.primary : Colors.grey,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: AppWidgetSize.iconSmall,
+            color: isActive ? AppColors.primary : Colors.grey,
+          ),
+          if (count != null && count! > 0) ...[
+            const SizedBox(width: 4),
+            Text(count.toString())
+          ],
+        ],
       ),
     );
   }
