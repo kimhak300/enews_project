@@ -103,7 +103,7 @@ class AppPages {
       page: () => const EditArticleView(),
       binding: EditArticleBinding(),
     ),
-        GetPage(
+    GetPage(
       name: _Paths.EDIT_VIDEO,
       page: () => const EditVideoView(),
       binding: EditVideoBinding(),

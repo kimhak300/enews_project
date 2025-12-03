@@ -23,8 +23,7 @@ class ProfileView extends GetView<ProfileController> {
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
                 color: theme.cardColor,
-                borderRadius:
-                    BorderRadius.vertical(bottom: Radius.circular(8)),
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(8)),
               ),
               child: Column(
                 children: [
@@ -84,8 +83,8 @@ class ProfileView extends GetView<ProfileController> {
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color:
-                                      theme.colorScheme.onSurface.withOpacity(0.8),
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.8),
                                 ),
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
@@ -97,7 +96,6 @@ class ProfileView extends GetView<ProfileController> {
                                     borderSide: BorderSide(
                                       color: theme.colorScheme.primary,
                                     ),
-
                                   ),
                                   // enabledBorder: UnderlineInputBorder(
                                   //   borderSide: BorderSide(color: Colors.blue),
@@ -115,8 +113,8 @@ class ProfileView extends GetView<ProfileController> {
                                 controller: ctrl.emailController,
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color:
-                                      theme.colorScheme.onSurface.withOpacity(0.7),
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.7),
                                 ),
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
@@ -274,7 +272,6 @@ class ProfileView extends GetView<ProfileController> {
     bool showArrow = true,
     ThemeData? theme,
   }) {
-
     final resolvedTheme = theme ?? Theme.of(Get.context!);
 
     return Container(

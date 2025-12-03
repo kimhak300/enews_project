@@ -41,5 +41,3 @@ abstract class _Paths {
   static const EDIT_VIDEO = '/edit-video';
   static const EDIT_ARTICLE = '/edit-article';
 }
-
-
