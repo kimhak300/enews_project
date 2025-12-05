@@ -26,12 +26,12 @@ class UserPages {
         binding: UserBinding()
     ),
     GetPage(
-        name: Routes.SEARCH,
+        name: Routes.USER_SEARCH,
         page: () => SearchView(),
         binding: UserBinding()
     ),
     GetPage(
-        name: Routes.PROFILE,
+        name: Routes.USER_PROFILE,
         page: () => ProfileView(),
         binding: UserBinding()
     ),
