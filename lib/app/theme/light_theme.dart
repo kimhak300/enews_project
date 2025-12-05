@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:newshub/app/theme/app_colors.dart';
-import 'package:newshub/app/theme/text_theme.dart';
+import 'package:newshub/app/constants/app_colors.dart';
+import 'package:newshub/app/theme/theme_constant/text_theme.dart';
 
 final ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
@@ -8,32 +8,59 @@ final ThemeData lightTheme = ThemeData(
   colorScheme: const ColorScheme.light(
     primary: AppColors.primary,
     secondary: AppColors.secondary,
-    background: AppColors.lightBackground,
-    surface: AppColors.lightSurface,
-    error: AppColors.error,
+    background: AppColors.background,
+    surface: AppColors.surface,
+    error: AppColors.danger,
     onPrimary: Colors.white,
     onSecondary: Colors.white,
-    onBackground: AppColors.lightTextPrimary,
-    onSurface: AppColors.lightTextPrimary,
+    onBackground: AppColors.textPrimary,
+    onSurface: AppColors.textPrimary,
     onError: Colors.white,
   ),
-  scaffoldBackgroundColor: AppColors.lightBackground,
+  scaffoldBackgroundColor: AppColors.background,
   appBarTheme: const AppBarTheme(
     backgroundColor: AppColors.primary,
     foregroundColor: Colors.white,
+    elevation: 0,
+    centerTitle: true,
   ),
   textTheme: AppTextTheme.lightTextTheme,
-  cardColor: AppColors.lightSurface,
-  floatingActionButtonTheme: const FloatingActionButtonThemeData(
-    backgroundColor: AppColors.primary,
+  cardTheme: CardThemeData(
+    color: AppColors.surface,
+    shadowColor: AppColors.shadow,
+    elevation: 3,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: AppColors.secondary,
+      backgroundColor: AppColors.primary,
       foregroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     ),
+  ),
+  floatingActionButtonTheme: const FloatingActionButtonThemeData(
+    backgroundColor: AppColors.primary,
+    foregroundColor: Colors.white,
+  ),
+  inputDecorationTheme: InputDecorationTheme(
+    filled: true,
+    fillColor: AppColors.grey100,
+    hintStyle: const TextStyle(color: AppColors.grey500),
+    labelStyle: const TextStyle(color: AppColors.grey700),
+    prefixIconColor: AppColors.textPrimary.withOpacity(0.6),
+    border: OutlineInputBorder(
+      borderSide: const BorderSide(color: AppColors.border),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderSide: const BorderSide(color: AppColors.primary, width: 2),
+      borderRadius: BorderRadius.circular(10),
+    ),
+  ),
+  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    backgroundColor: AppColors.surface,
+    selectedItemColor: AppColors.primary,
+    unselectedItemColor: AppColors.grey600,
   ),
 );

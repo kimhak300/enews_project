@@ -1,39 +1,31 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-
-import '../services/theme_service.dart';
-import '../theme/dark_theme.dart';
-import '../theme/light_theme.dart';
+import 'package:newshub/app/services/theme_service.dart';
 
 class ThemeController extends GetxController {
+
   final ThemeService _service = ThemeService();
 
-  var isDarkMode = false.obs;
-
-  ThemeData get theme => isDarkMode.value ? darkTheme : lightTheme;
+  Rx<ThemeMode> themeMode = ThemeMode.light.obs;
 
   @override
   void onInit() {
     super.onInit();
-    loadTheme();
+    _loadTheme();
   }
 
-  void loadTheme() async {
-    isDarkMode.value = await _service.getTheme();
-    Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
+  void _loadTheme() async {
+    bool isDark = await _service.loadTheme();
+    themeMode.value = isDark ? ThemeMode.dark : ThemeMode.light;
   }
 
   void toggleTheme() {
-    isDarkMode.value = !isDarkMode.value;
-    _service.saveTheme(isDarkMode.value);
-    // Update app ThemeMode so every screen responds instantly
-    Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
-  }
-
-  void setDarkMode(bool value) {
-    if (isDarkMode.value == value) return;
-    isDarkMode.value = value;
-    _service.saveTheme(value);
-    Get.changeThemeMode(value ? ThemeMode.dark : ThemeMode.light);
+    if (themeMode.value == ThemeMode.light) {
+      themeMode.value = ThemeMode.dark;
+      _service.saveTheme(true);
+    } else {
+      themeMode.value = ThemeMode.light;
+      _service.saveTheme(false);
+    }
   }
 }

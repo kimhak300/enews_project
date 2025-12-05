@@ -1,39 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:newshub/app/theme/app_colors.dart';
-import 'package:newshub/app/theme/text_theme.dart';
+import 'package:newshub/app/constants/app_colors.dart';
+import 'package:newshub/app/theme/theme_constant/text_theme.dart';
 
 final ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
   useMaterial3: true,
   colorScheme: const ColorScheme.dark(
-    primary: AppColors.primary,
-    secondary: AppColors.secondary,
-    background: AppColors.darkBackground,
-    surface: AppColors.darkSurface,
-    error: AppColors.error,
+    primary: AppColors.primaryDark,
+    secondary: AppColors.secondaryDark,
+    background: AppColors.surfaceDark,
+    surface: AppColors.surfaceDark,
+    error: AppColors.danger,
     onPrimary: Colors.white,
     onSecondary: Colors.white,
-    onBackground: AppColors.darkTextPrimary,
-    onSurface: AppColors.darkTextPrimary,
+    onBackground: AppColors.textLight,
+    onSurface: AppColors.textLight,
     onError: Colors.white,
   ),
-  scaffoldBackgroundColor: AppColors.darkBackground,
+  scaffoldBackgroundColor: AppColors.surfaceDark,
   appBarTheme: const AppBarTheme(
-    backgroundColor: AppColors.primary,
-    foregroundColor: AppColors.darkTextPrimary,
+    backgroundColor: AppColors.primaryDark,
+    foregroundColor: Colors.white,
   ),
   textTheme: AppTextTheme.darkTextTheme,
-  cardColor: AppColors.darkSurface,
-  floatingActionButtonTheme: const FloatingActionButtonThemeData(
-    backgroundColor: AppColors.primary,
+  cardTheme: CardThemeData(
+    color: AppColors.surfaceDark,
+    shadowColor: AppColors.shadow,
+    elevation: 2,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: AppColors.secondary,
+      backgroundColor: AppColors.primaryDark,
       foregroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     ),
+  ),
+  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    backgroundColor: AppColors.surfaceDark,
+    selectedItemColor: AppColors.primaryLight,
+    unselectedItemColor: AppColors.grey500,
   ),
 );

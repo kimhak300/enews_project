@@ -1,25 +1,36 @@
-part of 'app_pages.dart';
-
 abstract class Routes {
-  Routes._();
-  static const SPLASH = _Paths.SPLASH;
-  static const LOGIN = _Paths.LOGIN;
-  static const REGISTER = _Paths.REGISTER;
-  static const FORGOT_PASSWORD = _Paths.FORGOT_PASSWORD;
-  static const HOME = _Paths.HOME;
-  static const CATEGORY = _Paths.CATEGORY;
-  static const DASHBOARD = _Paths.DASHBOARD;
-  static const SEARCH = _Paths.SEARCH;
-  static const BOOKMARK = _Paths.BOOKMARK;
-  static const PROFILE = _Paths.PROFILE;
-  static const SETTINGS = _Paths.SETTINGS;
-  static const NOTIFICATIONS = _Paths.NOTIFICATIONS;
-  static const ABOUT = _Paths.ABOUT;
-  static const BOTTOM_NAV = _Paths.BOTTOM_NAV;
-  static const EDIT_POST = _Paths.EDIT_POST;
-  static const EDIT_VIDEO = _Paths.EDIT_VIDEO;
-  static const EDIT_ARTICLE = _Paths.EDIT_ARTICLE;
+
+  /// Auth
+  static const SPLASH = '/SPLASH ';
+  static const LOGIN = '/LOGIN';
+  static const REGISTER = '/REGISTER';
+  static const FORGOT_PASSWORD = '/FORGOT_PASSWORD';
+
+  /// Admin
+  static const ADMIN_BOTTOM_NAV = '/ADMIN_BOTTOM_NAV';
+  static const ADMIN_DASHBOARD = '/ADMIN_DASHBOARD';
+  static const ADMIN_MANAGE_ARTICLE = '/ADMIN_MANAGE_ARTICLE';
+  static const ADMIN_MANAGE_CATEGORY = '/ADMIN_MANAGE_CATEGORY';
+  static const ADMIN_MANAGE_USER = '/ADMIN_MANAGE_USER';
+  static const ADMIN_ANALYTICS = '/ADMIN_ANALYTICS';
+
+  /// USer
+  static const USER_BOTTOM_NAV = '/USER_BOTTOM_NAV';
+  static const USER_HOME = '/USER_HOME';
+  static const USER_BOOKMARK = '/USER_BOOKMARK';
+  static const USER_SEARCH = '/USER_SEARCH';
+  static const USER_PROFILE = '/USER_PROFILE';
+
+  /// Organization
+  static const ORG_BOTTOM_NAV = '/ORG_BOTTOM_NAV';
+  static const ORG_HOME = '/ORG_HOME';
+  static const ORG_MANAGE_ARTICLE = '/USER_MANAGE_ARTICLE';
+  static const ORG_TEAM = '/USER_TEAM';
+  static const ORG_REPORT = '/USER_REPORT';
+  static const ORG_PROFILE = '/USER_PROFILE';
+
 }
+
 
 abstract class _Paths {
   _Paths._();
