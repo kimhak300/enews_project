@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:newshub/modules/admin/manage_categories/widgets/add_category_bottomsheet.dart';
 
 class ManageCategoriesView extends StatelessWidget {
   const ManageCategoriesView({super.key});
@@ -49,6 +50,20 @@ class ManageCategoriesView extends StatelessWidget {
             },
           ),
         ],
+      ),
+      // Floating Button
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            builder: (_) => AddCategoryBottomsheet(),
+          );
+        },
+        child: const Icon(Icons.add),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

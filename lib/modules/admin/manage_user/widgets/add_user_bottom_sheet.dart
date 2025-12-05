@@ -21,7 +21,7 @@ class AddUserBottomSheetState extends State<AddUserBottomSheet> {
   bool isActive = true;
   DateTime? createdAt;
   String? selectedRole;
-  List<String> roles = ["Admin", "Editor", "User"];
+  List<String> roles = ["Admin", "Organizer", "User"];
 
   // Image File
   File? imageFile;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:newshub/app/constants/app_spacing.dart';
 import 'package:newshub/modules/admin/manage_articles/widgets/article_card_widget.dart';
+import 'package:newshub/modules/admin/manage_articles/widgets/create_article_bottomsheet.dart';
 
 class ManageArticlesView extends StatelessWidget {
   const ManageArticlesView({super.key});
@@ -15,6 +16,19 @@ class ManageArticlesView extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Manage Articles'),
           automaticallyImplyLeading: false,
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            showModalBottomSheet(
+              isScrollControlled: true,
+              context: context,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              builder: (_) => const CreateArticleBottomSheet(),
+            );
+          },
+          child: const Icon(Icons.add),
         ),
         body: Padding(
           padding: EdgeInsets.all(AppSpacing.paddingS),
