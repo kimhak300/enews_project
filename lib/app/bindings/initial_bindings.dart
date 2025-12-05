@@ -1,31 +1,16 @@
-// import 'package:get/get.dart';
-// import 'package:newshub/modules/p2_dashboard/dashboard_controller.dart';
-// import '../../data/services/auth_service.dart';
-// import '../../data/services/api_service.dart';
-// import '../../data/local/storage_service.dart';
-// import '../../data/local/cache_manager.dart';
-// import '../../data/repositories/auth_repository.dart';
-// import '../../data/repositories/notification_repository.dart';
-// import '../../app/controllers/language_controller.dart';
-//
-// class InitialBindings extends Bindings {
-//   @override
-//   void dependencies() {
-//     // Services
-//     Get.lazyPut<StorageService>(() => StorageService(), fenix: true);
-//     Get.lazyPut<CacheManager>(() => CacheManager(), fenix: true);
-//     Get.lazyPut<AuthService>(() => AuthService(), fenix: true);
-//     Get.lazyPut<ApiService>(() => ApiService(), fenix: true);
-//
-//     // Repositories
-//     Get.lazyPut<AuthRepository>(() => AuthRepository(), fenix: true);
-//     Get.lazyPut<NotificationRepository>(() => NotificationRepository(),
-//         fenix: true);
-//     // Language controller (app-wide)
-//     Get.put(LanguageController(), permanent: true);
-//     Get.put(DashboardController(), permanent: true);
-//
-//     // Theme controller (app-wide)
-//     // Get.put(ThemeController(), permanent: true);
-//   }
-// }
+import 'package:get/get.dart';
+import 'package:newshub/app/services/api_service.dart';
+import 'package:newshub/app/services/storage_service.dart';
+import 'package:newshub/app/services/theme_service.dart';
+import 'package:newshub/app/services/language_service.dart';
+
+class InitialBindings extends Bindings {
+  @override
+  void dependencies() {
+    // Core Services
+    Get.put<StorageService>(StorageService(), permanent: true);
+    Get.put<ApiService>(ApiService(), permanent: true);
+    Get.put<ThemeService>(ThemeService(), permanent: true);
+    Get.put<LanguageService>(LanguageService(), permanent: true);
+  }
+}

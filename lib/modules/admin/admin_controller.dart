@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:newshub/modules/admin/analytics_view/analytics_view.dart';
-import 'package:newshub/modules/admin/dashboard/dashboard_binding.dart';
 import 'package:newshub/modules/admin/dashboard/dashboard_view.dart';
 import 'package:newshub/modules/admin/manage_articles/manage_articles_view.dart';
 import 'package:newshub/modules/admin/manage_categories/manage_categories_view.dart';

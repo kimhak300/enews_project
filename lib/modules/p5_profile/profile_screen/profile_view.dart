@@ -1,9 +1,7 @@
-// import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newshub/modules/user/profile/profile_controller.dart';
 import '../../../app/theme/app_theme.dart';
-import '../profile_controller.dart';
 
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});

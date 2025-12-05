@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:newshub/app/bindings/initial_bindings.dart';
 import 'package:newshub/app/controllers/language_controller.dart';
 import 'package:newshub/app/controllers/ratio_controller.dart';
 import 'package:newshub/app/controllers/theme_controller.dart';
@@ -13,6 +15,8 @@ import 'core/localization/app_translations.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize storage
+  await GetStorage.init();
   await SharedPreferences.getInstance();
 
   /// Put controllers
@@ -53,6 +57,7 @@ class ENewsApp extends StatelessWidget {
 
           /// Route
           initialRoute: Routes.SPLASH,
+          initialBinding: InitialBindings(),
           getPages: AppPages.pages,
         );
       },

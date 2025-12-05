@@ -1,7 +1,7 @@
 abstract class Routes {
 
   /// Auth
-  static const SPLASH = '/SPLASH ';
+  static const SPLASH = '/SPLASH';
   static const LOGIN = '/LOGIN';
   static const REGISTER = '/REGISTER';
   static const FORGOT_PASSWORD = '/FORGOT_PASSWORD';
