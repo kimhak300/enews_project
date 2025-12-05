@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:video_player/video_player.dart';
 import 'package:newshub/app/constants/app_widget_size.dart';
 import 'package:newshub/app/constants/app_colors.dart';
-import 'package:newshub/app/controllers/id_controller.dart';
-import 'package:newshub/sqflite_db/controller/follow_controller.dart';
-import 'package:newshub/sqflite_db/controller/like_controller.dart';
-import 'package:newshub/sqflite_db/controller/user_controller.dart';
-import 'package:newshub/sqflite_db/controller/bookmark_controller.dart';
-import 'package:video_player/video_player.dart';
 
 class NewsWidget extends StatelessWidget {
   final String username;
@@ -27,161 +21,88 @@ class NewsWidget extends StatelessWidget {
     required this.articleId,
   });
 
-  final FollowController followController = Get.find();
-  final IdController idController = Get.find();
-  final UserController userController = Get.find();
-  final BookmarkController bookmarkController = Get.find();
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bool isMine = idController.currentUserId.value == authorId;
-    final currentUserId = idController.currentUserId.value;
 
-    final likeController = Get.put(
-      LikeController(),
-      tag: 'like_$articleId',
-    );
-
-    likeController.loadLikeStatus(currentUserId, articleId);
-    if (!isMine) followController.loadFollowersCount(authorId);
-    userController.loadUserById(authorId);
-
-    return Obx(() {
-      final user = userController.userMap[authorId];
-      final profileImg = (user != null && user.profileImage != null)
-          ? user.profileImage!
-          : "https://i.pravatar.cc/150?img=$authorId";
-
-      return Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// TOP SECTION — Avatar + Username + Time
-            Row(
-              children: [
-                CircleAvatar(radius: 20, backgroundImage: NetworkImage(profileImg)),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(username,
-                          style: theme.textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 2),
-                      Text(time,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color:
-                            theme.colorScheme.onSurface.withOpacity(0.6),
-                          )),
-                    ],
-                  ),
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// TOP SECTION — Avatar + Username + Time
+          Row(
+            children: [
+              CircleAvatar(
+                  radius: 20,
+                  backgroundImage: NetworkImage(
+                      "https://i.pravatar.cc/150?img=$authorId")),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(username,
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 2),
+                    Text(time,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        )),
+                  ],
                 ),
-                if (isMine)
-                  PopupMenuButton<String>(
-                    icon: Icon(Icons.more_horiz,
-                        color: theme.colorScheme.onSurface),
-                    itemBuilder: (_) => const [
-                      PopupMenuItem(value: 'edit', child: Text('Edit')),
-                      PopupMenuItem(value: 'delete', child: Text('Delete')),
-                    ],
-                    onSelected: (value) {},
-                  ),
-              ],
-            ),
-            const SizedBox(height: 12),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
 
-            /// CAPTION
-            Text(caption, style: theme.textTheme.bodyMedium),
-            const SizedBox(height: 12),
+          /// CAPTION
+          Text(caption, style: theme.textTheme.bodyMedium),
+          const SizedBox(height: 12),
 
-            /// MEDIA
-            if (mediaUrl.isNotEmpty) _MediaWidget(url: mediaUrl),
-            const SizedBox(height: 12),
+          /// MEDIA
+          if (mediaUrl.isNotEmpty) _MediaWidget(url: mediaUrl),
+          const SizedBox(height: 12),
 
-            /// ACTIONS
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                /// LIKE (keep as before)
-                Obx(() {
-                  return _IconWithCount(
-                    icon: Icons.thumb_up_alt_outlined,
-                    count: likeController.likeCount.value,
-                    isActive: likeController.isLiked.value,
-                    isClickable: !isMine,
-                    onTap: () => !isMine
-                        ? likeController.toggleLike(currentUserId, articleId)
-                        : null,
-                  );
-                }),
-
-                /// BOOKMARK
-                Obx(() {
-                  final isBookmarked = bookmarkController.isBookmarked(articleId);
-                  final count = bookmarkController.getBookmarkCountRx(articleId);
-
-                  return Row(
-                    children: [
-                      if (!isMine)
-                        InkWell(
-                          onTap: () => bookmarkController.toggleBookmark(articleId),
-                          child: Icon(
-                            isBookmarked ? Icons.bookmark : Icons.bookmark_outline,
-                            color: isBookmarked ? Colors.blue : Colors.grey,
-                          ),
-                        )
-                      else
-                        Icon(Icons.bookmark_outline, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Obx(() => Text(count.value.toString())),
-                    ],
-                  );
-                }),
-
-                /// FOLLOW
-                Obx(() {
-                  final isFollowing = followController.isFollowing(authorId);
-                  final count = followController.getFollowersCountRx(authorId);
-
-                  return Row(
-                    children: [
-                      if (!isMine)
-                        InkWell(
-                          onTap: () => followController.toggleFollow(authorId),
-                          child: Icon(
-                            isFollowing
-                                ? Icons.person
-                                : Icons.person_add_alt_1_outlined,
-                            color: isFollowing ? Colors.green : Colors.grey,
-                          ),
-                        )
-                      else
-                        Icon(Icons.person_add_alt_1_outlined, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Obx(() => Text(count.value.toString())),
-                    ],
-                  );
-                }),
-              ],
-            ),
-          ],
-        ),
-      );
-    });
+          /// ACTIONS
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: const [
+              _IconWithCount(
+                icon: Icons.thumb_up_alt_outlined,
+                count: 0,
+                isActive: false,
+                isClickable: false,
+              ),
+              _IconWithCount(
+                icon: Icons.bookmark_outline,
+                count: 0,
+                isActive: false,
+                isClickable: false,
+              ),
+              _IconWithCount(
+                icon: Icons.person_add_alt_1_outlined,
+                count: 0,
+                isActive: false,
+                isClickable: false,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 

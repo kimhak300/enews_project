@@ -96,11 +96,7 @@ class RegisterView extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: (){
-          controller.register(
-            name: _nameController.text.trim(),
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim(),
-          );
+
         },
         child: Text('Register',
           style: textTheme.titleMedium?.copyWith(

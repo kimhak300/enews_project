@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:newshub/app/widget/blur_loading_widget.dart';
 import 'package:newshub/app/widget/title_widget.dart';
-import 'package:newshub/sqflite_db/controller/article_controller.dart';
-import 'package:newshub/sqflite_db/model/artical_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateArticleDialog extends StatefulWidget {
   const CreateArticleDialog({super.key});
@@ -20,8 +15,6 @@ class _CreateArticleDialogState extends State<CreateArticleDialog> {
   final _contentController = TextEditingController();
   final _imageController = TextEditingController();
 
-  final ArticleController _articleController = Get.put(ArticleController());
-
   /// Example categories (you can fetch from DB)
   final List<Map<String, dynamic>> _categories = [
     {'id': 1, 'name': 'News'},
@@ -36,43 +29,6 @@ class _CreateArticleDialogState extends State<CreateArticleDialog> {
     _titleController.dispose();
     _contentController.dispose();
     super.dispose();
-  }
-
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    final prefs = await SharedPreferences.getInstance();
-    final int? userId = prefs.getInt('userId');
-
-    if (userId == null) {
-      Get.snackbar(
-        'Error',
-        'User not logged in',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return;
-    }
-
-    final now = DateTime.now().toIso8601String();
-
-    final newArticle = ArticleModel(
-      title: _titleController.text.trim(),
-      content: _contentController.text.trim(),
-      imageUrl: _imageController.text.trim(),
-      categoryId: _selectedCategoryId!,
-      authorId: userId,
-      publishedAt: now,
-      createdAt: now,
-      updatedAt: now,
-    );
-
-    _articleController.addArticle(newArticle);
-
-    BlurLoadingWidget.show();
-    await Future.delayed(const Duration(seconds: 2));
-    BlurLoadingWidget.hide();
-
-    Get.back(); // Close dialog
   }
 
   @override
@@ -148,7 +104,9 @@ class _CreateArticleDialogState extends State<CreateArticleDialog> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _submit,
+                    onPressed: (){
+
+                    },
                     child: const Text('Create Article'),
                   ),
                 ),

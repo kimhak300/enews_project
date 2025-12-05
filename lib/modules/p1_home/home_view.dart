@@ -1,23 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newshub/app/constants/app_spacing.dart';
-import 'package:newshub/app/controllers/id_controller.dart';
 import 'package:newshub/app/controllers/language_controller.dart';
 import 'package:newshub/app/widget/app_layout_widget.dart';
-import 'package:newshub/modules/p1_home/widget/news_widget.dart';
-import 'package:newshub/sqflite_db/controller/follow_controller.dart';
-import 'home_controller.dart';
-import 'package:newshub/sqflite_db/controller/article_controller.dart';
 import 'package:intl/intl.dart';
 
 class HomeView extends StatelessWidget {
   HomeView({super.key});
 
-  final IdController userId = Get.find();
-  final HomeController homeController = Get.find();
   final LanguageController languageController = Get.find();
-  final ArticleController articleController = Get.put(ArticleController());
-  final FollowController followController = Get.put(FollowController());
 
   @override
   Widget build(BuildContext context) {
@@ -52,20 +43,10 @@ class HomeView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               SizedBox(height: AppSpacing.paddingS),
-
-              Flexible(
-                flex: 1,
-                child: _tabBar(context),
-              ),
-
+              Flexible(flex: 1, child: _tabBar(context)),
               SizedBox(height: AppSpacing.paddingM),
-
-              Flexible(
-                flex: 9,
-                child: _tabContent(),
-              ),
+              Flexible(flex: 9, child: _tabContent()),
             ],
           ),
         ),
@@ -74,10 +55,13 @@ class HomeView extends StatelessWidget {
   }
 
   /// Tab Bar
-  Widget _tabBar(BuildContext context){
+  Widget _tabBar(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme
+            .of(context)
+            .colorScheme
+            .surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: const TabBar(
@@ -92,78 +76,13 @@ class HomeView extends StatelessWidget {
   }
 
   /// Tab Content
-  Widget _tabContent(){
-    return Obx(() {
-      final currentId = userId.currentUserId.value;
-
-      // print("-"*100);
-      // articleController.articles.forEach((a) {
-      //   print('articleId=${a.articleId}, authorId=${a.authorId}, authorName=${a.authorName}');
-      // });
-      // print("-"*100);
-
-      if (currentId == 0) {
-        return const Center(child: CircularProgressIndicator());
-      }
-
-      return TabBarView(
-        children: [
-
-          /// All Articles (excluding my own)
-          Obx(() {
-            final currentId = userId.currentUserId.value;
-            final allArticles = articleController.articles
-                .where((a) => a.authorId != currentId)
-                .toList();
-            return _articleList(allArticles);
-          }),
-
-          /// Following Authors
-          Obx(() {
-            final currentId = userId.currentUserId.value;
-            final followingAuthors = followController.followingAuthors;
-            final followingArticles = articleController.articles
-                .where((a) => followingAuthors.contains(a.authorId))
-                .toList();
-            return _articleList(followingArticles);
-          }),
-
-          /// My Articles
-          Obx(() {
-            final currentId = userId.currentUserId.value;
-            final allArticles = articleController.articles
-                .where((a) => a.authorId == currentId)
-                .toList();
-            return _articleList(allArticles);
-          }),
-        ],
-      );
-    });
-  }
-
-  /// ARTICLE LIST WIDGET
-  Widget _articleList(List articles) {
-
-    if (articles.isEmpty) {
-      return const Center(child: Text('No articles found'));
-    }
-
-    return SingleChildScrollView(
-        child: Column(
-          children: articles.map((article) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: NewsWidget(
-                username: article.authorName ?? 'Unknown',
-                time: _formatTime(article.publishedAt),
-                caption: article.content,
-                mediaUrl: article.imageUrl ?? '',
-                authorId: article.authorId,
-                articleId: article.articleId,
-              ),
-            );
-          }).toList(),
-        )
+  Widget _tabContent() {
+    return const TabBarView(
+      children: [
+        Center(child: Text("All Articles")),
+        Center(child: Text("Following Articles")),
+        Center(child: Text("My Articles")),
+      ],
     );
   }
 

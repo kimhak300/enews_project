@@ -129,10 +129,7 @@ class _LoginViewState extends State<LoginView> {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: (){
-          authController.login(
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim(),
-          );
+
         },
         child: Text('Sign In',
           style: textTheme.titleMedium?.copyWith(
