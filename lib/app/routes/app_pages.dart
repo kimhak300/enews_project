@@ -123,11 +123,13 @@ import 'package:newshub/app/routes/app_routes.dart';
 import 'package:newshub/modules/admin/admin_pages.dart';
 import 'package:newshub/modules/splash/bindings/splash_binding.dart';
 import 'package:newshub/modules/splash/splash_view.dart';
+import 'package:newshub/modules/user/user_pages.dart';
 
 class AppPages {
   static final pages = [
     // Home Module
     ...AdminPages.pages,
+    ...UserPages.pages,
 
     // Category Module
     // ...CategoryRoutes.pages,

@@ -26,5 +26,12 @@ abstract class Routes {
   static const ADMIN_MANAGE_USER = '/ADMIN_MANAGE_USER';
   static const ADMIN_ANALYTICS = '/ADMIN_ANALYTICS';
 
+  /// USer
+  static const USER_BOTTOM_NAV = '/USER_BOTTOM_NAV';
+  static const USER_HOME = '/USER_HOME';
+  static const USER_BOOKMARK = '/USER_BOOKMARK';
+  static const USER_SEARCH = '/USER_SEARCH';
+  static const USER_PROFILE = '/USER_PROFILE';
+
 }
 
