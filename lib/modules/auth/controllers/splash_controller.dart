@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:newshub/app/routes/app_routes.dart';
 
 class SplashController extends GetxController {
