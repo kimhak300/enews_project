@@ -4,17 +4,13 @@ import 'package:newshub/app/constants/app_spacing.dart';
 import 'package:newshub/app/widget/app_layout_widget.dart';
 import 'package:newshub/app/widget/item_widget.dart';
 import 'package:newshub/app/widget/title_widget.dart';
-import 'package:newshub/modules/auth/controllers/auth_controller.dart';
 import 'package:newshub/modules/p5_profile/widget/logout_dialog.dart';
 import 'package:newshub/modules/p5_profile/widget/profile_widget.dart';
-import 'package:newshub/sqflite_db/controller/user_controller.dart';
 import '../controller/profile_controller.dart';
 
 class ProfileView extends StatelessWidget {
   ProfileView({super.key});
 
-  final UserController userController = Get.put(UserController());
-  final AuthController authController = Get.put(AuthController());
   final ProfileController profileCtrl = Get.put(ProfileController());
 
   @override
@@ -36,25 +32,13 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  /// PROFILE HEADER UI
+  /// PROFILE HEADER UI (STATIC – UserController Removed)
   Widget _profileHeader() {
-    return Obx(() {
-      final user = userController.currentUser.value;
-
-      if (user == null) {
-        return const Center(child: CircularProgressIndicator());
-      }
-
-      final imageUrl = (user.profileImage == null || user.profileImage!.isEmpty)
-          ? "https://i.pravatar.cc/150?img=3"
-          : user.profileImage!;
-
-      return ProfileWidget(
-        imageUrl: imageUrl,
-        title: user.name,
-        description: user.email,
-      );
-    });
+    return ProfileWidget(
+      imageUrl: "https://i.pravatar.cc/150?img=3",
+      title: "Guest User",
+      description: "guest@example.com",
+    );
   }
 
   /// SETTINGS LIST UI
@@ -66,7 +50,6 @@ class ProfileView extends StatelessWidget {
         ItemWidget(
           icon: Icons.password,
           title: "Change Password",
-          // onRightTap: profileCtrl.goToEditProfile,
         ),
         ItemWidget(
           icon: Icons.bookmark,
@@ -109,7 +92,7 @@ class ProfileView extends StatelessWidget {
                 confirmText: "Yes",
                 cancelText: "Cancel",
                 onConfirm: () {
-                  authController.logout();
+
                 },
               ),
             );

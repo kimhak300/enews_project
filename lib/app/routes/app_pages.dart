@@ -32,7 +32,7 @@ import '../../modules/p2_dashboard/dashboard_screen/dashboard_view.dart';
 
 class AppPages {
 
-  static const INITIAL = Routes.SPLASH;
+  static const INITIAL = Routes.BOTTOM_NAV;
 
   static final routes = [
     GetPage(
