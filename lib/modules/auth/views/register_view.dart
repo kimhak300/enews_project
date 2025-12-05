@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:newshub/app/constants/app_spacing.dart';
 import 'package:newshub/app/constants/app_widget_size.dart';
 import 'package:newshub/app/widget/app_layout_widget.dart';
-import '../controllers/auth_controller.dart';
+import '../auth_controller.dart';
 
 class RegisterView extends StatelessWidget {
   RegisterView({super.key});
