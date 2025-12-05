@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../app/theme/app_theme.dart';
 import '../controllers/forgot_password_controller.dart';
 
 class ForgotPasswordView extends GetView<ForgotPasswordController> {
@@ -20,12 +19,12 @@ class ForgotPasswordView extends GetView<ForgotPasswordController> {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.lock_reset,
                   size: 80,
-                  color: AppTheme.primaryColor,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const SizedBox(height: 40),
@@ -39,8 +38,7 @@ class ForgotPasswordView extends GetView<ForgotPasswordController> {
               ),
               const SizedBox(height: 16),
               Text(
-                'enter_your_email_address_and_we\'ll_send_you_a_link_to_reset_your_password'
-                    .tr,
+                'enter_your_email_address_and_we\'ll_send_you_a_link_to_reset_your_password'.tr,
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey[600],
@@ -66,7 +64,7 @@ class ForgotPasswordView extends GetView<ForgotPasswordController> {
                           : controller.sendResetLink,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: AppTheme.primaryColor,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -90,7 +88,8 @@ class ForgotPasswordView extends GetView<ForgotPasswordController> {
                               ),
                             ),
                     ),
-                  )),
+                  )
+              ),
             ],
           ),
         ),

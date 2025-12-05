@@ -1,10 +1,13 @@
 import 'package:get/get.dart';
 
 class BottomNavController extends GetxController {
+  RxInt currentIndex = 0.obs;
 
-  var selectedIndex = 0.obs;
+  void changeTab(int index) {
+    currentIndex.value = index;
+  }
 
-  void changeIndex(int index) {
-    selectedIndex.value = index;
+  void onPost() {
+    currentIndex.value = 2;
   }
 }
