@@ -7,77 +7,96 @@ import 'package:newshub/app/widget/title_widget.dart';
 import 'package:newshub/modules/auth/controllers/auth_controller.dart';
 import 'package:newshub/modules/p5_profile/widget/logout_dialog.dart';
 import 'package:newshub/modules/p5_profile/widget/profile_widget.dart';
+import 'package:newshub/sqflite_db/controller/user_controller.dart';
 import '../controller/profile_controller.dart';
 
 class ProfileView extends StatelessWidget {
   ProfileView({super.key});
 
+  final UserController userController = Get.put(UserController());
   final AuthController authController = Get.put(AuthController());
+  final ProfileController profileCtrl = Get.put(ProfileController());
 
   @override
   Widget build(BuildContext context) {
-
     return AppLayoutWidget(
-        title: "profile".tr,
-        body: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                _profile(context),
-                SizedBox(height: AppSpacing.paddingXXL),
-                _settingList(context),
-              ],
-            ),
+      title: "profile".tr,
+      body: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _profileHeader(),
+              SizedBox(height: AppSpacing.paddingXXL),
+              _settingsList(),
+            ],
           ),
-        )
+        ),
+      ),
     );
   }
 
-  Widget _profile(BuildContext context){
-    return ProfileWidget(
-      imageUrl: "https://i.pravatar.cc/150?img=3",
-      title: "John Doe",
-      description: "Flutter Developer",
-    );
+  /// PROFILE HEADER UI
+  Widget _profileHeader() {
+    return Obx(() {
+      final user = userController.currentUser.value;
+
+      if (user == null) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      final imageUrl = (user.profileImage == null || user.profileImage!.isEmpty)
+          ? "https://i.pravatar.cc/150?img=3"
+          : user.profileImage!;
+
+      return ProfileWidget(
+        imageUrl: imageUrl,
+        title: user.name,
+        description: user.email,
+      );
+    });
   }
 
-  Widget _settingList(BuildContext context){
-    final ctrl = Get.put(ProfileController());
-
+  /// SETTINGS LIST UI
+  Widget _settingsList() {
     return Column(
       children: [
+        // ---------------- Account Settings ----------------
         TitleWidget(title: "Account Settings"),
         ItemWidget(
-          icon: Icons.edit,
-          title: 'edit_profile'.tr,
-          onRightTap: ctrl.goToBookmarks,
+          icon: Icons.password,
+          title: "Change Password",
+          // onRightTap: profileCtrl.goToEditProfile,
         ),
         ItemWidget(
           icon: Icons.bookmark,
           title: 'my_bookmarks'.tr,
-          onRightTap: ctrl.goToBookmarks,
+          onRightTap: profileCtrl.goToBookmarks,
         ),
+
         SizedBox(height: AppSpacing.paddingL),
-        TitleWidget(title: 'App Preferences'.tr),
-        ItemWidget(
-          icon: Icons.notifications,
-          title: 'notification'.tr,
-          onRightTap: ctrl.goToNotifications,
-        ),
+
+        // ---------------- App Preferences ----------------
+        TitleWidget(title: "App Preferences".tr),
         ItemWidget(
           icon: Icons.settings,
           title: 'setting'.tr,
-          onRightTap: ctrl.goToSettings,
+          onRightTap: profileCtrl.goToSettings,
         ),
+
         SizedBox(height: AppSpacing.paddingL),
-        TitleWidget(title: 'Help & Support'.tr),
+
+        // ---------------- Help ----------------
+        TitleWidget(title: "Help & Support".tr),
         ItemWidget(
           icon: Icons.info_outline,
           title: 'about_help'.tr,
-          onRightTap: ctrl.goToAbout,
+          onRightTap: profileCtrl.goToAbout,
         ),
+
         SizedBox(height: AppSpacing.paddingL),
+
+        // ---------------- Logout ----------------
         ItemWidget(
           iconColor: Colors.red,
           icon: Icons.logout,

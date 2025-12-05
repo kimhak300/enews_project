@@ -22,6 +22,17 @@ class AuthService {
     return await db.insert('Users', user.toMap());
   }
 
+  /// Update user
+  Future<int> updateUser(UserModel user) async {
+    final db = await DBHelper.initDb();
+    return await db.update(
+      'Users',
+      user.toMap(),
+      where: 'user_id = ?',
+      whereArgs: [user.userId],
+    );
+  }
+
   /// Check if email exists
   Future<UserModel?> getUserByEmail(String email) async {
     final db = await DBHelper.initDb();

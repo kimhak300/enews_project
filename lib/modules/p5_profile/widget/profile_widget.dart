@@ -64,7 +64,7 @@ class ProfileWidget extends StatelessWidget {
                       : null,
                 ),
               ),
-              SizedBox(height: AppSpacing.paddingM),
+              SizedBox(height: AppSpacing.paddingS),
 
               /// Name / Title
               Text(

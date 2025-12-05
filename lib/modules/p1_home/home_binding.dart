@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:newshub/modules/p2_dashboard/dashboard_controller.dart';
+import '../../sqflite_db/controller/bookmark_controller.dart';
 import 'home_controller.dart';
 import '../p3_search/search_controller.dart';
 import '../p4_saved/bookmark_controller.dart';

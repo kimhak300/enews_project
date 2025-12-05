@@ -69,14 +69,14 @@ class AppPages {
     ),
     GetPage(
       name: Routes.SEARCH,
-      page: () => const SearchView(),
+      page: () =>  SearchView(),
       binding: SearchBinding(),
     ),
-    GetPage(
-      name: Routes.BOOKMARK,
-      page: () => const BookmarkView(),
-      binding: BookmarkBinding(),
-    ),
+    // GetPage(
+    //   name: Routes.BOOKMARK,
+    //   page: () => const BookmarkView(),
+    //   binding: BookmarkBinding(),
+    // ),
     GetPage(
       name: Routes.PROFILE,
       page: () => ProfileView(),
