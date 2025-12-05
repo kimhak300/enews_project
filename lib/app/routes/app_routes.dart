@@ -18,5 +18,13 @@ abstract class Routes {
   static const EDIT_VIDEO = '/edit-video';
   static const EDIT_ARTICLE = '/edit-article';
 
+  /// Admin
+  static const ADMIN_BOTTOM_NAV = '/ADMIN_BOTTOM_NAV';
+  static const ADMIN_DASHBOARD = '/ADMIN_DASHBOARD';
+  static const ADMIN_MANAGE_ARTICLE = '/ADMIN_MANAGE_ARTICLE';
+  static const ADMIN_MANAGE_CATEGORY = '/ADMIN_MANAGE_CATEGORY';
+  static const ADMIN_MANAGE_USER = '/ADMIN_MANAGE_USER';
+  static const ADMIN_ANALYTICS = '/ADMIN_ANALYTICS';
+
 }
 

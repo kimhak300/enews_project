@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:newshub/app/controllers/language_controller.dart';
 import 'package:newshub/app/controllers/ratio_controller.dart';
 import 'package:newshub/app/controllers/theme_controller.dart';
+import 'package:newshub/app/routes/app_routes.dart';
+import 'package:newshub/modules/admin/admin_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app/routes/app_pages.dart';
 import 'app/theme/app_theme.dart';
@@ -18,6 +20,7 @@ void main() async {
   Get.put(ThemeController());
   Get.put(RatioController());
   Get.put(LanguageController());
+  Get.put(AdminController());
 
   runApp(ENewsApp());
 }
@@ -34,7 +37,7 @@ class ENewsApp extends StatelessWidget {
       designSize: const Size(375, 812),
       minTextAdapt: true,
       builder: (context, child) {
-        return Obx(() => GetMaterialApp(
+        return GetMaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'E-News',
 
@@ -51,9 +54,9 @@ class ENewsApp extends StatelessWidget {
           themeMode: themeController.themeMode.value,
 
           /// Route
-          initialRoute: AppPages.INITIAL,
-          getPages: AppPages.routes,
-        ));
+          initialRoute: Routes.SPLASH,
+          getPages: AppPages.pages,
+        );
       },
     );
   }
