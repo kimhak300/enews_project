@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:newshub/app/constants/app_spacing.dart';
+import 'package:newshub/modules/admin/manage_user/widgets/add_user_bottom_sheet.dart';
 import 'package:newshub/modules/admin/manage_user/widgets/user_card_widget.dart';
 
 class ManageUsersView extends StatefulWidget {
@@ -71,6 +72,12 @@ class _ManageUsersViewState extends State<ManageUsersView>
         title: const Text('Manage Users'),
         automaticallyImplyLeading: false,
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Colors.blueAccent,
+        icon: const Icon(Icons.add),
+        label: const Text("Add User"),
+        onPressed: () => _openUserForm(context),
+      ),
       body: Padding(
         padding: EdgeInsets.all(AppSpacing.paddingS),
         child: Column(
@@ -140,6 +147,34 @@ class _ManageUsersViewState extends State<ManageUsersView>
           );
         }).toList(),
       ),
+    );
+  }
+
+  void _openUserForm(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // full height
+      backgroundColor: Colors.transparent,
+      builder: (_) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.85,
+          maxChildSize: 0.95,
+          builder: (context, scrollController) {
+            return Container(
+              padding: const EdgeInsets.all(20),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: AddUserBottomSheet(),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
