@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:newshub/modules/admin/admin_controller.dart';
 
 class AdminBottomNav extends StatelessWidget {
+
   final AdminController controller = Get.find();
 
   final Color selectedColor = Colors.blueAccent;

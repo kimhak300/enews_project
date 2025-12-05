@@ -20,17 +20,4 @@ class AdminController extends GetxController {
   void changeTab(int index) {
     currentIndex.value = index;
   }
-
-  // Optional: Lazy load controllers per tab
-  void initControllers() {
-    // Get.lazyPut(() => HomeController());
-    // Get.lazyPut(() => CategoryController());
-    // Get.lazyPut(() => ProfileController());
-  }
-
-  @override
-  void onInit() {
-    super.onInit();
-    initControllers();
-  }
 }
