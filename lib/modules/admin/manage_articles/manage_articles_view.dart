@@ -1,112 +1,141 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:newshub/api/controller/article_controller.dart';
+import 'package:newshub/api/controller/category_controller.dart';
 import 'package:newshub/app/constants/app_spacing.dart';
 import 'package:newshub/modules/admin/manage_articles/widgets/article_card_widget.dart';
 import 'package:newshub/modules/admin/manage_articles/widgets/create_article_bottomsheet.dart';
+import 'package:newshub/modules/admin/manage_articles/widgets/update_article_bottomsheet.dart';
 
 class ManageArticlesView extends StatelessWidget {
-  const ManageArticlesView({super.key});
+  final ArticleController controller = Get.put(ArticleController());
+  final CategoryController categoryController = Get.put(CategoryController());
 
-  final List<String> tabs = const ['All', 'Draft', 'Published'];
+  ManageArticlesView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: tabs.length,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Manage Articles'),
-          automaticallyImplyLeading: false,
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showModalBottomSheet(
-              isScrollControlled: true,
-              context: context,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    // Load categories and articles initially
+    categoryController.fetchCategories();
+    controller.fetchArticles();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Articles'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () => _showFilterDialog(context),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            builder: (context) => const CreateArticleBottomsheet(),
+          ).then((_) => controller.fetchArticles());
+        },
+        child: const Icon(Icons.add),
+      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (controller.articles.isEmpty) {
+          return const Center(child: Text('No articles found.'));
+        }
+
+        return Padding(
+          padding: EdgeInsets.all(AppSpacing.paddingXS),
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await controller.fetchArticles();
+            },
+            child: ListView.builder(
+              itemCount: controller.articles.length,
+              itemBuilder: (context, index) {
+                final article = controller.articles[index];
+                return ArticleCardWidget(
+                  title: article.title,
+                  author: {
+                    'id': article.authorId,
+                    'display_name': 'Author #${article.authorId}'
+                  },
+                  status: article.status,
+                  categories: article.categories,
+                  tags: article.tags,
+                  mediaAssets: article.media,
+                  onEdit: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (context) => UpdateArticleBottomsheet(
+                        article: article.toJson()
+                      ),
+                    ).then((_) => controller.fetchArticles());
+                  },
+                  onDelete: () => controller.deleteArticle(article.id),
+                );
+              },
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  void _showFilterDialog(BuildContext context) {
+    String? selectedCategory;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Filter by Category'),
+          content: Obx(() {
+            if (categoryController.isLoading.value) {
+              return const SizedBox(
+                height: 50,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            return DropdownButtonFormField<String>(
+              decoration: const InputDecoration(
+                labelText: 'Select Category',
               ),
-              builder: (_) => const CreateArticleBottomSheet(),
-            );
-          },
-          child: const Icon(Icons.add),
-        ),
-        body: Padding(
-          padding: EdgeInsets.all(AppSpacing.paddingS),
-          child: Column(
-            children: [
-              _tabHeader(),
-              SizedBox(height: AppSpacing.paddingL),
-              _tabBody(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _tabHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.blueAccent.shade100,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: TabBar(
-        dividerHeight: 0,
-        indicator: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        unselectedLabelColor: Colors.white,
-        labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-        unselectedLabelStyle: const TextStyle(fontSize: 14),
-        tabs: tabs.map((tab) => Container(
-          padding: const EdgeInsets.symmetric(
-              vertical: 8, horizontal: 8
-          ),
-          child: Center(child: Text(tab)
-          ),
-        ),
-        ).toList(),
-      ),
-    );
-  }
-
-  Widget _tabBody() {
-    return Expanded(
-      child: TabBarView(
-        children: tabs.map((tab) {
-          return Column(
-            children: [
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search articles...',
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[200],
+              items: categoryController.categories
+                  .map(
+                    (cat) => DropdownMenuItem(
+                  value: cat.name,
+                  child: Text(cat.name),
                 ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Fixed UI – Only one card
-              ArticleCardWidget(
-                title: "Flutter State Management",
-                author: {'id': 1, 'display_name': 'John Doe'},
-                status: "draft",
-                categories: ["Flutter", "Programming"],
-                tags: ["GetX", "State", "UI"],
-                mediaAssets: ["image", "video"],
-                onEdit: () {},
-                onDelete: () {},
-                onPublish: () {},
-              ),
-            ],
-          );
-        }).toList(),
+              )
+                  .toList(),
+              value: selectedCategory,
+              onChanged: (v) => setState(() => selectedCategory = v),
+            );
+          }),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                controller.fetchArticles(); // Clear filter
+              },
+              child: const Text('Clear'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                controller.fetchArticles(category: selectedCategory); // Pass category
+              },
+              child: const Text('Apply'),
+            ),
+          ],
+        ),
       ),
     );
   }
