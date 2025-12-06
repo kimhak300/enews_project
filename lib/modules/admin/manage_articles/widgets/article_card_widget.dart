@@ -1,12 +1,13 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 
 class ArticleCardWidget extends StatelessWidget {
   final String title;
-  final Map<String, dynamic> author; // e.g., {'id': 1, 'display_name': 'John Doe'}
-  final String status; // draft | published | archived
+  final Map<String, dynamic> author;
+  final String status;
   final List<String> categories;
   final List<String> tags;
-  final List<String> mediaAssets; // image, video, audio
+  final List<String> mediaAssets;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final VoidCallback? onPublish;
@@ -41,28 +42,16 @@ class ArticleCardWidget extends StatelessWidget {
   // Category color
   Color _categoryColor(String category) => Colors.blueAccent.shade100;
 
-  // Tag color
-  Color _tagColor(String tag) => Colors.orangeAccent.shade100;
-
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
     return Card(
-      // padding: const EdgeInsets.all(16),
-      // decoration: BoxDecoration(
-      //   color: Colors.white,
-      //   borderRadius: BorderRadius.circular(16),
-      //   boxShadow: const [
-      //     BoxShadow(
-      //       color: Colors.black12,
-      //       blurRadius: 8,
-      //       offset: Offset(0, 4),
-      //     ),
-      //   ],
-      // ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -73,11 +62,13 @@ class ArticleCardWidget extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    style: textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: _statusColor(status).withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
@@ -93,116 +84,138 @@ class ArticleCardWidget extends StatelessWidget {
               ],
             ),
 
-            // Author
-            Text(
-              'Author: ${author['display_name']}',
-              style: textTheme.bodyMedium?.copyWith(color: Colors.black54),
-            ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
+            Text('Author: ${author['display_name']}',
+                style: textTheme.bodyMedium),
+
+            const SizedBox(height: 12),
 
             // Categories
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                ...categories.map(
+            if (categories.isNotEmpty)
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: categories
+                    .map(
                       (cat) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _categoryColor(cat),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      cat,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: Colors.blueAccent.shade700,
-                        fontWeight: FontWeight.bold,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: _categoryColor(cat),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          cat,
+                          style: textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blueAccent.shade700),
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
+                    )
+                    .toList(),
+              ),
 
-            // Tags
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                ...tags.map(
-                      (tag) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _tagColor(tag),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      tag,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: Colors.orangeAccent.shade700,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            if (categories.isNotEmpty) const SizedBox(height: 12),
+
+            // Media icon (only one)
+            if (mediaAssets.isNotEmpty)
+              GestureDetector(
+                onTap: (){
+                  _showMediaDialog(context);
+                },
+                child: Icon(Icons.image, size: 40, color: Colors.blueAccent),
+              ),
+
             const SizedBox(height: 16),
-
-            // Media Assets
-            Wrap(
-              spacing: 8,
-              children: [
-                ...mediaAssets.map(
-                      (asset) {
-                    IconData icon;
-                    Color color;
-                    switch (asset) {
-                      case 'image':
-                        icon = Icons.image;
-                        color = Colors.purple;
-                        break;
-                      case 'video':
-                        icon = Icons.videocam;
-                        color = Colors.redAccent;
-                        break;
-                      case 'audio':
-                        icon = Icons.audiotrack;
-                        color = Colors.orange;
-                        break;
-                      default:
-                        icon = Icons.insert_drive_file;
-                        color = Colors.grey;
-                    }
-                    return Icon(icon, color: color);
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
 
             // Action Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.blueAccent),
-                  onPressed: onEdit,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.redAccent),
-                  onPressed: onDelete,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.publish, color: Colors.green),
-                  onPressed: onPublish,
-                ),
+                if (onEdit != null)
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.blueAccent),
+                    onPressed: onEdit,
+                  ),
+                if (onDelete != null)
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.redAccent),
+                    onPressed: onDelete,
+                  ),
+                if (onPublish != null)
+                  IconButton(
+                    icon: const Icon(Icons.publish, color: Colors.green),
+                    onPressed: onPublish,
+                  ),
               ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void _showMediaDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final pageController = PageController();
+        return StatefulBuilder(builder: (context, setState) {
+          int currentIndex = 0;
+
+          return AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            contentPadding: const EdgeInsets.all(8),
+            content: SizedBox(
+              width: double.maxFinite,
+              height: 400,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: PageView.builder(
+                      controller: pageController,
+                      itemCount: mediaAssets.length,
+                      onPageChanged: (index) =>
+                          setState(() => currentIndex = index),
+                      itemBuilder: (_, index) {
+                        final bytes =
+                            base64Decode(mediaAssets[index].split(',').last);
+                        return Image.memory(bytes, fit: BoxFit.contain);
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  // Page indicators
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      mediaAssets.length,
+                      (i) => Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: currentIndex == i ? 16 : 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: currentIndex == i
+                              ? Colors.blueAccent
+                              : Colors.grey,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'),
+              )
+            ],
+          );
+        });
+      },
     );
   }
 }

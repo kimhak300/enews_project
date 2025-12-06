@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newshub/api/controller/category_controller.dart';
 import 'package:newshub/api/model/category_model.dart';
+import 'package:newshub/app/constants/app_spacing.dart';
 import 'package:newshub/modules/admin/manage_categories/widgets/add_category_bottomsheet.dart';
 
 class ManageCategoriesView extends StatelessWidget {
@@ -15,7 +16,7 @@ class ManageCategoriesView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Categories / Tags'),
+        title: const Text('Manage Categories'),
         backgroundColor: Colors.blueAccent,
         elevation: 2,
         automaticallyImplyLeading: false,
@@ -36,7 +37,7 @@ class ManageCategoriesView extends StatelessWidget {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(AppSpacing.paddingS),
         child: Obx(() {
           if (controller.isLoading.value) {
             return const Center(child: CircularProgressIndicator());

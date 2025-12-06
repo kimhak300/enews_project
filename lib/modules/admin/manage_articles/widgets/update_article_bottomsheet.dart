@@ -6,17 +6,18 @@ import 'package:image_picker/image_picker.dart';
 import 'package:newshub/api/controller/article_controller.dart';
 import 'package:newshub/api/controller/category_controller.dart';
 
-class CreateArticleBottomsheet extends StatefulWidget {
-  final Map<String, dynamic>? article; // if null => create, else update
+class UpdateArticleBottomsheet extends StatefulWidget {
 
-  const CreateArticleBottomsheet({super.key, this.article});
+  final Map<String, dynamic> article;
+
+  const UpdateArticleBottomsheet({super.key, required this.article});
 
   @override
-  State<CreateArticleBottomsheet> createState() =>
-      _CreateArticleBottomsheetState();
+  State<UpdateArticleBottomsheet> createState() =>
+      _UpdateArticleBottomsheetState();
 }
 
-class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
+class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
   final _formKey = GlobalKey<FormState>();
   final ArticleController articleController = Get.find();
   final CategoryController categoryController = Get.find();
@@ -31,7 +32,6 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
 
   List<String> selectedCategories = [];
   List<String> selectedTags = [];
-
   List<String> mediaBase64 = [];
   List<File> pickedFiles = [];
 
@@ -45,19 +45,17 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
 
     categoryController.fetchCategories();
 
-    // If update, prefill fields
-    if (widget.article != null) {
-      final a = widget.article!;
-      titleController.text = a['title'] ?? '';
-      subtitleController.text = a['subtitle'] ?? '';
-      excerptController.text = a['excerpt'] ?? '';
-      contentController.text = a['content_html'] ?? '';
-      selectedStatus = a['status'] ?? 'draft';
-      isFeatured = a['is_featured'] ?? false;
-      selectedCategories = List<String>.from(a['categories'] ?? []);
-      selectedTags = List<String>.from(a['tags'] ?? []);
-      mediaBase64 = List<String>.from(a['media'] ?? []);
-    }
+    // Prefill fields from article
+    final a = widget.article;
+    titleController.text = a['title'] ?? '';
+    subtitleController.text = a['subtitle'] ?? '';
+    excerptController.text = a['excerpt'] ?? '';
+    contentController.text = a['content_html'] ?? '';
+    selectedStatus = a['status'] ?? 'draft';
+    isFeatured = a['is_featured'] ?? false;
+    selectedCategories = List<String>.from(a['categories'] ?? []);
+    selectedTags = List<String>.from(a['tags'] ?? []);
+    mediaBase64 = List<String>.from(a['media'] ?? []);
   }
 
   Future<void> pickImages() async {
@@ -92,7 +90,7 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    widget.article != null ? 'Update Article' : 'Create Article',
+                    'Update Article',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   IconButton(
@@ -189,7 +187,8 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
                     .map(
                       (c) => Chip(
                     label: Text(c),
-                    onDeleted: () => setState(() => selectedCategories.remove(c)),
+                    onDeleted: () =>
+                        setState(() => selectedCategories.remove(c)),
                   ),
                 )
                     .toList(),
@@ -206,15 +205,17 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
               Wrap(
                 spacing: 6,
                 children: pickedFiles
-                    .map((file) => ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.file(
-                    file,
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
+                    .map(
+                      (file) => ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      file,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ))
+                )
                     .toList(),
               ),
               const SizedBox(height: 20),
@@ -223,8 +224,8 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _saveArticle,
-                  child: Text(widget.article != null ? 'Update' : 'Create'),
+                  onPressed: _updateArticle,
+                  child: const Text('Update'),
                 ),
               ),
             ],
@@ -234,7 +235,7 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
     );
   }
 
-  void _saveArticle() async {
+  void _updateArticle() async {
     if (!_formKey.currentState!.validate()) return;
 
     final body = {
@@ -251,15 +252,8 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
       'language_code': 'en',
     };
 
-    if (widget.article != null) {
-      // Update
-      final id = widget.article!['id'];
-      await articleController.updateArticle(id, body);
-    } else {
-      // Create
-      await articleController.createArticle(body);
-    }
-
+    final id = widget.article['id'];
+    await articleController.updateArticle(id, body);
     Navigator.pop(context);
   }
 }
