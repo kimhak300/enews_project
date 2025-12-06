@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:newshub/app/constants/app_constant.dart';
 import 'package:newshub/app/constants/app_widget_size.dart';
 
 class UserCardWidget extends StatelessWidget {
@@ -30,7 +31,7 @@ class UserCardWidget extends StatelessWidget {
             // Profile Avatar
             CircleAvatar(
               radius: 24,
-              backgroundImage: avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+              backgroundImage: avatarUrl.isNotEmpty ? NetworkImage(AppConstants.STORAGE_BASE_URL+avatarUrl) : null,
               child: avatarUrl.isEmpty ? Text(displayName[0], style: theme.textTheme.titleMedium) : null,
             ),
             const SizedBox(width: 16),

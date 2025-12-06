@@ -14,6 +14,9 @@ class AuthController extends GetxController {
   final AuthService _authService = AuthService();
   final GetStorage _storage = GetStorage();
 
+  // ─────────────────────────────────────────────
+  // LOGIN
+  // ─────────────────────────────────────────────
   void login() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
@@ -27,10 +30,11 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
 
-      final response = await _authService.login(email: email, password: password);
+      final response =
+      await _authService.login(email: email, password: password);
 
       final user = response['user'];
-      final role = user['role_status']?.toString().toLowerCase();
+      final role = user['role']?.toString().toLowerCase(); // updated role
       final token = response['token']?.toString();
 
       if (token != null && role != null) {
@@ -38,28 +42,30 @@ class AuthController extends GetxController {
         await _storage.write(AppConstants.ROLE_KEY, role);
       }
 
-      Get.snackbar('Success', 'Login successful', snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('Success', 'Login successful',
+          snackPosition: SnackPosition.BOTTOM);
 
       _navigateByRole(role);
     } catch (e) {
-      Get.snackbar('Error', e.toString(), snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('Error', e.toString(),
+          snackPosition: SnackPosition.BOTTOM);
     } finally {
       isLoading.value = false;
     }
   }
 
+  // ─────────────────────────────────────────────
+  // LOGOUT
+  // ─────────────────────────────────────────────
   void logout() async {
     try {
       isLoading.value = true;
 
-      // Call logout API
       await _authService.logout();
 
-      // Clear token and role
       await _storage.remove(AppConstants.TOKEN_KEY);
       await _storage.remove(AppConstants.ROLE_KEY);
 
-      // Navigate to login
       Get.offAllNamed(Routes.LOGIN);
 
       Get.snackbar('Success', 'Logged out successfully',
@@ -72,6 +78,9 @@ class AuthController extends GetxController {
     }
   }
 
+  // ─────────────────────────────────────────────
+  // NAVIGATE BY ROLE
+  // ─────────────────────────────────────────────
   void _navigateByRole(String? role) {
     switch (role) {
       case 'user':
@@ -92,7 +101,10 @@ class AuthController extends GetxController {
   bool isLoggedIn() {
     final token = _storage.read(AppConstants.TOKEN_KEY);
     final role = _storage.read(AppConstants.ROLE_KEY);
-    return token != null && token.isNotEmpty && role != null && role.isNotEmpty;
+    return token != null &&
+        token.isNotEmpty &&
+        role != null &&
+        role.isNotEmpty;
   }
 
   @override

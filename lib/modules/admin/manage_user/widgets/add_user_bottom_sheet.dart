@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:get/get.dart';
+import '../../../../api/controller/user_controller.dart';
 
 class AddUserBottomSheet extends StatefulWidget {
   const AddUserBottomSheet({super.key});
@@ -27,6 +29,9 @@ class AddUserBottomSheetState extends State<AddUserBottomSheet> {
   File? imageFile;
   final ImagePicker _picker = ImagePicker();
 
+  // User Controller
+  final UserController userController = Get.put(UserController());
+
   Future<void> pickImage() async {
     final XFile? pickedFile =
     await _picker.pickImage(source: ImageSource.gallery);
@@ -34,6 +39,43 @@ class AddUserBottomSheetState extends State<AddUserBottomSheet> {
     if (pickedFile != null) {
       setState(() => imageFile = File(pickedFile.path));
     }
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      initialDate: DateTime.now(),
+    );
+
+    if (picked != null) setState(() => createdAt = picked);
+  }
+
+  InputDecoration _input(String label) {
+    return InputDecoration(
+      labelText: label,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      filled: true,
+      fillColor: Colors.grey.shade100,
+    );
+  }
+
+  void _saveUser() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (selectedRole == null) {
+      Get.snackbar("Role Required", "Please select a role");
+      return;
+    }
+
+    await userController.createUser(
+      displayName: displayNameController.text,
+      email: emailController.text,
+      password: passwordController.text,
+      role: selectedRole!.toLowerCase(),
+      isActive: isActive,
+      avatarFile: imageFile,
+    );
   }
 
   @override
@@ -45,7 +87,7 @@ class AddUserBottomSheetState extends State<AddUserBottomSheet> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // BottomSheet Top Handle
+          // Handle
           Center(
             child: Container(
               width: 50,
@@ -62,18 +104,14 @@ class AddUserBottomSheetState extends State<AddUserBottomSheet> {
             "Create User",
             style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
-
           const SizedBox(height: 20),
 
-          // --------------------------------------------------------------------
-          // CIRCLE IMAGE PICKER
-          // --------------------------------------------------------------------
+          // Profile Image Picker
           Text(
             "Profile Image",
             style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-
           Center(
             child: InkWell(
               onTap: pickImage,
@@ -99,12 +137,13 @@ class AddUserBottomSheetState extends State<AddUserBottomSheet> {
               ),
             ),
           ),
-
           const SizedBox(height: 20),
 
           // Email
           TextFormField(
             controller: emailController,
+            validator: (v) =>
+            (v == null || v.isEmpty) ? "Email is required" : null,
             decoration: _input("Email"),
           ),
           const SizedBox(height: 16),
@@ -113,6 +152,8 @@ class AddUserBottomSheetState extends State<AddUserBottomSheet> {
           TextFormField(
             controller: passwordController,
             obscureText: true,
+            validator: (v) =>
+            (v == null || v.isEmpty) ? "Password is required" : null,
             decoration: _input("Password"),
           ),
           const SizedBox(height: 16),
@@ -120,19 +161,13 @@ class AddUserBottomSheetState extends State<AddUserBottomSheet> {
           // Display Name
           TextFormField(
             controller: displayNameController,
+            validator: (v) =>
+            (v == null || v.isEmpty) ? "Display name is required" : null,
             decoration: _input("Display Name"),
           ),
           const SizedBox(height: 16),
 
-          // Bio
-          TextFormField(
-            controller: bioController,
-            maxLines: 3,
-            decoration: _input("Bio"),
-          ),
-          const SizedBox(height: 16),
-
-          // Is Active
+          // Account Status
           Text(
             "Account Status",
             style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -145,7 +180,6 @@ class AddUserBottomSheetState extends State<AddUserBottomSheet> {
                 onChanged: (v) => setState(() => isActive = v!),
               ),
               Text("Active", style: textTheme.bodyMedium),
-
               Radio(
                 value: false,
                 groupValue: isActive,
@@ -154,7 +188,6 @@ class AddUserBottomSheetState extends State<AddUserBottomSheet> {
               Text("Inactive", style: textTheme.bodyMedium),
             ],
           ),
-
           const SizedBox(height: 16),
 
           // Role Dropdown
@@ -169,89 +202,40 @@ class AddUserBottomSheetState extends State<AddUserBottomSheet> {
             }).toList(),
             onChanged: (value) => setState(() => selectedRole = value),
           ),
-
-          const SizedBox(height: 16),
-
-          // Created At
-          Text(
-            "Created At",
-            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-
-          InkWell(
-            onTap: _pickDate,
-            child: Container(
-              padding:
-              const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade400),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    createdAt == null
-                        ? "Select date"
-                        : "${createdAt!.year}-${createdAt!.month}-${createdAt!.day}",
-                    style: textTheme.bodyMedium,
-                  ),
-                  const Icon(Icons.calendar_month),
-                ],
-              ),
-            ),
-          ),
-
           const SizedBox(height: 24),
 
           // Save Button
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                backgroundColor: Colors.blueAccent,
-              ),
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  // TODO: upload image + save data
-                }
-              },
-              child: Text(
-                "Save User",
-                style: textTheme.titleMedium
-                    ?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-            ),
+            child: Obx(() {
+              return ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  backgroundColor: Colors.blueAccent,
+                ),
+                onPressed: userController.isLoading.value ? null : _saveUser,
+                child: userController.isLoading.value
+                    ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+                    : Text(
+                  "Save User",
+                  style: textTheme.titleMedium?.copyWith(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              );
+            }),
           ),
-
           const SizedBox(height: 30),
         ],
       ),
-    );
-  }
-
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      initialDate: DateTime.now(),
-    );
-
-    if (picked != null) setState(() => createdAt = picked);
-  }
-
-  // Input style
-  InputDecoration _input(String label) {
-    return InputDecoration(
-      labelText: label,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      filled: true,
-      fillColor: Colors.grey.shade100,
     );
   }
 }

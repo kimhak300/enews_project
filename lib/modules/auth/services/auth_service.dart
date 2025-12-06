@@ -6,11 +6,14 @@ import '../../../app/constants/app_constant.dart';
 class AuthService {
   final GetStorage _storage = GetStorage();
 
+  // ─────────────────────────────────────────────
+  // LOGIN
+  // ─────────────────────────────────────────────
   Future<Map<String, dynamic>> login({
     required String email,
     required String password,
   }) async {
-    final url = Uri.parse(AppConstants.BASE_URL+'/login');
+    final url = Uri.parse('${AppConstants.BASE_URL}/login');
 
     final response = await http.post(
       url,
@@ -29,6 +32,9 @@ class AuthService {
     }
   }
 
+  // ─────────────────────────────────────────────
+  // LOGOUT
+  // ─────────────────────────────────────────────
   Future<bool> logout() async {
     final token = _storage.read(AppConstants.TOKEN_KEY);
 
@@ -41,8 +47,8 @@ class AuthService {
     final response = await http.post(
       url,
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
       },
     );
 
@@ -51,7 +57,7 @@ class AuthService {
       await _storage.remove(AppConstants.ROLE_KEY);
       return true;
     } else {
-      final body = json.decode(response.body);
+      final body = jsonDecode(response.body);
       throw Exception(body['message'] ?? 'Logout failed');
     }
   }

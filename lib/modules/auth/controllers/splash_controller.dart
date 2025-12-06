@@ -33,7 +33,7 @@ class SplashController extends GetxController {
           Get.offAllNamed(Routes.LOGIN);
       }
     } else {
-      Get.offAllNamed(Routes.ADMIN_BOTTOM_NAV);
+      Get.offAllNamed(Routes.LOGIN);
     }
   }
 }
