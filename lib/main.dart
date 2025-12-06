@@ -8,7 +8,6 @@ import 'package:newshub/app/controllers/ratio_controller.dart';
 import 'package:newshub/app/controllers/theme_controller.dart';
 import 'package:newshub/app/routes/app_routes.dart';
 import 'package:newshub/modules/auth/controllers/splash_controller.dart';
-import 'package:newshub/modules/auth/views/splash_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app/routes/app_pages.dart';
 import 'app/theme/app_theme.dart';

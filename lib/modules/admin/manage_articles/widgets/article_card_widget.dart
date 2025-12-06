@@ -1,206 +1,162 @@
 import 'package:flutter/material.dart';
+import 'package:newshub/modules/admin/manage_articles/article_detail_view.dart';
 
 class ArticleCardWidget extends StatelessWidget {
   final String title;
-  final Map<String, dynamic> author; // e.g., {'id': 1, 'display_name': 'John Doe'}
-  final String status; // draft | published | archived
+  final String subtitle;
   final List<String> categories;
-  final List<String> tags;
-  final List<String> mediaAssets; // image, video, audio
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
-  final VoidCallback? onPublish;
+  final List<String>? images;
+  final Map<String, dynamic> articleData;
 
   const ArticleCardWidget({
     super.key,
     required this.title,
-    required this.author,
-    required this.status,
-    this.categories = const [],
-    this.tags = const [],
-    this.mediaAssets = const [],
-    this.onEdit,
-    this.onDelete,
-    this.onPublish,
+    required this.subtitle,
+    required this.categories,
+    required this.articleData,
+    this.images,
   });
 
-  // Status color
-  Color _statusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'draft':
-        return Colors.orangeAccent;
-      case 'published':
-        return Colors.green;
-      case 'archived':
-        return Colors.grey;
-      default:
-        return Colors.blueAccent;
+  String _getInitials(String text) {
+    final parts = text.trim().split(" ");
+    if (parts.length == 1) {
+      return text.substring(0, 2).toUpperCase();
     }
+    return (parts[0][0] + parts[1][0]).toUpperCase();
   }
-
-  // Category color
-  Color _categoryColor(String category) => Colors.blueAccent.shade100;
-
-  // Tag color
-  Color _tagColor(String tag) => Colors.orangeAccent.shade100;
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final String? firstImage =
+    (images != null && images!.isNotEmpty) ? images!.first : null;
 
-    return Card(
-      // padding: const EdgeInsets.all(16),
-      // decoration: BoxDecoration(
-      //   color: Colors.white,
-      //   borderRadius: BorderRadius.circular(16),
-      //   boxShadow: const [
-      //     BoxShadow(
-      //       color: Colors.black12,
-      //       blurRadius: 8,
-      //       offset: Offset(0, 4),
-      //     ),
-      //   ],
-      // ),
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title + Status
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ArticleDetailView(article: articleData),
+          ),
+        );
+      },
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              //---------------------------------------------------------
+              // 1️⃣ TOP ROW → Image + Title + Categories (on right)
+              //---------------------------------------------------------
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // --- Image or Fallback Avatar ---
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: firstImage != null
+                        ? Image.network(
+                      firstImage,
+                      width: 70,
+                      height: 70,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _fallbackAvatar(),
+                    )
+                        : _fallbackAvatar(),
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _statusColor(status).withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    status.toUpperCase(),
-                    style: textTheme.bodySmall?.copyWith(
-                      color: _statusColor(status),
-                      fontWeight: FontWeight.bold,
+
+                  const SizedBox(width: 12),
+
+                  // TITLE + SUBTITLE
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // --- Title ---
+                        Text(
+                          title,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+
+                        const SizedBox(height: 4),
+
+                        // --- Subtitle ---
+                        if (subtitle.isNotEmpty)
+                          Text(
+                            subtitle,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(color: Colors.black87),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
                     ),
                   ),
-                ),
-              ],
-            ),
 
-            // Author
-            Text(
-              'Author: ${author['display_name']}',
-              style: textTheme.bodyMedium?.copyWith(color: Colors.black54),
-            ),
-            const SizedBox(height: 16),
+                  const SizedBox(width: 10),
 
-            // Categories
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                ...categories.map(
-                      (cat) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _categoryColor(cat),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      cat,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: Colors.blueAccent.shade700,
-                        fontWeight: FontWeight.bold,
+                  // --- Categories on the Right ---
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: categories
+                        .map(
+                          (cat) => Container(
+                        margin: const EdgeInsets.only(bottom: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Text(
+                          cat,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueAccent,
+                          ),
+                        ),
                       ),
-                    ),
+                    )
+                        .toList(),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-            // Tags
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                ...tags.map(
-                      (tag) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _tagColor(tag),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      tag,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: Colors.orangeAccent.shade700,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Media Assets
-            Wrap(
-              spacing: 8,
-              children: [
-                ...mediaAssets.map(
-                      (asset) {
-                    IconData icon;
-                    Color color;
-                    switch (asset) {
-                      case 'image':
-                        icon = Icons.image;
-                        color = Colors.purple;
-                        break;
-                      case 'video':
-                        icon = Icons.videocam;
-                        color = Colors.redAccent;
-                        break;
-                      case 'audio':
-                        icon = Icons.audiotrack;
-                        color = Colors.orange;
-                        break;
-                      default:
-                        icon = Icons.insert_drive_file;
-                        color = Colors.grey;
-                    }
-                    return Icon(icon, color: color);
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-
-            // Action Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.blueAccent),
-                  onPressed: onEdit,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.redAccent),
-                  onPressed: onDelete,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.publish, color: Colors.green),
-                  onPressed: onPublish,
-                ),
-              ],
-            ),
-          ],
+  //---------------------------------------------------------
+  // Fallback Avatar (if no image)
+  //---------------------------------------------------------
+  Widget _fallbackAvatar() {
+    return Container(
+      width: 70,
+      height: 70,
+      decoration: BoxDecoration(
+        color: Colors.blueAccent.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Center(
+        child: Text(
+          _getInitials(title),
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.blueAccent,
+          ),
         ),
       ),
     );

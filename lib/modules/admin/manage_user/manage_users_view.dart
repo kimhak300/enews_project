@@ -1,253 +1,122 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:newshub/app/theme/app_theme.dart';
-import 'package:newshub/data/models/user_model.dart';
-import 'package:newshub/modules/admin/manage_user/manage_users_controller.dart';
+import 'package:newshub/app/constants/app_spacing.dart';
+import 'package:newshub/modules/admin/manage_user/widgets/add_user_bottom_sheet.dart';
+import 'package:newshub/modules/admin/manage_user/widgets/user_card_widget.dart';
+import '../../../api/controller/user_controller.dart';
 
-class ManageUsersView extends GetView<ManageUsersController> {
-  const ManageUsersView({super.key});
+class ManageUsersView extends StatelessWidget {
+  ManageUsersView({super.key});
+
+  final UserController userController = Get.put(UserController());
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Manage Users'),
-        backgroundColor: AppTheme.primaryColor,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: controller.refresh,
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Manage Users'),
+          automaticallyImplyLeading: false,
+          bottom: const TabBar(
+            indicatorColor: Colors.white,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            tabs: [
+              Tab(text: "All"),
+              Tab(text: "User"),
+              Tab(text: "Organizer"),
+            ],
           ),
+        ),
+
+        floatingActionButton: FloatingActionButton.extended(
+          icon: const Icon(Icons.add),
+          label: const Text("Add User"),
+          onPressed: () => _openBottomSheet(context),
+        ),
+
+        body: Obx(() {
+          if (userController.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return TabBarView(
+            children: [
+              _buildList(userController.users),
+              _buildList(
+                userController.users
+                    .where((u) => u.role.toLowerCase() == "user")
+                    .toList(),
+              ),
+              _buildList(
+                userController.users
+                    .where((u) => u.role.toLowerCase() == "organizer")
+                    .toList(),
+              ),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+
+  /// USER LIST WITH REFRESH
+  Widget _buildList(List users) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        await userController.fetchUsers();
+      },
+      child: users.isEmpty
+          ? ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: const [
+          SizedBox(height: 100),
+          Center(child: Text("No users found.")),
         ],
-      ),
-      body: Column(
-        children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: controller.searchController,
-              decoration: InputDecoration(
-                hintText: 'Search users...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              ),
-              onChanged: controller.searchUsers,
-            ),
-          ),
-
-          // Users List
-          Expanded(
-            child: Obx(() {
-              if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (controller.errorMessage.value.isNotEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
-                      const SizedBox(height: 16),
-                      Text(
-                        controller.errorMessage.value,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: controller.refresh,
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              final users = controller.filteredUsers;
-
-              if (users.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.people_outline, size: 64, color: Colors.grey[400]),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No users found',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              return RefreshIndicator(
-                onRefresh: () => controller.fetchUsers(refresh: true),
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: (scrollInfo) {
-                    if (scrollInfo.metrics.pixels >=
-                            scrollInfo.metrics.maxScrollExtent - 200 &&
-                        !controller.isLoadingMore.value) {
-                      controller.loadMore();
-                    }
-                    return false;
-                  },
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: users.length + (controller.hasMore ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == users.length) {
-                        return const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
-                      return _buildUserCard(users[index]);
-                    },
-                  ),
-                ),
-              );
-            }),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddUserDialog(context),
-        backgroundColor: AppTheme.primaryColor,
-        child: const Icon(Icons.add, color: Colors.white),
+      ) : ListView.separated(
+        padding: EdgeInsets.all(AppSpacing.paddingS),
+        itemCount: users.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 0),
+        itemBuilder: (_, i) {
+          final user = users[i];
+          return UserCardWidget(
+            userId: user.id,
+            displayName: user.displayName,
+            email: user.email,
+            role: user.role,
+            avatarUrl: user.avatar ?? "",
+            onDelete: () => userController.deleteUser(user.id),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildUserCard(UserModel user) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+  /// BOTTOM SHEET
+  void _openBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.85,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) {
+          return Container(
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: SingleChildScrollView(
+              controller: scrollController,
+              child: const AddUserBottomSheet(),
+            ),
+          );
+        },
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(12),
-        leading: CircleAvatar(
-          radius: 28,
-          backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-          backgroundImage:
-              user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
-          child: user.avatarUrl == null
-              ? Text(
-                  user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryColor,
-                  ),
-                )
-              : null,
-        ),
-        title: Text(
-          user.name,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(user.email),
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 4,
-              children: [
-                if (user.roles != null)
-                  ...user.roles!.map((role) => Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _getRoleColor(role.roleName).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          role.roleName,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: _getRoleColor(role.roleName),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      )),
-              ],
-            ),
-          ],
-        ),
-        trailing: PopupMenuButton<String>(
-          onSelected: (value) {
-            switch (value) {
-              case 'edit':
-                _showEditUserDialog(user);
-                break;
-              case 'delete':
-                controller.showDeleteConfirmation(user);
-                break;
-            }
-          },
-          itemBuilder: (context) => [
-            const PopupMenuItem(
-              value: 'edit',
-              child: Row(
-                children: [
-                  Icon(Icons.edit, size: 20),
-                  SizedBox(width: 8),
-                  Text('Edit'),
-                ],
-              ),
-            ),
-            const PopupMenuItem(
-              value: 'delete',
-              child: Row(
-                children: [
-                  Icon(Icons.delete, color: Colors.red, size: 20),
-                  SizedBox(width: 8),
-                  Text('Delete', style: TextStyle(color: Colors.red)),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Color _getRoleColor(String role) {
-    switch (role.toLowerCase()) {
-      case 'admin':
-        return Colors.red;
-      case 'organization':
-        return Colors.blue;
-      default:
-        return Colors.green;
-    }
-  }
-
-  void _showAddUserDialog(BuildContext context) {
-    Get.snackbar(
-      'Coming Soon',
-      'Add user functionality will be implemented',
-      backgroundColor: Colors.blue,
-      colorText: Colors.white,
-    );
-  }
-
-  void _showEditUserDialog(UserModel user) {
-    Get.snackbar(
-      'Coming Soon',
-      'Edit user functionality will be implemented',
-      backgroundColor: Colors.blue,
-      colorText: Colors.white,
     );
   }
 }

@@ -1,142 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:newshub/app/theme/app_theme.dart';
-import 'package:newshub/data/models/article_model.dart';
-import 'package:newshub/modules/admin/manage_categories/manage_categories_controller.dart';
+import 'package:newshub/api/controller/category_controller.dart';
+import 'package:newshub/api/model/category_model.dart';
+import 'package:newshub/app/constants/app_spacing.dart';
+import 'package:newshub/modules/admin/manage_categories/widgets/add_category_bottomsheet.dart';
+import 'package:newshub/modules/admin/manage_categories/widgets/category_card_widget.dart';
 
-class ManageCategoriesView extends GetView<ManageCategoriesController> {
-  const ManageCategoriesView({super.key});
+class ManageCategoriesView extends StatelessWidget {
+  ManageCategoriesView({super.key});
+
+  final CategoryController controller = Get.put(CategoryController());
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Manage Categories'),
-        backgroundColor: AppTheme.primaryColor,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: controller.refresh,
-          ),
-        ],
+        automaticallyImplyLeading: false,
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (controller.errorMessage.value.isNotEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
-                const SizedBox(height: 16),
-                Text(
-                  controller.errorMessage.value,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: controller.refresh,
-                  child: const Text('Retry'),
-                ),
-              ],
+      floatingActionButton: FloatingActionButton.extended(
+        icon: const Icon(Icons.add),
+        label: const Text("Add Category"),
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
+            builder: (_) => const AddCategoryBottomsheet(),
           );
-        }
+        },
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(AppSpacing.paddingS),
+        child: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        if (controller.categories.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.category_outlined, size: 64, color: Colors.grey[400]),
-                const SizedBox(height: 16),
-                Text(
-                  'No categories found',
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: controller.showAddCategoryDialog,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add Category'),
-                ),
-              ],
-            ),
-          );
-        }
+          if (controller.categories.isEmpty) {
+            return const Center(child: Text("No categories found."));
+          }
 
-        return RefreshIndicator(
-          onRefresh: () async => controller.fetchCategories(),
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: controller.categories.length,
-            itemBuilder: (context, index) {
-              return _buildCategoryCard(controller.categories[index]);
+          // Pull-to-refresh
+          return RefreshIndicator(
+            onRefresh: () async {
+              await controller.fetchCategories();
             },
-          ),
-        );
-      }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: controller.showAddCategoryDialog,
-        backgroundColor: AppTheme.primaryColor,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-    );
-  }
-
-  Widget _buildCategoryCard(CategoryModel category) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(
-            Icons.category,
-            color: AppTheme.primaryColor,
-          ),
-        ),
-        title: Text(
-          category.name,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: category.description != null
-            ? Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  category.description!,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-              )
-            : null,
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.edit, color: Colors.blue),
-              onPressed: () => controller.showEditCategoryDialog(category),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: controller.categories
+                  .map((category) =>
+                  CategoryCardWidget(category: category, textTheme: textTheme))
+                  .toList(),
             ),
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () => controller.showDeleteConfirmation(category),
-            ),
-          ],
-        ),
+          );
+        }),
       ),
     );
   }
