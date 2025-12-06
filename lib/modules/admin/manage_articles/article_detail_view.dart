@@ -31,7 +31,6 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
-        backgroundColor: Colors.blueAccent,
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
