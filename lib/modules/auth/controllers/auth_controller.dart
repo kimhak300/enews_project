@@ -22,8 +22,6 @@ class AuthController extends GetxController {
     final password = passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      Get.snackbar('Error', 'Please enter email and password',
-          snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
@@ -42,13 +40,9 @@ class AuthController extends GetxController {
         await _storage.write(AppConstants.ROLE_KEY, role);
       }
 
-      Get.snackbar('Success', 'Login successful',
-          snackPosition: SnackPosition.BOTTOM);
-
       _navigateByRole(role);
     } catch (e) {
-      Get.snackbar('Error', e.toString(),
-          snackPosition: SnackPosition.BOTTOM);
+      print(e);
     } finally {
       isLoading.value = false;
     }
@@ -67,12 +61,8 @@ class AuthController extends GetxController {
       await _storage.remove(AppConstants.ROLE_KEY);
 
       Get.offAllNamed(Routes.LOGIN);
-
-      Get.snackbar('Success', 'Logged out successfully',
-          snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
-      Get.snackbar('Error', 'Failed to logout: $e',
-          snackPosition: SnackPosition.BOTTOM);
+      print(e);
     } finally {
       isLoading.value = false;
     }

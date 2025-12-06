@@ -31,7 +31,6 @@ class ManageUsersView extends StatelessWidget {
         ),
 
         floatingActionButton: FloatingActionButton.extended(
-          backgroundColor: Colors.blueAccent,
           icon: const Icon(Icons.add),
           label: const Text("Add User"),
           onPressed: () => _openBottomSheet(context),
@@ -75,8 +74,7 @@ class ManageUsersView extends StatelessWidget {
           SizedBox(height: 100),
           Center(child: Text("No users found.")),
         ],
-      )
-          : ListView.separated(
+      ) : ListView.separated(
         padding: EdgeInsets.all(AppSpacing.paddingS),
         itemCount: users.length,
         separatorBuilder: (_, __) => const SizedBox(height: 0),

@@ -36,31 +36,36 @@ class UserCardWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         child: Row(
           children: [
-            // Profile Avatar
-            CircleAvatar(
-              radius: 24,
-              backgroundImage:
-              avatarUrl.isNotEmpty ? NetworkImage(AppConstants.STORAGE_BASE_URL + avatarUrl) : null,
-              child: avatarUrl.isEmpty
-                  ? Text(displayName[0], style: theme.textTheme.titleMedium)
-                  : null,
+
+            /// Avatar (RECTANGLE with RADIUS + Transparent BG)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10), // Rectangle radius
+              child: avatarUrl.isNotEmpty
+                  ? Image.network(
+                AppConstants.STORAGE_BASE_URL + avatarUrl,
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _fallbackAvatar(),
+              )
+                  : _fallbackAvatar(),
             ),
+
             const SizedBox(width: 16),
 
-            // Name, Email, Role
+            /// User Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     displayName,
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  Text(
-                    email,
-                    style: theme.textTheme.bodyMedium?.copyWith(color: Colors.black54),
-                  ),
-                  const SizedBox(height: 8),
+
+                  // Role tag
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                     decoration: BoxDecoration(
@@ -78,7 +83,7 @@ class UserCardWidget extends StatelessWidget {
               ),
             ),
 
-            // Edit Button
+            /// Edit Button
             Container(
               height: 40,
               width: 40,
@@ -104,11 +109,10 @@ class UserCardWidget extends StatelessWidget {
                     ),
                   );
                 },
-                tooltip: 'Edit User',
               ),
             ),
 
-            // Delete Button
+            /// Delete Button
             Container(
               height: 40,
               width: 40,
@@ -129,7 +133,6 @@ class UserCardWidget extends StatelessWidget {
                     onCancel: () {},
                   );
                 },
-                tooltip: 'Delete User',
               ),
             ),
           ],
@@ -137,11 +140,32 @@ class UserCardWidget extends StatelessWidget {
       ),
     );
   }
+
+
+  /// FALLBACK AVATAR (Rectangle)
+  Widget _fallbackAvatar() {
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        color: Colors.blue.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Center(
+        child: Text(
+          displayName[0].toUpperCase(),
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black54,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-// ------------------------
-// Update User Bottom Sheet
-// ------------------------
+/// Update User Bottom Sheet
 class UpdateUserBottomSheet extends StatefulWidget {
   final int userId;
   final String displayName;
@@ -179,27 +203,38 @@ class _UpdateUserBottomSheetState extends State<UpdateUserBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context).textTheme;
 
     return Padding(
       padding: EdgeInsets.only(
-          left: 20, right: 20, top: 20, bottom: MediaQuery.of(context).viewInsets.bottom + 20),
+        left: 20,
+        right: 20,
+        top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+      ),
       child: SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Top bar
               Center(
                 child: Container(
                   width: 50,
                   height: 5,
                   decoration: BoxDecoration(
-                      color: Colors.grey.shade400, borderRadius: BorderRadius.circular(10)),
+                    color: Colors.grey.shade400,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
-              Text('Update User', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+
+              Text(
+                'Update User',
+                style: theme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 20),
 
               // Display Name
@@ -226,21 +261,28 @@ class _UpdateUserBottomSheetState extends State<UpdateUserBottomSheet> {
               ),
               const SizedBox(height: 16),
 
-              // Avatar picker
+              // Avatar Picker
               Row(
                 children: [
                   ElevatedButton.icon(
                     onPressed: () async {
                       final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-                      if (picked != null) setState(() => avatarFile = File(picked.path));
+                      if (picked != null) {
+                        setState(() => avatarFile = File(picked.path));
+                      }
                     },
                     icon: const Icon(Icons.image),
                     label: const Text('Change Avatar'),
                   ),
                   const SizedBox(width: 12),
-                  if (avatarFile != null) Text('Avatar Selected'),
+                  if (avatarFile != null)
+                    const Text(
+                      'Avatar Selected',
+                      style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                    ),
                 ],
               ),
+
               const SizedBox(height: 24),
 
               // Save Button
@@ -265,16 +307,21 @@ class _UpdateUserBottomSheetState extends State<UpdateUserBottomSheet> {
                       );
                     }
                   },
-                  child: Obx(() => controller.isLoading.value
-                      ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                  )
-                      : const Text(
-                    'Update User',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  )),
+                  child: Obx(
+                        () => controller.isLoading.value
+                        ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                        : const Text(
+                      'Update User',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -289,7 +336,9 @@ class _UpdateUserBottomSheetState extends State<UpdateUserBottomSheet> {
       labelText: label,
       filled: true,
       fillColor: Colors.grey.shade100,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
     );
   }
 }

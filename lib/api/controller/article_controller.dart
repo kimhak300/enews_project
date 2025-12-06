@@ -21,7 +21,7 @@ class ArticleController extends GetxController {
       final result = await _service.getArticles(category: category);
       articles.value = result;
     } catch (e) {
-      Get.snackbar('Error', e.toString());
+      print(e);
     } finally {
       isLoading.value = false;
     }
@@ -30,31 +30,27 @@ class ArticleController extends GetxController {
   Future<void> createArticle(Map<String, dynamic> body) async {
     try {
       await _service.createArticle(body);
-      // Get.snackbar('Success', 'Article created');
       fetchArticles();
     } catch (e) {
       print(e);
-      // Get.snackbar('Error', e.toString());
     }
   }
 
   Future<void> updateArticle(int id, Map<String, dynamic> body) async {
     try {
       await _service.updateArticle(id, body);
-      Get.snackbar('Success', 'Article updated');
       fetchArticles();
     } catch (e) {
-      Get.snackbar('Error', e.toString());
+      print(e);
     }
   }
 
   Future<void> deleteArticle(int id) async {
     try {
       await _service.deleteArticle(id);
-      Get.snackbar('Success', 'Article deleted');
       fetchArticles();
     } catch (e) {
-      Get.snackbar('Error', e.toString());
+      print(e);
     }
   }
 
@@ -64,7 +60,7 @@ class ArticleController extends GetxController {
       final result = await _service.getArticlesByCategory(category);
       articles.value = result;
     } catch (e) {
-      Get.snackbar('Error', e.toString());
+      print(e);
     } finally {
       isLoading.value = false;
     }
