@@ -4,7 +4,7 @@ import 'package:newshub/api/controller/category_controller.dart';
 import 'package:newshub/api/model/category_model.dart';
 
 class AddCategoryBottomsheet extends StatefulWidget {
-  final CategoryModel? categoryToEdit; // Optional: for edit mode
+  final CategoryModel? categoryToEdit;
 
   const AddCategoryBottomsheet({super.key, this.categoryToEdit});
 

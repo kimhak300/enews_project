@@ -18,11 +18,11 @@ class ManageUsersView extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Manage Users'),
           automaticallyImplyLeading: false,
-          bottom: TabBar(
+          bottom: const TabBar(
             indicatorColor: Colors.white,
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
-            tabs: const [
+            tabs: [
               Tab(text: "All"),
               Tab(text: "User"),
               Tab(text: "Organizer"),
@@ -62,22 +62,36 @@ class ManageUsersView extends StatelessWidget {
     );
   }
 
-  /// USER LIST
+  /// USER LIST WITH REFRESH
   Widget _buildList(List users) {
-    return ListView.separated(
-      padding: EdgeInsets.all(AppSpacing.paddingM),
-      itemCount: users.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
-      itemBuilder: (_, i) {
-        final user = users[i];
-        return UserCardWidget(
-          displayName: user.displayName,
-          email: user.email,
-          role: user.role,
-          avatarUrl: user.avatar ?? "",
-          onDelete: () => userController.deleteUser(user.id),
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        await userController.fetchUsers();
       },
+      child: users.isEmpty
+          ? ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: const [
+          SizedBox(height: 100),
+          Center(child: Text("No users found.")),
+        ],
+      )
+          : ListView.separated(
+        padding: EdgeInsets.all(AppSpacing.paddingS),
+        itemCount: users.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 0),
+        itemBuilder: (_, i) {
+          final user = users[i];
+          return UserCardWidget(
+            userId: user.id,
+            displayName: user.displayName,
+            email: user.email,
+            role: user.role,
+            avatarUrl: user.avatar ?? "",
+            onDelete: () => userController.deleteUser(user.id),
+          );
+        },
+      ),
     );
   }
 
