@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:newshub/api/controller/category_controller.dart';
+import 'package:newshub/api/model/category_model.dart';
 
 class AddCategoryBottomsheet extends StatefulWidget {
-  const AddCategoryBottomsheet({super.key});
+  final CategoryModel? categoryToEdit; // Optional: for edit mode
+
+  const AddCategoryBottomsheet({super.key, this.categoryToEdit});
 
   @override
   State<AddCategoryBottomsheet> createState() => _AddCategoryBottomsheetState();
@@ -15,29 +20,40 @@ class _AddCategoryBottomsheetState extends State<AddCategoryBottomsheet> {
   final slugController = TextEditingController();
   final descriptionController = TextEditingController();
 
-  // Data
-  String? selectedParent;
-  List<String> parentCategories = ["None", "Technology", "Business", "Sports"];
+  // CategoryController
+  final CategoryController categoryController = Get.find<CategoryController>();
 
-  DateTime? createdAt;
+  // Parent selection
+  CategoryModel? selectedParent;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.categoryToEdit != null) {
+      // Edit mode: fill data
+      final c = widget.categoryToEdit!;
+      nameController.text = c.name;
+      slugController.text = c.slug;
+      descriptionController.text = c.description ?? '';
+      selectedParent = categoryController.categories
+          .firstWhereOrNull((cat) => cat.id == c.parentId);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme
-        .of(context)
-        .textTheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    final isEditMode = widget.categoryToEdit != null;
 
     return Padding(
       padding: EdgeInsets.only(
         left: 20,
         right: 20,
         top: 20,
-        bottom: MediaQuery
-            .of(context)
-            .viewInsets
-            .bottom + 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
       ),
-      child: Form(
+      child: Obx(() => Form(
         key: _formKey,
         child: SingleChildScrollView(
           child: Column(
@@ -57,23 +73,28 @@ class _AddCategoryBottomsheetState extends State<AddCategoryBottomsheet> {
               const SizedBox(height: 20),
 
               Text(
-                "Create Category",
-                style: textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                isEditMode ? "Edit Category" : "Create Category",
+                style: textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
 
-              // Parent Category
-              DropdownButtonFormField<String>(
+              // Parent Category Dropdown
+              DropdownButtonFormField<CategoryModel>(
                 decoration: _input("Parent Category"),
                 value: selectedParent,
-                items: parentCategories.map((item) {
-                  return DropdownMenuItem(
-                    value: item,
-                    child: Text(item, style: textTheme.bodyMedium),
-                  );
-                }).toList(),
+                items: [
+                  const DropdownMenuItem(
+                    value: null,
+                    child: Text("None"),
+                  ),
+                  ...categoryController.categories.map((c) {
+                    return DropdownMenuItem(
+                      value: c,
+                      child: Text(c.name, style: textTheme.bodyMedium),
+                    );
+                  }).toList(),
+                ],
                 onChanged: (value) => setState(() => selectedParent = value),
               ),
               const SizedBox(height: 16),
@@ -102,41 +123,6 @@ class _AddCategoryBottomsheetState extends State<AddCategoryBottomsheet> {
                 maxLines: 3,
                 decoration: _input("Description"),
               ),
-              const SizedBox(height: 16),
-
-              // Created At
-              Text(
-                "Created At",
-                style: textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-
-              InkWell(
-                onTap: _pickDate,
-                child: Container(
-                  padding:
-                  const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade400),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        createdAt == null
-                            ? "Select date"
-                            : "${createdAt!.year}-${createdAt!
-                            .month}-${createdAt!.day}",
-                        style: textTheme.bodyMedium,
-                      ),
-                      const Icon(Icons.calendar_today),
-                    ],
-                  ),
-                ),
-              ),
-
               const SizedBox(height: 24),
 
               // Save Button
@@ -150,13 +136,41 @@ class _AddCategoryBottomsheetState extends State<AddCategoryBottomsheet> {
                     ),
                     backgroundColor: Colors.blueAccent,
                   ),
-                  onPressed: () {
+                  onPressed: categoryController.isLoading.value
+                      ? null
+                      : () async {
                     if (_formKey.currentState!.validate()) {
-                      // TODO: Save category data
+                      if (isEditMode) {
+                        // Update category
+                        await categoryController.updateCategory(
+                          id: widget.categoryToEdit!.id,
+                          slug: slugController.text.trim(),
+                          name: nameController.text.trim(),
+                          description: descriptionController.text.trim(),
+                          parentId: selectedParent?.id,
+                        );
+                      } else {
+                        // Create category
+                        await categoryController.createCategory(
+                          slug: slugController.text.trim(),
+                          name: nameController.text.trim(),
+                          description:
+                          descriptionController.text.trim(),
+                          parentId: selectedParent?.id,
+                        );
+                      }
                     }
                   },
-                  child: Text(
-                    "Save Category",
+                  child: categoryController.isLoading.value
+                      ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  ) : Text(
+                    isEditMode ? "Update Category" : "Save Category",
                     style: textTheme.titleMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -164,24 +178,12 @@ class _AddCategoryBottomsheetState extends State<AddCategoryBottomsheet> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 10),
             ],
           ),
         ),
-      ),
+      )),
     );
-  }
-
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      initialDate: DateTime.now(),
-    );
-
-    if (picked != null) setState(() => createdAt = picked);
   }
 
   InputDecoration _input(String label) {
