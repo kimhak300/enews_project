@@ -29,7 +29,9 @@ class ManageArticlesView extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
+        icon: const Icon(Icons.add),
+        label: const Text("Add Article"),
         onPressed: () {
           showModalBottomSheet(
             context: context,
@@ -37,7 +39,6 @@ class ManageArticlesView extends StatelessWidget {
             builder: (context) => const CreateArticleBottomsheet(),
           ).then((_) => controller.fetchArticles());
         },
-        child: const Icon(Icons.add),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -60,24 +61,9 @@ class ManageArticlesView extends StatelessWidget {
                 final article = controller.articles[index];
                 return ArticleCardWidget(
                   title: article.title,
-                  author: {
-                    'id': article.authorId,
-                    'display_name': 'Author #${article.authorId}'
-                  },
-                  status: article.status,
+                  subtitle: article.subtitle ?? '',
                   categories: article.categories,
-                  tags: article.tags,
-                  mediaAssets: article.media,
-                  onEdit: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      builder: (context) => UpdateArticleBottomsheet(
-                        article: article.toJson()
-                      ),
-                    ).then((_) => controller.fetchArticles());
-                  },
-                  onDelete: () => controller.deleteArticle(article.id),
+                  articleData: article.toJson(), // full data for detail screen
                 );
               },
             ),
