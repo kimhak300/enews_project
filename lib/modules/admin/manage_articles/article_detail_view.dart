@@ -268,8 +268,8 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
           ),
           ElevatedButton(
             onPressed: () async {
-              // Close dialog first using Get
-              Get.back();
+              // Close dialog first
+              Navigator.of(context).pop();
               
               // Validate article ID
               final articleId = widget.article['id'];
@@ -286,22 +286,25 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
               
               print('🗑️ Attempting to delete article ID: $articleId');
               
-              // Close detail screen BEFORE starting async operation
-              Get.back();
-              
               try {
+                // Delete first, THEN navigate back on success
                 await controller.deleteArticle(articleId);
                 
                 print('✅ Article deleted successfully');
                 
-                // Show success message after navigation
-                Get.snackbar(
-                  'Success',
-                  'Article deleted successfully',
-                  backgroundColor: Colors.green,
-                  colorText: Colors.white,
-                  snackPosition: SnackPosition.BOTTOM,
-                );
+                // Close detail screen after successful delete
+                if (mounted) {
+                  Get.back();
+                  
+                  // Show success message after navigation
+                  Get.snackbar(
+                    'Success',
+                    'Article deleted successfully',
+                    backgroundColor: Colors.green,
+                    colorText: Colors.white,
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                }
               } catch (e) {
                 print('❌ Delete failed: $e');
                 

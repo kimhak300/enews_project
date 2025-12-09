@@ -95,24 +95,21 @@ class ArticleService {
     }
 
     final responseData = jsonDecode(response.body) as Map<String, dynamic>;
-    print('  Full response data: $responseData');
+    final mediaData = responseData['data'] as Map<String, dynamic>?;
     
-    // Check if response has nested data structure
-    String url = '';
-    if (responseData.containsKey('data') && responseData['data'] is Map) {
-      final mediaData = responseData['data'] as Map<String, dynamic>;
-      url = mediaData['url'] ?? mediaData['full_url'] ?? '';
-    } else {
-      // Fallback to root level
-      url = responseData['url'] ?? responseData['full_url'] ?? '';
+    if (mediaData == null) {
+      print('❌ No data in response');
+      throw Exception('Video upload returned no data');
+    }
+    
+    final url = mediaData['url'] ?? mediaData['full_url'] ?? '';
+    
+    if (url.isEmpty) {
+      print('❌ Empty URL in response. Full data: $mediaData');
+      throw Exception('Video upload returned empty URL');
     }
     
     print('✅ Upload successful, URL: $url');
-    
-    if (url.isEmpty) {
-      print('⚠️ Warning: URL is empty in response');
-    }
-    
     return url;
   }
 

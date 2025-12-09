@@ -248,7 +248,7 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
       'categories': selectedCategories,
       'tags': selectedTags,
       'media': mediaBase64,
-      'author_id': "1",
+      // author_id is not changeable during update for security
       'language_code': 'en',
     };
 

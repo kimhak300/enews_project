@@ -91,9 +91,11 @@ class ApiService extends GetxService {
       _storage.remove(AppConstants.USER_INFO_KEY);
       return ApiResponse.error('Session expired. Please login again.', code: 401);
     } else if (response.statusCode == 403) {
-      return ApiResponse.error('Access denied.', code: 403);
+      final message = body['message'] ?? 'Access denied.';
+      return ApiResponse.error(message, code: 403);
     } else if (response.statusCode == 404) {
-      return ApiResponse.error('Resource not found.', code: 404);
+      final message = body['message'] ?? 'Resource not found.';
+      return ApiResponse.error(message, code: 404);
     } else if (response.statusCode == 422) {
       // Validation errors: flatten Laravel validation response into readable text
       final errors = body['errors'] ?? body['message'] ?? 'Validation failed';

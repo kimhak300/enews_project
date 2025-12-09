@@ -72,8 +72,8 @@ class CategoryCardWidget extends StatelessWidget {
                           middleText:
                           "Are you sure you want to delete this category?",
                           onConfirm: () async {
+                            Get.back(); // Close dialog first
                             await controller.deleteCategory(category.id);
-                            Get.back();
                           },
                           onCancel: () {},
                         );
@@ -174,9 +174,9 @@ class CategoryCardWidget extends StatelessWidget {
                                       middleText:
                                       "Are you sure you want to delete this subcategory?",
                                       onConfirm: () async {
+                                        Get.back(); // Close dialog first
                                         await controller
                                             .deleteCategory(sub.id);
-                                        Get.back();
                                       },
                                       onCancel: () {},
                                     );

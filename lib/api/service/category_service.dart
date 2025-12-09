@@ -112,8 +112,29 @@ class CategoryService {
       headers: AppConstants.headers(token),
     );
 
-    if (response.statusCode != 200 && response.statusCode != 204) {
-      throw Exception("Failed to delete category: ${response.body}");
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      // Success
+      return;
+    } else if (response.statusCode == 404) {
+      // Extract user-friendly message from response
+      try {
+        final data = jsonDecode(response.body);
+        final message = data['message'] ?? 'Category not found or already deleted';
+        throw Exception(message);
+      } catch (e) {
+        if (e.toString().contains('Exception:')) rethrow;
+        throw Exception('Category not found or already deleted');
+      }
+    } else {
+      // Other errors - try to extract message
+      try {
+        final data = jsonDecode(response.body);
+        final message = data['message'] ?? 'Failed to delete category';
+        throw Exception(message);
+      } catch (e) {
+        if (e.toString().contains('Exception:')) rethrow;
+        throw Exception("Failed to delete category: ${response.body}");
+      }
     }
   }
 }
