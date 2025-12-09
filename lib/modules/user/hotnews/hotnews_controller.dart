@@ -1,0 +1,88 @@
+import 'package:get/get.dart';
+import 'package:newshub/app/services/api_service.dart';
+import 'package:newshub/data/models/article_model.dart';
+
+class HotNewsController extends GetxController {
+  final ApiService _apiService = Get.find<ApiService>();
+
+  // Loading states
+  final isLoading = true.obs;
+  final isLoadingMore = false.obs;
+  final isRefreshing = false.obs;
+  final errorMessage = ''.obs;
+
+  // Pagination
+  int currentPage = 1;
+  bool hasMore = true;
+
+  // Hot News list (articles with type='news_feed')
+  final RxList<ArticleModel> hotNews = <ArticleModel>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchHotNews();
+  }
+
+  Future<void> fetchHotNews({bool refresh = false}) async {
+    if (refresh) {
+      currentPage = 1;
+      hasMore = true;
+      hotNews.clear();
+      isRefreshing.value = true;
+    }
+
+    if (!hasMore && !refresh) return;
+
+    if (currentPage > 1) {
+      isLoadingMore.value = true;
+    }
+    errorMessage.value = '';
+
+    try {
+      final response = await _apiService.getArticles(page: currentPage, type: 'news_feed');
+
+      if (response.isSuccess) {
+        // Handle different response formats
+        List data = [];
+        if (response.data is List) {
+          data = response.data as List;
+        } else if (response.data is Map) {
+          if (response.data['data'] is List) {
+            data = response.data['data'] as List;
+          } else if (response.data['articles'] is List) {
+            data = response.data['articles'] as List;
+          }
+        }
+
+        final newHotNews =
+            data.map((json) => ArticleModel.fromJson(json)).toList();
+
+        if (newHotNews.isEmpty) {
+          hasMore = false;
+        } else {
+          hotNews.addAll(newHotNews);
+          currentPage++;
+        }
+      } else {
+        errorMessage.value = response.error ?? 'Failed to load hot news';
+      }
+    } catch (e) {
+      errorMessage.value = 'An error occurred: $e';
+    } finally {
+      isLoading.value = false;
+      isLoadingMore.value = false;
+      isRefreshing.value = false;
+    }
+  }
+
+  Future<void> refresh() async {
+    await fetchHotNews(refresh: true);
+  }
+
+  void loadMore() {
+    if (!isLoadingMore.value && hasMore) {
+      fetchHotNews();
+    }
+  }
+}

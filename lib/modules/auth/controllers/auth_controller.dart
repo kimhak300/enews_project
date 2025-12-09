@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:newshub/app/constants/app_constant.dart';
 import 'package:newshub/app/routes/app_routes.dart';
 import '../services/auth_service.dart';
 
@@ -12,7 +10,6 @@ class AuthController extends GetxController {
   var isLoading = false.obs;
 
   final AuthService _authService = AuthService();
-  final GetStorage _storage = GetStorage();
 
   // ─────────────────────────────────────────────
   // LOGIN
@@ -22,30 +19,24 @@ class AuthController extends GetxController {
     final password = passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
+      Get.snackbar('Error', 'Please enter email and password',
+          snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
-    try {
-      isLoading.value = true;
+    isLoading.value = true;
 
-      final response =
-      await _authService.login(email: email, password: password);
+    final result = await _authService.login(email: email, password: password);
 
-      final user = response['user'];
-      final role = user['role']?.toString().toLowerCase(); // updated role
-      final token = response['token']?.toString();
+    isLoading.value = false;
 
-      if (token != null && role != null) {
-        await _storage.write(AppConstants.TOKEN_KEY, token);
-        await _storage.write(AppConstants.ROLE_KEY, role);
-      }
-
-      _navigateByRole(role);
-    } catch (e) {
-      print(e);
-    } finally {
-      isLoading.value = false;
+    if (!result.success) {
+      Get.snackbar('Error', result.error ?? 'Login failed',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
     }
+
+    _navigateByRole(result.data!.user.primaryRole.toLowerCase());
   }
 
   // ─────────────────────────────────────────────
@@ -56,9 +47,6 @@ class AuthController extends GetxController {
       isLoading.value = true;
 
       await _authService.logout();
-
-      await _storage.remove(AppConstants.TOKEN_KEY);
-      await _storage.remove(AppConstants.ROLE_KEY);
 
       Get.offAllNamed(Routes.LOGIN);
     } catch (e) {
@@ -88,19 +76,17 @@ class AuthController extends GetxController {
     }
   }
 
-  bool isLoggedIn() {
-    final token = _storage.read(AppConstants.TOKEN_KEY);
-    final role = _storage.read(AppConstants.ROLE_KEY);
-    return token != null &&
-        token.isNotEmpty &&
-        role != null &&
-        role.isNotEmpty;
+  Future<bool> isLoggedIn() {
+    return _authService.hasToken();
   }
 
-  @override
-  void onClose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.onClose();
+  void loginWithGoogle() {
+    Get.snackbar('Coming soon', 'Google Sign-In will be available after OAuth setup',
+        snackPosition: SnackPosition.BOTTOM);
+  }
+
+  void loginWithFacebook() {
+    Get.snackbar('Coming soon', 'Facebook Login will be available after OAuth setup',
+        snackPosition: SnackPosition.BOTTOM);
   }
 }

@@ -87,9 +87,19 @@ class UserController extends GetxController {
       );
 
       Get.back();
+      Get.snackbar(
+        'Success',
+        'User updated successfully',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       fetchUsers();
     } catch (e) {
-      print(e);
+      print("Error in updateUser: $e");
+      Get.snackbar(
+        'Error',
+        e.toString().replaceAll('Exception: ', ''),
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isLoading.value = false;
     }

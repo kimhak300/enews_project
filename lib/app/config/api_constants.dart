@@ -2,15 +2,19 @@ class ApiConstants {
   // Base URL - Change according to your setup
   // For Android Emulator
   static const String baseUrl = 'http://10.0.2.2:8000/api';
+  static const String mediaBaseUrl = 'http://10.0.2.2:8000';
   
   // For iOS Simulator
   // static const String baseUrl = 'http://localhost:8000/api';
+  // static const String mediaBaseUrl = 'http://localhost:8000';
   
   // For Physical Device (replace with your IP)
   // static const String baseUrl = 'http://192.168.1.100:8000/api';
+  // static const String mediaBaseUrl = 'http://192.168.1.100:8000';
   
   // For Production
   // static const String baseUrl = 'https://your-domain.com/api';
+  // static const String mediaBaseUrl = 'https://your-domain.com';
 
   // ============ Auth Endpoints ============
   static const String login = '/login';

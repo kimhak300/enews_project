@@ -54,10 +54,21 @@ class HomeController extends GetxController {
     errorMessage.value = '';
 
     try {
-      final response = await _apiService.getArticles(page: currentPage);
+      final response = await _apiService.getArticles(page: currentPage, type: 'article');
 
       if (response.isSuccess) {
-        final data = response.data['data'] as List? ?? [];
+        // Handle different response formats
+        List data = [];
+        if (response.data is List) {
+          data = response.data as List;
+        } else if (response.data is Map) {
+          if (response.data['data'] is List) {
+            data = response.data['data'] as List;
+          } else if (response.data['articles'] is List) {
+            data = response.data['articles'] as List;
+          }
+        }
+
         final newArticles =
             data.map((json) => ArticleModel.fromJson(json)).toList();
 
@@ -93,6 +104,8 @@ class HomeController extends GetxController {
           data = response.data;
         } else if (response.data['data'] != null) {
           data = response.data['data'] as List;
+        } else if (response.data['categories'] != null) {
+          data = response.data['categories'] as List;
         } else if (response.data['value'] != null) {
           data = response.data['value'] as List;
         } else {
@@ -124,8 +137,15 @@ class HomeController extends GetxController {
 
   List<ArticleModel> get filteredArticles {
     if (selectedCategory.value == null) return articles;
+    final sel = selectedCategory.value!;
+    final selName = sel.name.toLowerCase();
     return articles.where((article) {
-      return article.categories?.any((c) => c.id == selectedCategory.value!.id) ?? false;
+      if (article.categories == null) return false;
+      return article.categories!.any((c) {
+        final sameId = c.id == sel.id && sel.id != 0;
+        final sameName = c.name.toLowerCase() == selName;
+        return sameId || sameName;
+      });
     }).toList();
   }
 }

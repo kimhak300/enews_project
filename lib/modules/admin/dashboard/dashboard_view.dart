@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:newshub/app/constants/app_constant.dart';
 import 'package:newshub/app/theme/app_theme.dart';
 import 'package:newshub/app/widget/app_drawer_widget.dart';
+import 'package:newshub/data/models/stats_model.dart';
 import 'package:newshub/modules/admin/dashboard/dashboard_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {
@@ -206,12 +210,17 @@ class DashboardView extends GetView<DashboardController> {
         separatorBuilder: (_, __) => const Divider(height: 1),
         itemBuilder: (context, index) {
           final user = controller.recentUsers[index];
+          final avatarUrl = user.avatar != null && user.avatar!.isNotEmpty
+              ? (user.avatar!.startsWith('http')
+                  ? user.avatar!
+                  : '${AppConstants.STORAGE_BASE_URL}${user.avatar}')
+              : null;
+          
           return ListTile(
             leading: CircleAvatar(
               backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-              backgroundImage:
-                  user.avatar != null ? NetworkImage(user.avatar!) : null,
-              child: user.avatar == null
+              backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+              child: avatarUrl == null
                   ? Text(
                       user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
                       style: TextStyle(color: AppTheme.primaryColor),
@@ -262,48 +271,185 @@ class DashboardView extends GetView<DashboardController> {
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
         itemCount: controller.recentArticles.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
+        separatorBuilder: (_, __) => const SizedBox(height: 16),
         itemBuilder: (context, index) {
           final article = controller.recentArticles[index];
-          return ListTile(
-            leading: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: _getStatusColor(article.status ?? 'draft').withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.article,
-                color: _getStatusColor(article.status ?? 'draft'),
-              ),
-            ),
-            title: Text(
-              article.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            subtitle: Text('By ${article.authorName ?? 'Unknown'}'),
-            trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: _getStatusColor(article.status ?? 'draft').withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                (article.status ?? 'draft').toUpperCase(),
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: _getStatusColor(article.status ?? 'draft'),
-                ),
-              ),
-            ),
-          );
+          return _buildArticleCard(article);
         },
       ),
     );
+  }
+
+  Widget _buildArticleCard(RecentArticle article) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Cover Image
+          ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(12),
+              bottomLeft: Radius.circular(12),
+            ),
+            child: Container(
+              width: 100,
+              height: 100,
+              color: Colors.grey[200],
+              child: _buildCoverImage(article.coverImage),
+            ),
+          ),
+          // Content
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title
+                  Text(
+                    article.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      height: 1.3,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  // Date and Status
+                  Row(
+                    children: [
+                      Text(
+                        _formatArticleDate(article.publishedAt ?? article.createdAt),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _getStatusColor(article.status ?? 'draft')
+                              .withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          (article.status ?? 'DRAFT').toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: _getStatusColor(article.status ?? 'draft'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCoverImage(String? imageData) {
+    if (imageData == null || imageData.isEmpty) {
+      return _buildPlaceholderImage();
+    }
+
+    // Skip video files - they can't be displayed as images
+    final lowerData = imageData.toLowerCase();
+    if (lowerData.endsWith('.mp4') || lowerData.endsWith('.mov') || 
+        lowerData.endsWith('.avi') || lowerData.endsWith('.webm')) {
+      return _buildVideoPlaceholder();
+    }
+
+    // Check if it's a base64 string
+    if (imageData.startsWith('data:image')) {
+      try {
+        final base64String = imageData.split(',')[1];
+        final bytes = base64Decode(base64String);
+        return Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          width: 100,
+          height: 100,
+          errorBuilder: (_, __, ___) => _buildPlaceholderImage(),
+        );
+      } catch (e) {
+        return _buildPlaceholderImage();
+      }
+    }
+    
+    // Check if it's a URL
+    if (imageData.startsWith('http')) {
+      return Image.network(
+        imageData,
+        fit: BoxFit.cover,
+        width: 100,
+        height: 100,
+        errorBuilder: (_, __, ___) => _buildPlaceholderImage(),
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!
+                  : null,
+            ),
+          );
+        },
+      );
+    }
+
+    return _buildPlaceholderImage();
+  }
+
+  Widget _buildVideoPlaceholder() {
+    return Container(
+      color: Colors.grey[300],
+      child: Icon(
+        Icons.video_library,
+        size: 40,
+        color: Colors.grey[500],
+      ),
+    );
+  }
+
+  Widget _buildPlaceholderImage() {
+    return Container(
+      color: Colors.grey[300],
+      child: Icon(
+        Icons.article,
+        size: 40,
+        color: Colors.grey[500],
+      ),
+    );
+  }
+
+  String _formatArticleDate(DateTime? date) {
+    if (date == null) return '';
+    
+    final months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    
+    return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
   Color _getStatusColor(String status) {

@@ -3,12 +3,17 @@ import 'package:get/get.dart';
 import 'package:newshub/app/routes/app_routes.dart';
 import 'package:newshub/modules/auth/controllers/auth_controller.dart';
 
-class LoginView extends StatelessWidget {
+class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
   @override
+  State<LoginView> createState() => _LoginViewState();
+}
+
+class _LoginViewState extends State<LoginView> {
+  @override
   Widget build(BuildContext context) {
-    final AuthController controller = Get.put(AuthController());
+    final AuthController controller = Get.find<AuthController>();
     final text = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -68,11 +73,49 @@ class LoginView extends StatelessWidget {
                     ),
                   ),
                 )),
-                GestureDetector(
-                  onTap: (){
-                    Get.toNamed(Routes.REGISTER);
-                  },
-                  child: Text("Register"),
+                const SizedBox(height: 16),
+                Row(
+                  children: const [
+                    Expanded(child: Divider()),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text('or continue with'),
+                    ),
+                    Expanded(child: Divider()),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.g_mobiledata),
+                        label: const Text('Continue with Google'),
+                        onPressed: controller.loginWithGoogle,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.facebook),
+                        label: const Text('Continue with Facebook'),
+                        onPressed: controller.loginWithFacebook,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Don't have an account? "),
+                    TextButton(
+                      onPressed: () => Get.toNamed(Routes.REGISTER),
+                      child: const Text('Register'),
+                    ),
+                  ],
                 ),
               ],
             ),

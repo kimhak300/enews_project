@@ -6,22 +6,24 @@ class RegisterService {
   Future<Map<String, dynamic>> register({
     required String email,
     required String password,
-    required String fullName,
-    required String phone,
+    required String displayName,
+    String? phone,
   }) async {
     final url = Uri.parse('${AppConstants.BASE_URL}/register');
 
     final body = json.encode({
+      "display_name": displayName,
       "email": email,
       "password": password,
-      "full_name": fullName,
-      "phone": phone,
+      "password_confirmation": password, // Laravel requires confirmation
+      if (phone != null && phone.isNotEmpty) "phone": phone,
     });
 
     final response = await http.post(
       url,
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
       body: body,
     );

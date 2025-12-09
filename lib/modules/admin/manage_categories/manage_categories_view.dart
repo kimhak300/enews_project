@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newshub/api/controller/category_controller.dart';
-import 'package:newshub/api/model/category_model.dart';
 import 'package:newshub/app/constants/app_spacing.dart';
 import 'package:newshub/modules/admin/manage_categories/widgets/add_category_bottomsheet.dart';
 import 'package:newshub/modules/admin/manage_categories/widgets/category_card_widget.dart';

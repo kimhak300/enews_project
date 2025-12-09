@@ -35,6 +35,7 @@ class UserModel {
   final String? slug;
   final String? status;
   final String? avatarUrl;
+  final String? role;
   final List<RoleModel>? roles;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -48,6 +49,7 @@ class UserModel {
     this.slug,
     this.status,
     this.avatarUrl,
+    this.role,
     this.roles,
     this.createdAt,
     this.updatedAt,
@@ -66,6 +68,7 @@ class UserModel {
       slug: json['slug'],
       status: json['status'],
       avatarUrl: json['avatar_url'] ?? json['avatar'],
+        role: json['role'],
       roles: json['roles'] != null
           ? (json['roles'] as List).map((r) => RoleModel.fromJson(r)).toList()
           : null,
@@ -88,6 +91,7 @@ class UserModel {
       'slug': slug,
       'status': status,
       'avatar_url': avatarUrl,
+      'role': role,
       'roles': roles?.map((r) => r.toJson()).toList(),
     };
   }
@@ -108,6 +112,7 @@ class UserModel {
 
   /// Get primary role
   String get primaryRole {
+    if (role != null && role!.isNotEmpty) return role!;
     if (isAdmin) return 'admin';
     if (isOrganization) return 'organization';
     return 'user';

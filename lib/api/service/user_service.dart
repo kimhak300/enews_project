@@ -18,7 +18,8 @@ class UserService {
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
 
-      List data = json["users"] ?? [];
+      // Laravel returns "data" key, not "users"
+      List data = json["data"] ?? json["users"] ?? [];
 
       return data.map((u) => UserModel.fromJson(u)).toList();
     }
@@ -42,17 +43,34 @@ class UserService {
       "password": password,
       "role": role,
       "is_active": isActive,
-      "avatar_base64": avatarBase64,
+      if (avatarBase64 != null) "avatar_base64": avatarBase64,
     };
 
-    final response = await http.post(
-      url,
-      headers: AppConstants.headers(token),
-      body: jsonEncode(body),
-    );
+    try {
+      final response = await http.post(
+        url,
+        headers: AppConstants.headers(token),
+        body: jsonEncode(body),
+      );
 
-    if (response.statusCode != 201) {
-      throw Exception("Failed to create user");
+      if (response.statusCode != 201) {
+        // Parse error message from API if available
+        String errorMessage = "Failed to create user";
+        try {
+          final errorJson = jsonDecode(response.body);
+          if (errorJson['message'] != null) {
+            errorMessage = errorJson['message'];
+          } else if (errorJson['errors'] != null) {
+            errorMessage = errorJson['errors'].toString();
+          }
+        } catch (e) {
+          errorMessage = "Failed to create user: ${response.body}";
+        }
+        throw Exception(errorMessage);
+      }
+    } catch (e) {
+      print("Error creating user: $e");
+      rethrow;
     }
   }
 
@@ -71,17 +89,34 @@ class UserService {
       "email": email,
       "role": role,
       "is_active": isActive,
-      "avatar_base64": avatarBase64,
+      if (avatarBase64 != null) "avatar_base64": avatarBase64,
     };
 
-    final response = await http.put(
-      url,
-      headers: AppConstants.headers(token),
-      body: jsonEncode(body),
-    );
+    try {
+      final response = await http.put(
+        url,
+        headers: AppConstants.headers(token),
+        body: jsonEncode(body),
+      );
 
-    if (response.statusCode != 200) {
-      throw Exception("Failed to update user");
+      if (response.statusCode != 200) {
+        // Parse error message from API if available
+        String errorMessage = "Failed to update user";
+        try {
+          final errorJson = jsonDecode(response.body);
+          if (errorJson['message'] != null) {
+            errorMessage = errorJson['message'];
+          } else if (errorJson['errors'] != null) {
+            errorMessage = errorJson['errors'].toString();
+          }
+        } catch (e) {
+          errorMessage = "Failed to update user: ${response.body}";
+        }
+        throw Exception(errorMessage);
+      }
+    } catch (e) {
+      print("Error updating user: $e");
+      rethrow;
     }
   }
 

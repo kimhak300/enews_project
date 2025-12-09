@@ -7,7 +7,11 @@ import 'package:get_storage/get_storage.dart';
 class CategoryService {
   final storage = GetStorage();
 
-  String get token => storage.read(AppConstants.TOKEN_KEY) ?? '';
+  String get token {
+    final storedToken = storage.read(AppConstants.TOKEN_KEY);
+    print('CategoryService - Token retrieved: ${storedToken != null ? "${storedToken.toString().substring(0, 20)}..." : "NULL"}');
+    return storedToken ?? '';
+  }
 
   // Get all categories
   Future<List<CategoryModel>> getCategories() async {
@@ -34,6 +38,11 @@ class CategoryService {
     String? description,
     int? parentId,
   }) async {
+    final currentToken = token;
+    if (currentToken.isEmpty) {
+      throw Exception("Not authenticated. Please login first.");
+    }
+
     final url = Uri.parse("${AppConstants.BASE_URL}/categories");
 
     final body = {
@@ -43,14 +52,22 @@ class CategoryService {
       "parent_id": parentId,
     };
 
+    print('CategoryService - Creating category with token: ${currentToken.substring(0, 20)}...');
+    print('CategoryService - Request body: $body');
+
     final response = await http.post(
       url,
-      headers: AppConstants.headers(token),
+      headers: AppConstants.headers(currentToken),
       body: jsonEncode(body),
     );
 
+    print('CategoryService - Response status: ${response.statusCode}');
+    print('CategoryService - Response body: ${response.body}');
+
     if (response.statusCode == 201 || response.statusCode == 200) {
       return CategoryModel.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 401) {
+      throw Exception("Session expired. Please login again.");
     } else {
       throw Exception("Failed to create category: ${response.body}");
     }

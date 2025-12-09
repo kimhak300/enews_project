@@ -3,6 +3,7 @@ import 'package:newshub/app/services/api_service.dart';
 import 'package:newshub/app/services/storage_service.dart';
 import 'package:newshub/app/services/theme_service.dart';
 import 'package:newshub/app/services/language_service.dart';
+import 'package:newshub/modules/auth/services/auth_service.dart';
 
 class InitialBindings extends Bindings {
   @override
@@ -12,5 +13,6 @@ class InitialBindings extends Bindings {
     Get.put<ApiService>(ApiService(), permanent: true);
     Get.put<ThemeService>(ThemeService(), permanent: true);
     Get.put<LanguageService>(LanguageService(), permanent: true);
+    Get.put<AuthService>(AuthService(), permanent: true);
   }
 }

@@ -38,20 +38,20 @@ class UserBottomNav extends StatelessWidget {
               showUnselectedLabels: true,
               items: const [
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.dashboard),
-                  label: 'Dashboard',
+                  icon: Icon(Icons.home),
+                  label: 'Home',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.people),
-                  label: 'Users',
+                  icon: Icon(Icons.video_library),
+                  label: 'Video',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.article),
-                  label: 'Articles',
+                  icon: Icon(Icons.local_fire_department),
+                  label: 'Hot News',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.category),
-                  label: 'Categories',
+                  icon: Icon(Icons.person),
+                  label: 'Profile',
                 ),
               ],
             ),

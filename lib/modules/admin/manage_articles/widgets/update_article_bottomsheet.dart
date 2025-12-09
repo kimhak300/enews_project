@@ -253,7 +253,30 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
     };
 
     final id = widget.article['id'];
-    await articleController.updateArticle(id, body);
-    Navigator.pop(context);
+    
+    try {
+      await articleController.updateArticle(id, body);
+      
+      if (mounted) {
+        Get.snackbar(
+          'Success',
+          'Article updated successfully',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        Get.snackbar(
+          'Error',
+          'Failed to update article: ${e.toString()}',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    }
   }
 }

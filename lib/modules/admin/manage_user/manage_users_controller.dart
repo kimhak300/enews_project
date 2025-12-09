@@ -3,8 +3,11 @@ import 'package:get/get.dart';
 import 'package:newshub/app/services/api_service.dart';
 import 'package:newshub/data/models/user_model.dart';
 
-class ManageUsersController extends GetxController {
+class ManageUsersController extends GetxController with GetTickerProviderStateMixin {
   final ApiService _apiService = Get.find<ApiService>();
+
+  // Tab Controller
+  late TabController tabController;
 
   // Loading states
   final isLoading = true.obs;
@@ -16,29 +19,73 @@ class ManageUsersController extends GetxController {
   bool hasMore = true;
 
   // Users list
-  final RxList<UserModel> users = <UserModel>[].obs;
+  final RxList<UserModel> allUsers = <UserModel>[].obs;
+  final RxList<UserModel> userRoleUsers = <UserModel>[].obs;
+  final RxList<UserModel> organizerUsers = <UserModel>[].obs;
 
   // Search & Filter
   final searchController = TextEditingController();
   final searchQuery = ''.obs;
+  final selectedRole = Rxn<String>(); // 'all', 'user', 'admin', 'organizer'
+
+  // Roles list
+  final RxList<RoleModel> roles = <RoleModel>[].obs;
 
   @override
   void onInit() {
     super.onInit();
+    tabController = TabController(length: 3, vsync: this);
+    tabController.addListener(_handleTabChange);
+    fetchRoles();
     fetchUsers();
   }
 
   @override
   void onClose() {
     searchController.dispose();
+    tabController.dispose();
     super.onClose();
+  }
+
+  void _handleTabChange() {
+    if (!tabController.indexIsChanging) {
+      // Update selected role based on tab
+      switch (tabController.index) {
+        case 0:
+          selectedRole.value = null; // All
+          break;
+        case 1:
+          selectedRole.value = 'user';
+          break;
+        case 2:
+          selectedRole.value = 'organizer';
+          break;
+      }
+      refresh();
+    }
+  }
+
+  Future<void> fetchRoles() async {
+    try {
+      final response = await _apiService.getRoles();
+      if (response.isSuccess) {
+        final data = response.data is List ? response.data : (response.data['data'] ?? []);
+        roles.assignAll(
+          (data as List).map((json) => RoleModel.fromJson(json)).toList(),
+        );
+      }
+    } catch (e) {
+      // Silent fail
+    }
   }
 
   Future<void> fetchUsers({bool refresh = false}) async {
     if (refresh) {
       currentPage = 1;
       hasMore = true;
-      users.clear();
+      allUsers.clear();
+      userRoleUsers.clear();
+      organizerUsers.clear();
     }
 
     if (!hasMore && !refresh) return;
@@ -51,7 +98,11 @@ class ManageUsersController extends GetxController {
     errorMessage.value = '';
 
     try {
-      final response = await _apiService.getUsers(page: currentPage);
+      final response = await _apiService.getUsers(
+        page: currentPage,
+        role: selectedRole.value,
+        search: searchQuery.value.isEmpty ? null : searchQuery.value,
+      );
 
       if (response.isSuccess) {
         final data = response.data['data'] as List? ?? [];
@@ -60,7 +111,13 @@ class ManageUsersController extends GetxController {
         if (newUsers.isEmpty) {
           hasMore = false;
         } else {
-          users.addAll(newUsers);
+          if (selectedRole.value == null) {
+            allUsers.addAll(newUsers);
+          } else if (selectedRole.value == 'user') {
+            userRoleUsers.addAll(newUsers);
+          } else if (selectedRole.value == 'organizer') {
+            organizerUsers.addAll(newUsers);
+          }
           currentPage++;
         }
       } else {
@@ -71,6 +128,74 @@ class ManageUsersController extends GetxController {
     } finally {
       isLoading.value = false;
       isLoadingMore.value = false;
+    }
+  }
+
+  Future<void> createUser(Map<String, dynamic> userData) async {
+    try {
+      final response = await _apiService.createUser(userData);
+      if (response.isSuccess) {
+        Get.snackbar('Success', 'User created successfully',
+            snackPosition: SnackPosition.BOTTOM);
+        refresh();
+      } else {
+        Get.snackbar('Error', response.error ?? 'Failed to create user',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An error occurred: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  Future<void> updateUser(int userId, Map<String, dynamic> userData) async {
+    try {
+      final response = await _apiService.updateUser(userId, userData);
+      if (response.isSuccess) {
+        Get.snackbar('Success', 'User updated successfully',
+            snackPosition: SnackPosition.BOTTOM);
+        refresh();
+      } else {
+        Get.snackbar('Error', response.error ?? 'Failed to update user',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An error occurred: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  Future<void> assignRoleToUser(int userId, int roleId) async {
+    try {
+      final response = await _apiService.assignRole(userId, roleId);
+      if (response.isSuccess) {
+        Get.snackbar('Success', 'Role assigned successfully',
+            snackPosition: SnackPosition.BOTTOM);
+        refresh();
+      } else {
+        Get.snackbar('Error', response.error ?? 'Failed to assign role',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An error occurred: $e',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  Future<void> removeRoleFromUser(int userId, int roleId) async {
+    try {
+      final response = await _apiService.removeRole(userId, roleId);
+      if (response.isSuccess) {
+        Get.snackbar('Success', 'Role removed successfully',
+            snackPosition: SnackPosition.BOTTOM);
+        refresh();
+      } else {
+        Get.snackbar('Error', response.error ?? 'Failed to remove role',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An error occurred: $e',
+          snackPosition: SnackPosition.BOTTOM);
     }
   }
 
@@ -86,24 +211,30 @@ class ManageUsersController extends GetxController {
 
   void searchUsers(String query) {
     searchQuery.value = query;
-    // Filter locally or call API with search param
-    // For now, filtering locally
+    refresh();
   }
 
-  List<UserModel> get filteredUsers {
-    if (searchQuery.value.isEmpty) return users;
-    return users.where((user) {
-      final query = searchQuery.value.toLowerCase();
-      return user.name.toLowerCase().contains(query) ||
-          user.email.toLowerCase().contains(query);
-    }).toList();
+  List<UserModel> get currentTabUsers {
+    switch (tabController.index) {
+      case 0:
+        return allUsers;
+      case 1:
+        return userRoleUsers;
+      case 2:
+        return organizerUsers;
+      default:
+        return allUsers;
+    }
   }
 
   Future<void> deleteUser(int userId) async {
     try {
       final response = await _apiService.deleteUser(userId);
       if (response.isSuccess) {
-        users.removeWhere((user) => user.id == userId);
+        // Remove from all lists
+        allUsers.removeWhere((user) => user.id == userId);
+        userRoleUsers.removeWhere((user) => user.id == userId);
+        organizerUsers.removeWhere((user) => user.id == userId);
         Get.snackbar(
           'Success',
           'User deleted successfully',

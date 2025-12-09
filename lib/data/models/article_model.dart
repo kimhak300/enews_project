@@ -3,10 +3,14 @@ import 'user_model.dart';
 class ArticleModel {
   final int id;
   final String title;
+  final String? subtitle;
   final String? content;
   final String? excerpt;
   final String? coverImage;
+  final List<String>? media;
+  final String? type; // article, video, news_feed
   final String? status;
+  final bool? isFeatured;
   final int? authorId;
   final UserModel? author;
   final List<CategoryModel>? categories;
@@ -21,10 +25,14 @@ class ArticleModel {
   ArticleModel({
     required this.id,
     required this.title,
+    this.subtitle,
     this.content,
     this.excerpt,
     this.coverImage,
+    this.media,
+    this.type,
     this.status,
+    this.isFeatured,
     this.authorId,
     this.author,
     this.categories,
@@ -41,18 +49,18 @@ class ArticleModel {
     return ArticleModel(
       id: json['id'] ?? 0,
       title: json['title'] ?? '',
+      subtitle: json['subtitle'],
       content: json['content'] ?? json['content_html'],
-      excerpt: json['excerpt'] ?? json['subtitle'],
+      excerpt: json['excerpt'],
       coverImage: json['cover_image'] ?? json['cover_url'],
+      media: (json['media'] as List?)?.map((m) => m.toString()).toList(),
+      type: json['type'] ?? 'article',
       status: json['status'],
+      isFeatured: json['is_featured'] == 1 || json['is_featured'] == true,
       authorId: json['author_id'],
       author: json['author'] != null ? UserModel.fromJson(json['author']) : null,
-      categories: json['categories'] != null
-          ? (json['categories'] as List).map((c) => CategoryModel.fromJson(c)).toList()
-          : null,
-      tags: json['tags'] != null
-          ? (json['tags'] as List).map((t) => TagModel.fromJson(t)).toList()
-          : null,
+        categories: _parseCategories(json['categories']),
+        tags: _parseTags(json['tags']),
       viewCount: json['view_count'],
       likeCount: json['like_count'],
       commentCount: json['comment_count'],
@@ -72,10 +80,14 @@ class ArticleModel {
     return {
       'id': id,
       'title': title,
+      'subtitle': subtitle,
       'content': content,
       'excerpt': excerpt,
       'cover_image': coverImage,
+      'media': media,
+      'type': type,
       'status': status,
+      'is_featured': isFeatured,
       'author_id': authorId,
       'categories': categories?.map((c) => c.toJson()).toList(),
       'tags': tags?.map((t) => t.toJson()).toList(),
@@ -94,6 +106,31 @@ class ArticleModel {
     if (date == null) return '';
     return '${date.day}/${date.month}/${date.year}';
   }
+}
+
+// -------- Helpers to tolerate string-or-map payloads --------
+List<CategoryModel>? _parseCategories(dynamic raw) {
+  if (raw == null) return null;
+  if (raw is List) {
+    return raw.map<CategoryModel>((c) {
+      if (c is Map<String, dynamic>) return CategoryModel.fromJson(c);
+      final name = c?.toString() ?? '';
+      return CategoryModel(id: 0, name: name);
+    }).toList();
+  }
+  return null;
+}
+
+List<TagModel>? _parseTags(dynamic raw) {
+  if (raw == null) return null;
+  if (raw is List) {
+    return raw.map<TagModel>((t) {
+      if (t is Map<String, dynamic>) return TagModel.fromJson(t);
+      final name = t?.toString() ?? '';
+      return TagModel(id: 0, name: name);
+    }).toList();
+  }
+  return null;
 }
 
 class CategoryModel {

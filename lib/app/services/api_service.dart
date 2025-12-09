@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:newshub/app/config/api_constants.dart';
+import 'package:newshub/app/constants/app_constant.dart';
 import 'package:newshub/app/services/storage_service.dart';
 
 class ApiService extends GetxService {
@@ -16,7 +17,7 @@ class ApiService extends GetxService {
       };
 
   Map<String, String> get _authHeaders {
-    final token = _storage.read<String>('token');
+    final token = _storage.read<String>(AppConstants.TOKEN_KEY);
     return {
       ..._headers,
       if (token != null) 'Authorization': 'Bearer $token',
@@ -86,16 +87,24 @@ class ApiService extends GetxService {
       return ApiResponse.success(body);
     } else if (response.statusCode == 401) {
       // Token expired or invalid - logout
-      _storage.remove('token');
-      _storage.remove('user');
+      _storage.remove(AppConstants.TOKEN_KEY);
+      _storage.remove(AppConstants.USER_INFO_KEY);
       return ApiResponse.error('Session expired. Please login again.', code: 401);
     } else if (response.statusCode == 403) {
       return ApiResponse.error('Access denied.', code: 403);
     } else if (response.statusCode == 404) {
       return ApiResponse.error('Resource not found.', code: 404);
     } else if (response.statusCode == 422) {
-      // Validation errors
+      // Validation errors: flatten Laravel validation response into readable text
       final errors = body['errors'] ?? body['message'] ?? 'Validation failed';
+      if (errors is Map) {
+        final messages = errors.values
+            .whereType<List>()
+            .expand((e) => e)
+            .map((e) => e.toString())
+            .toList();
+        return ApiResponse.error(messages.join('\n'), code: 422);
+      }
       return ApiResponse.error(errors.toString(), code: 422);
     } else {
       final message = body['message'] ?? 'An error occurred';
@@ -120,7 +129,7 @@ class ApiService extends GetxService {
     String? phone,
   }) async {
     return post(ApiConstants.register, body: {
-      'name': name,
+      'display_name': name,
       'email': email,
       'password': password,
       'password_confirmation': passwordConfirmation,
@@ -131,8 +140,8 @@ class ApiService extends GetxService {
   Future<ApiResponse> logout() async {
     final result = await post(ApiConstants.logout, auth: true);
     if (result.isSuccess) {
-      _storage.remove('token');
-      _storage.remove('user');
+      _storage.remove(AppConstants.TOKEN_KEY);
+      _storage.remove(AppConstants.USER_INFO_KEY);
     }
     return result;
   }
@@ -143,8 +152,15 @@ class ApiService extends GetxService {
 
   // ============ User Methods ============
 
-  Future<ApiResponse> getUsers({int page = 1, int perPage = 15}) async {
-    return get('${ApiConstants.users}?page=$page&per_page=$perPage', auth: true);
+  Future<ApiResponse> getUsers({int page = 1, int perPage = 15, String? role, String? search}) async {
+    final params = <String>[];
+    params.add('page=$page');
+    params.add('per_page=$perPage');
+    if (role != null) params.add('role=$role');
+    if (search != null && search.isNotEmpty) params.add('search=$search');
+    
+    final query = params.join('&');
+    return get('${ApiConstants.users}?$query', auth: false);
   }
 
   Future<ApiResponse> getUserById(int id) async {
@@ -163,10 +179,24 @@ class ApiService extends GetxService {
     return delete(ApiConstants.userById(id), auth: true);
   }
 
+  Future<ApiResponse> assignRole(int userId, int roleId) async {
+    return post('/users/$userId/assign-role', body: {'role_id': roleId}, auth: true);
+  }
+
+  Future<ApiResponse> removeRole(int userId, int roleId) async {
+    return delete('/users/$userId/remove-role?role_id=$roleId', auth: true);
+  }
+
   // ============ Article Methods ============
 
-  Future<ApiResponse> getArticles({int page = 1, int perPage = 15}) async {
-    return get('${ApiConstants.articles}?page=$page&per_page=$perPage');
+  Future<ApiResponse> getArticles({int page = 1, int perPage = 15, String? type}) async {
+    final params = <String>[];
+    params.add('page=$page');
+    params.add('per_page=$perPage');
+    if (type != null && type.isNotEmpty) params.add('type=$type');
+    
+    final query = params.join('&');
+    return get('${ApiConstants.articles}?$query');
   }
 
   Future<ApiResponse> getArticleById(int id) async {

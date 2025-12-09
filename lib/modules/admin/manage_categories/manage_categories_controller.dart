@@ -45,6 +45,8 @@ class ManageCategoriesController extends GetxController {
           data = response.data;
         } else if (response.data['data'] != null) {
           data = response.data['data'] as List;
+        } else if (response.data['categories'] != null) {
+          data = response.data['categories'] as List;
         } else if (response.data['value'] != null) {
           data = response.data['value'] as List;
         } else {

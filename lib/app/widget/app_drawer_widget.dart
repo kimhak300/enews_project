@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newshub/app/routes/app_routes.dart';
-import 'package:newshub/app/services/storage_service.dart';
 import 'package:newshub/app/theme/app_theme.dart';
+import 'package:newshub/app/controllers/theme_controller.dart';
+import 'package:newshub/app/controllers/language_controller.dart';
+import 'package:newshub/modules/auth/services/auth_service.dart';
 
 class AppDrawerWidget extends StatelessWidget {
   final String userRole;
@@ -145,20 +147,21 @@ class AppDrawerWidget extends StatelessWidget {
     items.add(const Divider(height: 32));
     items.add(_buildSectionHeader('Settings'));
     items.add(_buildMenuItem(
-      icon: Icons.settings,
-      title: 'Settings',
-      onTap: () => _navigateToSettings(context),
+      icon: Icons.person,
+      title: 'Profile',
+      onTap: () => _navigateToProfile(context),
     ));
     items.add(_buildMenuItem(
       icon: Icons.dark_mode,
       title: 'Theme',
+      subtitle: _getThemeText(),
       trailing: _buildThemeToggle(),
       onTap: () {},
     ));
     items.add(_buildMenuItem(
       icon: Icons.language,
       title: 'Language',
-      subtitle: 'English',
+      subtitle: _getLanguageText(),
       onTap: () => _showLanguageDialog(context),
     ));
     items.add(_buildMenuItem(
@@ -168,6 +171,16 @@ class AppDrawerWidget extends StatelessWidget {
     ));
 
     return items;
+  }
+
+  String _getThemeText() {
+    final themeController = Get.find<ThemeController>();
+    return themeController.themeMode.value == ThemeMode.dark ? 'Dark Mode' : 'Light Mode';
+  }
+
+  String _getLanguageText() {
+    final languageController = Get.find<LanguageController>();
+    return languageController.isKhmer.value ? 'ភាសាខ្មែរ' : 'English';
   }
 
   List<Widget> _buildAdminMenu(BuildContext context) {
@@ -337,14 +350,13 @@ class AppDrawerWidget extends StatelessWidget {
   }
 
   Widget _buildThemeToggle() {
+    final themeController = Get.find<ThemeController>();
     return Obx(() {
-      final isDark = Get.isDarkMode;
+      final isDark = themeController.themeMode.value == ThemeMode.dark;
       return Switch(
         value: isDark,
         onChanged: (value) {
-          Get.changeThemeMode(value ? ThemeMode.dark : ThemeMode.light);
-          final storage = Get.find<StorageService>();
-          storage.write('isDarkMode', value);
+          themeController.toggleTheme();
         },
         activeColor: AppTheme.primaryColor,
       );
@@ -397,31 +409,58 @@ class AppDrawerWidget extends StatelessWidget {
     Get.snackbar('Settings', 'Settings page coming soon');
   }
 
+  void _navigateToProfile(BuildContext context) {
+    Get.back();
+    // Navigate to profile based on role
+    switch (userRole.toLowerCase()) {
+      case 'admin':
+        Get.snackbar('Profile', 'Admin profile page coming soon');
+        break;
+      case 'organization':
+        Get.toNamed(Routes.ORG_PROFILE);
+        break;
+      default:
+        Get.toNamed(Routes.USER_PROFILE);
+    }
+  }
+
   void _showLanguageDialog(BuildContext context) {
     Get.back();
+    final languageController = Get.find<LanguageController>();
     Get.dialog(
       AlertDialog(
         title: const Text('Select Language'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
+            Obx(() => ListTile(
               title: const Text('English'),
-              leading: const Icon(Icons.check),
+              leading: languageController.isKhmer.value 
+                  ? null 
+                  : const Icon(Icons.check, color: Colors.green),
               onTap: () {
+                languageController.changeLanguage(false);
                 Get.back();
-                Get.updateLocale(const Locale('en', 'US'));
               },
-            ),
-            ListTile(
-              title: const Text('ភាសាខ្មែរ'),
+            )),
+            Obx(() => ListTile(
+              title: const Text('ភាសាខ្មែរ (Khmer)'),
+              leading: languageController.isKhmer.value 
+                  ? const Icon(Icons.check, color: Colors.green) 
+                  : null,
               onTap: () {
+                languageController.changeLanguage(true);
                 Get.back();
-                Get.updateLocale(const Locale('km', 'KH'));
               },
-            ),
+            )),
           ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Close'),
+          ),
+        ],
       ),
     );
   }
@@ -452,9 +491,9 @@ class AppDrawerWidget extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () async {
-              final storage = Get.find<StorageService>();
-              await storage.removeData('token');
-              await storage.removeData('user');
+              Get.back(); // Close dialog
+              final authService = AuthService();
+              await authService.logout();
               Get.offAllNamed(Routes.LOGIN);
             },
             style: ElevatedButton.styleFrom(

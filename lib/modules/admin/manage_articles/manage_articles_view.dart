@@ -5,7 +5,6 @@ import 'package:newshub/api/controller/category_controller.dart';
 import 'package:newshub/app/constants/app_spacing.dart';
 import 'package:newshub/modules/admin/manage_articles/widgets/article_card_widget.dart';
 import 'package:newshub/modules/admin/manage_articles/widgets/create_article_bottomsheet.dart';
-import 'package:newshub/modules/admin/manage_articles/widgets/update_article_bottomsheet.dart';
 
 class ManageArticlesView extends StatelessWidget {
   final ArticleController controller = Get.put(ArticleController());
@@ -61,8 +60,9 @@ class ManageArticlesView extends StatelessWidget {
                 final article = controller.articles[index];
                 return ArticleCardWidget(
                   title: article.title,
-                  subtitle: article.subtitle ?? '',
+                  subtitle: article.subtitle,
                   categories: article.categories,
+                  images: article.media,
                   articleData: article.toJson(), // full data for detail screen
                 );
               },

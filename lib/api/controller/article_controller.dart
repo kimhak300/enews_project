@@ -30,27 +30,33 @@ class ArticleController extends GetxController {
   Future<void> createArticle(Map<String, dynamic> body) async {
     try {
       await _service.createArticle(body);
+      // Don't show snackbar here - let the caller handle UI feedback
       fetchArticles();
     } catch (e) {
-      print(e);
+      print('Create article error: $e');
+      rethrow;
     }
   }
 
   Future<void> updateArticle(int id, Map<String, dynamic> body) async {
     try {
       await _service.updateArticle(id, body);
+      // Don't show snackbar here - let the caller handle UI feedback
       fetchArticles();
     } catch (e) {
-      print(e);
+      print('Update article error: $e');
+      rethrow;
     }
   }
 
   Future<void> deleteArticle(int id) async {
     try {
       await _service.deleteArticle(id);
+      // Don't show snackbar here - let the caller handle UI feedback
       fetchArticles();
     } catch (e) {
-      print(e);
+      print('Delete article error: $e');
+      rethrow;
     }
   }
 

@@ -1,18 +1,18 @@
 import 'package:get/get.dart';
-import 'package:newshub/modules/user/bookmark/bookmark_view.dart';
 import 'package:newshub/modules/user/home/home_view.dart';
+import 'package:newshub/modules/user/video/video_view.dart';
+import 'package:newshub/modules/user/hotnews/hotnews_view.dart';
 import 'package:newshub/modules/user/profile/profile_view.dart';
-import 'package:newshub/modules/user/search/search_view.dart';
 
 class UserController extends GetxController {
 
   var currentIndex = 0.obs;
 
   final pages = [
-    HomeView(),
-    BookmarkView(),
-    SearchView(),
-    ProfileView()
+    const HomeView(),
+    const VideoView(),
+    const HotNewsView(),
+    const ProfileView()
   ];
 
   void changeTab(int index) {

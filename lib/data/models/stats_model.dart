@@ -55,24 +55,43 @@ class RecentArticle {
   final String title;
   final String? status;
   final String? authorName;
+  final String? coverImage;
   final DateTime? createdAt;
+  final DateTime? publishedAt;
 
   RecentArticle({
     required this.id,
     required this.title,
     this.status,
     this.authorName,
+    this.coverImage,
     this.createdAt,
+    this.publishedAt,
   });
 
   factory RecentArticle.fromJson(Map<String, dynamic> json) {
+    // Extract cover image from media array
+    String? cover;
+    if (json['media'] != null && json['media'] is List && (json['media'] as List).isNotEmpty) {
+      final media = json['media'][0];
+      if (media is String) {
+        cover = media;
+      } else if (media is Map) {
+        cover = media['url'] ?? media['base64'];
+      }
+    }
+
     return RecentArticle(
       id: json['id'] ?? 0,
       title: json['title'] ?? '',
       status: json['status'],
       authorName: json['author_name'] ?? json['author']?['display_name'],
+      coverImage: cover,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'])
+          : null,
+      publishedAt: json['published_at'] != null
+          ? DateTime.tryParse(json['published_at'])
           : null,
     );
   }

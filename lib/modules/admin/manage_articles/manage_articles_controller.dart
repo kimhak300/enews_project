@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:newshub/app/constants/app_constant.dart';
 import 'package:newshub/app/services/api_service.dart';
+import 'package:newshub/app/services/storage_service.dart';
 import 'package:newshub/data/models/article_model.dart';
 
 class ManageArticlesController extends GetxController {
@@ -120,31 +122,38 @@ class ManageArticlesController extends GetxController {
       final response = await _apiService.deleteArticle(articleId);
       if (response.isSuccess) {
         articles.removeWhere((article) => article.id == articleId);
-        Get.snackbar(
-          'Success',
-          'Article deleted successfully',
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
+        // Success - let the caller handle UI feedback
       } else {
-        Get.snackbar(
-          'Error',
-          response.error ?? 'Failed to delete article',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
+        // Handle 401 Unauthorized specifically
+        if (response.code == 401) {
+          throw Exception('Authentication Required: Please login to delete articles');
+        } else {
+          throw Exception(response.error ?? 'Failed to delete article');
+        }
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'An error occurred: $e',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      print('Error deleting article: $e');
+      rethrow;
     }
   }
 
   void showDeleteConfirmation(ArticleModel article) {
+    // Check if user is authenticated
+    final storage = Get.find<StorageService>();
+    final token = storage.read<String>(AppConstants.TOKEN_KEY);
+    
+    if (token == null || token.isEmpty) {
+      Get.snackbar(
+        'Authentication Required',
+        'Please login first to delete articles',
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 4),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+    
     Get.dialog(
       AlertDialog(
         title: const Text('Delete Article'),
@@ -155,9 +164,27 @@ class ManageArticlesController extends GetxController {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Get.back();
-              deleteArticle(article.id);
+              
+              try {
+                await deleteArticle(article.id);
+                Get.snackbar(
+                  'Success',
+                  'Article deleted successfully',
+                  backgroundColor: Colors.green,
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              } catch (e) {
+                Get.snackbar(
+                  'Error',
+                  'Failed to delete article: ${e.toString()}',
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Delete', style: TextStyle(color: Colors.white)),

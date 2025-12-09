@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:newshub/api/controller/user_controller.dart';
 import 'package:newshub/app/constants/app_constant.dart';
 import 'package:newshub/app/constants/app_widget_size.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:newshub/api/controller/user_controller.dart';
 
 class UserCardWidget extends StatelessWidget {
   final int userId;
@@ -27,7 +27,6 @@ class UserCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final UserController controller = Get.find();
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -46,7 +45,10 @@ class UserCardWidget extends StatelessWidget {
                 width: 60,
                 height: 60,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _fallbackAvatar(),
+                errorBuilder: (context, error, stackTrace) {
+                  print('Error loading avatar: $error');
+                  return _fallbackAvatar();
+                },
               )
                   : _fallbackAvatar(),
             ),
@@ -122,17 +124,7 @@ class UserCardWidget extends StatelessWidget {
               ),
               child: IconButton(
                 icon: Icon(Icons.delete, color: Colors.redAccent, size: AppWidgetSize.iconSmall),
-                onPressed: () {
-                  Get.defaultDialog(
-                    title: 'Delete User',
-                    middleText: 'Are you sure you want to delete this user?',
-                    onConfirm: () async {
-                      await controller.deleteUser(userId);
-                      Get.back();
-                    },
-                    onCancel: () {},
-                  );
-                },
+                onPressed: onDelete,
               ),
             ),
           ],
@@ -186,158 +178,221 @@ class UpdateUserBottomSheet extends StatefulWidget {
 
 class _UpdateUserBottomSheetState extends State<UpdateUserBottomSheet> {
   final _formKey = GlobalKey<FormState>();
-  final UserController controller = Get.find();
+  final _displayNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  
+  String _selectedRole = 'user';
+  bool _isActive = true;
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
 
-  late TextEditingController nameController;
-  late TextEditingController emailController;
-  late TextEditingController roleController;
-  File? avatarFile;
+  final UserController _userController = UserController();
 
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController(text: widget.displayName);
-    emailController = TextEditingController(text: widget.email);
-    roleController = TextEditingController(text: widget.role);
+    _displayNameController.text = widget.displayName;
+    _emailController.text = widget.email;
+    _selectedRole = widget.role;
+  }
+
+  @override
+  void dispose() {
+    _displayNameController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 512,
+      maxHeight: 512,
+      imageQuality: 85,
+    );
+    if (pickedFile != null) {
+      setState(() => _imageFile = File(pickedFile.path));
+    }
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    await _userController.updateUser(
+      id: widget.userId,
+      displayName: _displayNameController.text.trim(),
+      email: _emailController.text.trim(),
+      role: _selectedRole,
+      isActive: _isActive,
+      avatarFile: _imageFile,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context).textTheme;
-
     return Padding(
       padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
         left: 20,
         right: 20,
         top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
       ),
       child: SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top bar
-              Center(
-                child: Container(
-                  width: 50,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade400,
-                    borderRadius: BorderRadius.circular(10),
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Update User',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
-                ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Get.back(),
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
 
-              Text(
-                'Update User',
-                style: theme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              // Profile Image
+              Center(
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.grey[200],
+                      backgroundImage: _imageFile != null
+                          ? FileImage(_imageFile!)
+                          : null,
+                      child: _imageFile == null
+                          ? Icon(Icons.person, size: 50, color: Colors.grey[400])
+                          : null,
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: CircleAvatar(
+                        radius: 18,
+                        backgroundColor: Theme.of(context).primaryColor,
+                        child: IconButton(
+                          icon: const Icon(Icons.camera_alt, size: 18, color: Colors.white),
+                          onPressed: _pickImage,
+                          padding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 20),
 
               // Display Name
               TextFormField(
-                controller: nameController,
-                decoration: _inputDecoration('Display Name'),
-                validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                controller: _displayNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Display Name',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter display name';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
 
-              // Email
+              // Email (Read-only for update)
               TextFormField(
-                controller: emailController,
-                decoration: _inputDecoration('Email'),
-                validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                controller: _emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.email),
+                ),
+                enabled: false,
               ),
               const SizedBox(height: 16),
 
-              // Role
-              TextFormField(
-                controller: roleController,
-                decoration: _inputDecoration('Role'),
-                validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+              // Role Dropdown
+              DropdownButtonFormField<String>(
+                value: _selectedRole,
+                decoration: const InputDecoration(
+                  labelText: 'Select Role',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.badge),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'user', child: Text('User')),
+                  DropdownMenuItem(value: 'organizer', child: Text('Organizer')),
+                  DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => _selectedRole = value);
+                  }
+                },
               ),
               const SizedBox(height: 16),
 
-              // Avatar Picker
+              // Account Status
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-                      if (picked != null) {
-                        setState(() => avatarFile = File(picked.path));
-                      }
-                    },
-                    icon: const Icon(Icons.image),
-                    label: const Text('Change Avatar'),
+                  const Text('Account Status', style: TextStyle(fontSize: 16)),
+                  Row(
+                    children: [
+                      Radio<bool>(
+                        value: true,
+                        groupValue: _isActive,
+                        onChanged: (value) => setState(() => _isActive = value!),
+                      ),
+                      const Text('Active'),
+                      Radio<bool>(
+                        value: false,
+                        groupValue: _isActive,
+                        onChanged: (value) => setState(() => _isActive = value!),
+                      ),
+                      const Text('Inactive'),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  if (avatarFile != null)
-                    const Text(
-                      'Avatar Selected',
-                      style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
-                    ),
                 ],
               ),
+              const SizedBox(height: 20),
 
-              const SizedBox(height: 24),
-
-              // Save Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    backgroundColor: Colors.blueAccent,
-                  ),
-                  onPressed: controller.isLoading.value
-                      ? null
-                      : () async {
-                    if (_formKey.currentState!.validate()) {
-                      await controller.updateUser(
-                        id: widget.userId,
-                        displayName: nameController.text.trim(),
-                        email: emailController.text.trim(),
-                        role: roleController.text.trim(),
-                        isActive: true,
-                        avatarFile: avatarFile,
-                      );
-                    }
-                  },
-                  child: Obx(
-                        () => controller.isLoading.value
-                        ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
+              // Submit Button
+              Obx(() => SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _userController.isLoading.value ? null : _submit,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                    )
-                        : const Text(
-                      'Update User',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      child: _userController.isLoading.value
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Update User', style: TextStyle(fontSize: 16)),
                     ),
-                  ),
-                ),
-              ),
+                  )),
+              const SizedBox(height: 20),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration(String label) {
-    return InputDecoration(
-      labelText: label,
-      filled: true,
-      fillColor: Colors.grey.shade100,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
       ),
     );
   }

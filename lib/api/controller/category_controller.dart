@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newshub/api/model/category_model.dart';
 import 'package:newshub/api/service/category_service.dart';
@@ -21,7 +22,7 @@ class CategoryController extends GetxController {
       final result = await service.getCategories();
       categories.value = result;
     } catch (e) {
-      print(e);
+      print('CategoryController - Fetch error: $e');
     } finally {
       isLoading.value = false;
     }
@@ -44,8 +45,23 @@ class CategoryController extends GetxController {
       );
       categories.add(category);
       Get.back();
+      Get.snackbar(
+        'Success',
+        'Category created successfully',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } catch (e) {
-      print(e);
+      print('CategoryController - Create error: $e');
+      Get.snackbar(
+        'Error',
+        e.toString().replaceAll('Exception: ', ''),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 4),
+      );
     } finally {
       isLoading.value = false;
     }
@@ -76,8 +92,23 @@ class CategoryController extends GetxController {
       }
 
       Get.back();
+      Get.snackbar(
+        'Success',
+        'Category updated successfully',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } catch (e) {
-      print(e);
+      print('CategoryController - Update error: $e');
+      Get.snackbar(
+        'Error',
+        e.toString().replaceAll('Exception: ', ''),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 4),
+      );
     } finally {
       isLoading.value = false;
     }
@@ -88,10 +119,24 @@ class CategoryController extends GetxController {
     try {
       isLoading.value = true;
       await service.deleteCategory(id);
-
       categories.removeWhere((c) => c.id == id);
+      Get.snackbar(
+        'Success',
+        'Category deleted successfully',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } catch (e) {
-      print(e);
+      print('CategoryController - Delete error: $e');
+      Get.snackbar(
+        'Error',
+        e.toString().replaceAll('Exception: ', ''),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 4),
+      );
     } finally {
       isLoading.value = false;
     }

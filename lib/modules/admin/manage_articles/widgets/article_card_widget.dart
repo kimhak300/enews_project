@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:newshub/modules/admin/manage_articles/article_detail_view.dart';
 
@@ -56,15 +58,7 @@ class ArticleCardWidget extends StatelessWidget {
                   // --- Image or Fallback Avatar ---
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: firstImage != null
-                        ? Image.network(
-                      firstImage,
-                      width: 70,
-                      height: 70,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _fallbackAvatar(),
-                    )
-                        : _fallbackAvatar(),
+                    child: _buildImage(firstImage),
                   ),
 
                   const SizedBox(width: 12),
@@ -135,6 +129,66 @@ class ArticleCardWidget extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  //---------------------------------------------------------
+  // Image builder that supports network URLs and base64 data URIs
+  //---------------------------------------------------------
+  Widget _buildImage(String? image) {
+    if (image == null || image.isEmpty) {
+      return _fallbackAvatar();
+    }
+
+    // Skip video files - they can't be displayed as images
+    final lowerImage = image.toLowerCase();
+    if (lowerImage.endsWith('.mp4') || lowerImage.endsWith('.mov') || 
+        lowerImage.endsWith('.avi') || lowerImage.endsWith('.webm')) {
+      return _fallbackVideoAvatar();
+    }
+
+    // Base64 data URI (e.g., data:image/png;base64,...)
+    if (_isBase64DataUri(image)) {
+      try {
+        final bytes = base64Decode(image.split(',').last);
+        return Image.memory(
+          bytes,
+          width: 70,
+          height: 70,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _fallbackAvatar(),
+        );
+      } catch (_) {
+        return _fallbackAvatar();
+      }
+    }
+
+    // Assume URL
+    return Image.network(
+      image,
+      width: 70,
+      height: 70,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => _fallbackAvatar(),
+    );
+  }
+
+  bool _isBase64DataUri(String value) {
+    return value.startsWith('data:image');
+  }
+
+  //---------------------------------------------------------
+  // Fallback Video Avatar
+  //---------------------------------------------------------
+  Widget _fallbackVideoAvatar() {
+    return Container(
+      width: 70,
+      height: 70,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Icon(Icons.video_library, size: 30, color: Colors.grey[400]),
     );
   }
 
