@@ -234,21 +234,26 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _buildFeaturedArticle(article) {
-    return Container(
-      height: 280.h,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20.r),
-        child: Stack(
+    return GestureDetector(
+      onTap: () {
+        // Navigate to article detail
+        Get.toNamed('/article-detail', arguments: article.toJson());
+      },
+      child: Container(
+        height: 280.h,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20.r),
+          child: Stack(
           children: [
             // Image
             Container(
@@ -276,35 +281,7 @@ class HomeView extends GetView<HomeController> {
                 ),
               ),
             ),
-            // Breaking Badge
-            Positioned(
-              top: 16.h,
-              left: 16.w,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(6.r),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.flash_on, color: Colors.white, size: 14.sp),
-                    SizedBox(width: 4.w),
-                    Text(
-                      'FEATURED',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            // Content
+
             Positioned(
               bottom: 0,
               left: 0,
@@ -344,16 +321,9 @@ class HomeView extends GetView<HomeController> {
                           SizedBox(width: 8.w),
                         ],
                         Text(
-                          _formatDate(article.publishedAt ?? DateTime.now()),
-                          style: TextStyle(color: Colors.white70, fontSize: 12.sp),
-                        ),
-                        SizedBox(width: 8.w),
-                        const Text('•', style: TextStyle(color: Colors.white70)),
-                        SizedBox(width: 8.w),
-                        Icon(Icons.schedule, color: Colors.white70, size: 14.sp),
-                        SizedBox(width: 4.w),
-                        Text(
-                          '5 min read',
+                          _formatDate(
+                            (article.publishedAt ?? article.createdAt ?? article.updatedAt) as DateTime?,
+                          ),
                           style: TextStyle(color: Colors.white70, fontSize: 12.sp),
                         ),
                       ],
@@ -364,6 +334,7 @@ class HomeView extends GetView<HomeController> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -407,7 +378,8 @@ class HomeView extends GetView<HomeController> {
     return colors[index % colors.length];
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime? date) {
+    if (date == null) return '';
     final now = DateTime.now();
     final diff = now.difference(date);
 
@@ -426,6 +398,10 @@ class HomeView extends GetView<HomeController> {
     }
   }
 
+  String _formatData(int minutes) {
+    // Use localization key `min_read` (e.g. "min read") and format with minutes
+    return '$minutes ${'min_read'.tr}';
+  }
   Widget _buildArticleCard(article) {
     // Get cover image from media list or coverImage
     String? coverImage;
@@ -556,7 +532,9 @@ class HomeView extends GetView<HomeController> {
                         Icon(Icons.schedule, size: 12.sp, color: Colors.grey[600]),
                         SizedBox(width: 4.w),
                         Text(
-                          _formatDate(article.publishedAt ?? DateTime.now()),
+                          _formatDate(
+                            (article.publishedAt ?? article.createdAt ?? article.updatedAt) as DateTime?,
+                          ),
                           style: TextStyle(
                             fontSize: 11.sp,
                             color: Colors.grey[600],

@@ -106,6 +106,16 @@ class ArticleModel {
     if (date == null) return '';
     return '${date.day}/${date.month}/${date.year}';
   }
+
+  /// Estimated read time in minutes (computed from content/excerpt)
+  /// This ensures older callers using `article.readTime` won't throw.
+  int get readTime {
+    final text = (content ?? excerpt ?? '').trim();
+    if (text.isEmpty) return 1;
+    final words = RegExp(r"\w+").allMatches(text).length;
+    final minutes = (words / 200).ceil();
+    return minutes < 1 ? 1 : minutes;
+  }
 }
 
 // -------- Helpers to tolerate string-or-map payloads --------

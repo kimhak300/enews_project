@@ -87,6 +87,53 @@ class OrgReportView extends GetView<OrgReportController> {
                   ),
                 ],
               ),
+              SizedBox(height: 24.h),
+
+              // Engagement Metrics Section
+              Text(
+                'Engagement Metrics',
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              SizedBox(height: 16.h),
+
+              GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 12.h,
+                crossAxisSpacing: 12.w,
+                childAspectRatio: 1.3,
+                children: [
+                  _buildStatCard(
+                    'Total Likes',
+                    controller.totalLikes.value.toString(),
+                    Icons.favorite,
+                    Colors.red,
+                  ),
+                  _buildStatCard(
+                    'Total Comments',
+                    controller.totalComments.value.toString(),
+                    Icons.comment,
+                    Colors.blue,
+                  ),
+                  _buildStatCard(
+                    'Total Shares',
+                    controller.totalShares.value.toString(),
+                    Icons.share,
+                    Colors.green,
+                  ),
+                  _buildStatCard(
+                    'Total Bookmarks',
+                    controller.totalBookmarks.value.toString(),
+                    Icons.bookmark,
+                    Colors.orange,
+                  ),
+                ],
+              ),
               SizedBox(height: 32.h),
 
               // Top Performing Articles
@@ -203,30 +250,26 @@ class OrgReportView extends GetView<OrgReportController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: color, size: 24.sp),
-          SizedBox(height: 6.h),
-          Flexible(
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+          Spacer(),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           SizedBox(height: 2.h),
-          Flexible(
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 10.sp,
-                color: Colors.black54,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 10.sp,
+              color: Colors.black54,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

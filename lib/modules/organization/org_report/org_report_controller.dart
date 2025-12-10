@@ -1,8 +1,13 @@
 import 'package:get/get.dart';
 import 'package:newshub/app/services/api_service.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:get_storage/get_storage.dart';
+import '../../../app/config/app_config.dart';
 
 class OrgReportController extends GetxController {
   final ApiService _apiService = ApiService.to;
+  final box = GetStorage();
 
   final isLoading = false.obs;
   final errorMessage = ''.obs;
@@ -13,6 +18,12 @@ class OrgReportController extends GetxController {
   final draftArticles = 0.obs;
   final totalViews = 0.obs;
   final totalBookmarks = 0.obs;
+  
+  // Engagement metrics
+  final totalLikes = 0.obs;
+  final totalComments = 0.obs;
+  final totalShares = 0.obs;
+  final totalUsers = 0.obs;
 
   // Article performance
   final topArticles = <Map<String, dynamic>>[].obs;
@@ -28,6 +39,9 @@ class OrgReportController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
+
+      // Fetch engagement stats from backend
+      await fetchEngagementStats();
 
       // Fetch articles
       final articlesResponse = await _apiService.getArticles();
@@ -100,5 +114,36 @@ class OrgReportController extends GetxController {
 
   Future<void> refresh() async {
     await fetchReportData();
+  }
+  
+  Future<void> fetchEngagementStats() async {
+    try {
+      final token = box.read('token');
+      
+      final response = await http.get(
+        Uri.parse('${AppConfig.apiBaseUrl}/organizer/stats'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          final stats = data['data'];
+          totalLikes.value = stats['total_likes'] ?? 0;
+          totalComments.value = stats['total_comments'] ?? 0;
+          totalShares.value = stats['total_shares'] ?? 0;
+          totalBookmarks.value = stats['total_bookmarks'] ?? 0;
+          totalUsers.value = stats['total_users'] ?? 0;
+          totalArticles.value = stats['total_articles'] ?? 0;
+          publishedArticles.value = stats['published_articles'] ?? 0;
+          draftArticles.value = stats['draft_articles'] ?? 0;
+        }
+      }
+    } catch (e) {
+      print('Error fetching engagement stats: $e');
+    }
   }
 }
