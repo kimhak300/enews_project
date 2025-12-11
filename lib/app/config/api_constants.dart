@@ -58,6 +58,9 @@ class ApiConstants {
   static const String adminRecentArticles = '/admin/recent-articles';
   static const String adminRecentUsers = '/admin/recent-users';
 
+  // ============ Organization Endpoints ============
+  static const String orgStats = '/organization/stats';
+
   // ============ Address Endpoints ============
   static const String addresses = '/addresses';
   static String addressById(int id) => '/addresses/$id';

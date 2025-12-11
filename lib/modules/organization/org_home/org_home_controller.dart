@@ -1,16 +1,25 @@
 import 'package:get/get.dart';
 import 'package:newshub/app/services/api_service.dart';
+import 'package:newshub/data/models/stats_model.dart';
 
 class OrgHomeController extends GetxController {
-  final ApiService _apiService = ApiService.to;
-  
-  final isLoading = false.obs;
+  final ApiService _apiService = Get.find<ApiService>();
+
+  // Loading state
+  final isLoading = true.obs;
+  final errorMessage = ''.obs;
+
+  // Stats data
+  final Rxn<DashboardStatsModel> stats = Rxn<DashboardStatsModel>();
+
+  // Quick stats for cards
   final totalArticles = 0.obs;
   final publishedArticles = 0.obs;
   final draftArticles = 0.obs;
   final totalViews = 0.obs;
-  final recentArticles = <Map<String, dynamic>>[].obs;
-  final errorMessage = ''.obs;
+
+  // Recent data lists
+  final RxList<RecentArticle> recentArticles = <RecentArticle>[].obs;
 
   @override
   void onInit() {
@@ -19,29 +28,34 @@ class OrgHomeController extends GetxController {
   }
 
   Future<void> fetchDashboardStats() async {
-    try {
-      isLoading.value = true;
-      errorMessage.value = '';
+    isLoading.value = true;
+    errorMessage.value = '';
 
-      final response = await _apiService.getArticles();
-      
+    try {
+      final response = await _apiService.getOrgStats();
+
       if (response.isSuccess) {
-        final articles = (response.data['data'] as List?) ?? [];
-        totalArticles.value = articles.length;
-        publishedArticles.value = articles.where((a) => a['status'] == 'published').length;
-        draftArticles.value = articles.where((a) => a['status'] == 'draft').length;
-        recentArticles.value = articles.take(5).cast<Map<String, dynamic>>().toList();
+        final data = response.data['data'];
+        stats.value = DashboardStatsModel.fromJson(data);
+
+        // Update individual values for easier access
+        totalArticles.value = stats.value?.totalArticles ?? 0;
+        publishedArticles.value = stats.value?.publishedArticles ?? 0;
+        draftArticles.value = stats.value?.draftArticles ?? 0;
+        totalViews.value = 0; // Will be updated when API provides this
+
+        recentArticles.assignAll(stats.value?.recentArticles ?? []);
       } else {
-        errorMessage.value = response.error ?? 'Failed to load data';
+        errorMessage.value = response.error ?? 'Failed to load dashboard data';
       }
     } catch (e) {
-      errorMessage.value = 'Error: ${e.toString()}';
+      errorMessage.value = 'An error occurred: $e';
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> refresh() async {
-    await fetchDashboardStats();
+  void refresh() {
+    fetchDashboardStats();
   }
 }

@@ -267,6 +267,12 @@ class ApiService extends GetxService {
     return get('/admin/article-stats', auth: true);
   }
 
+  // ============ Organization Methods ============
+
+  Future<ApiResponse> getOrgStats() async {
+    return get(ApiConstants.orgStats, auth: true);
+  }
+
   // ============ Role Methods ============
 
   Future<ApiResponse> getRoles() async {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:newshub/app/constants/app_spacing.dart';
+import 'package:newshub/modules/admin/manage_articles/widgets/article_card_widget.dart';
 import 'package:newshub/modules/organization/org_manage_article/org_manage_article_controller.dart';
 
 class OrgManageArticleView extends GetView<OrgManageArticleController> {
@@ -36,7 +38,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                 Text(controller.errorMessage.value),
                 SizedBox(height: 16.h),
                 ElevatedButton(
-                  onPressed: controller.refresh,
+                  onPressed: () => controller.refresh(),
                   child: const Text('Retry'),
                 ),
               ],
@@ -46,7 +48,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
 
         return Column(
           children: [
-            // Search and Filter Bar
+            // Search and Filter Bar (kept)
             Container(
               padding: EdgeInsets.all(16.w),
               color: theme.colorScheme.surface,
@@ -54,6 +56,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                 children: [
                   // Search Bar
                   TextField(
+                    controller: controller.searchController,
                     decoration: InputDecoration(
                       hintText: 'Search articles...',
                       prefixIcon: const Icon(Icons.search),
@@ -66,10 +69,10 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                         vertical: 12.h,
                       ),
                     ),
-                    onChanged: controller.setSearchQuery,
+                    onChanged: controller.searchArticles,
                   ),
                   SizedBox(height: 12.h),
-                  // Status Filter
+                  // Status Filter (tabbar-like chips)
                   Row(
                     children: [
                       _buildFilterChip(context, 'All', 'all'),
@@ -90,15 +93,11 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.article_outlined,
-                              size: 64.sp, color: Colors.grey),
+                          Icon(Icons.article_outlined, size: 64.sp, color: Colors.grey),
                           SizedBox(height: 16.h),
                           Text(
                             'No articles found',
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              color: Colors.grey[600],
-                            ),
+                            style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
                           ),
                           SizedBox(height: 8.h),
                           ElevatedButton.icon(
@@ -112,11 +111,17 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                   : RefreshIndicator(
                       onRefresh: controller.refresh,
                       child: ListView.builder(
-                        padding: EdgeInsets.all(16.w),
+                        padding: EdgeInsets.all(AppSpacing.paddingXS),
                         itemCount: controller.filteredArticles.length,
-                          itemBuilder: (context, index) {
+                        itemBuilder: (context, index) {
                           final article = controller.filteredArticles[index];
-                          return _buildArticleCard(context, article);
+                          return ArticleCardWidget(
+                            title: article.title,
+                            subtitle: article.subtitle ?? '',
+                            categories: (article.categories ?? []).map((c) => c.name).toList(),
+                            images: article.media,
+                            articleData: article.toJson(),
+                          );
                         },
                       ),
                     ),
