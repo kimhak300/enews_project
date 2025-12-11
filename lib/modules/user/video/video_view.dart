@@ -13,13 +13,13 @@ class VideoView extends GetView<VideoController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Videos'),
+        title: Text('videos_label'.tr),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor ?? Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor ?? Theme.of(context).colorScheme.onPrimary,
       ),
       body: Obx(() {
         if (controller.isLoading.value && controller.videos.isEmpty) {
@@ -36,12 +36,12 @@ class VideoView extends GetView<VideoController> {
                 Text(
                   controller.errorMessage.value,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14.sp),
+                  style: TextStyle(fontSize: 14.sp, color: Theme.of(context).textTheme.bodyMedium?.color),
                 ),
                 SizedBox(height: 16.h),
                 ElevatedButton(
                   onPressed: controller.refresh,
-                  child: const Text('Retry'),
+                  child: Text('retry'.tr),
                 ),
               ],
             ),
@@ -56,10 +56,10 @@ class VideoView extends GetView<VideoController> {
                 Icon(Icons.video_library_outlined, size: 64.sp, color: Colors.grey),
                 SizedBox(height: 16.h),
                 Text(
-                  'No videos available',
+                  'no_videos'.tr,
                   style: TextStyle(
                     fontSize: 16.sp,
-                    color: Colors.grey[600],
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                   ),
                 ),
               ],
@@ -94,7 +94,7 @@ class VideoView extends GetView<VideoController> {
                 }
 
                 final video = controller.videos[index];
-                return _buildVideoCard(video);
+                return _buildVideoCard(context, video);
               },
             ),
           ),
@@ -103,7 +103,7 @@ class VideoView extends GetView<VideoController> {
     );
   }
 
-  Widget _buildVideoCard(ArticleModel video) {
+  Widget _buildVideoCard(BuildContext context, ArticleModel video) {
     // Get cover image from media list (skip video files, look for actual images)
     String? coverImage;
     if (video.media != null && video.media!.isNotEmpty) {
@@ -144,7 +144,7 @@ class VideoView extends GetView<VideoController> {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [Colors.blue[900]!, Colors.purple[900]!],
+                      colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
                     ),
                   ),
                   child: coverImage != null && !_isVideoFile(coverImage)
@@ -153,7 +153,7 @@ class VideoView extends GetView<VideoController> {
                           child: Icon(
                             Icons.play_circle_outline,
                             size: 80.sp,
-                            color: Colors.white.withOpacity(0.8),
+                            color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.85),
                           ),
                         ),
                 ),
@@ -163,7 +163,7 @@ class VideoView extends GetView<VideoController> {
                     child: Container(
                       padding: EdgeInsets.all(12.w),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -181,18 +181,18 @@ class VideoView extends GetView<VideoController> {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                     decoration: BoxDecoration(
-                      color: Colors.red,
+                      color: Theme.of(context).colorScheme.error,
                       borderRadius: BorderRadius.circular(4.r),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.videocam, color: Colors.white, size: 14.sp),
+                        Icon(Icons.videocam, color: Theme.of(context).colorScheme.onError, size: 14.sp),
                         SizedBox(width: 4.w),
                         Text(
-                          'VIDEO',
+                          'video'.tr.toUpperCase(),
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onError,
                             fontSize: 10.sp,
                             fontWeight: FontWeight.bold,
                           ),
@@ -223,9 +223,9 @@ class VideoView extends GetView<VideoController> {
                     Text(
                       video.subtitle!,
                       style: TextStyle(
-                        fontSize: 13.sp,
-                        color: Colors.grey[600],
-                      ),
+                            fontSize: 13.sp,
+                            color: Theme.of(context).textTheme.bodyMedium?.color,
+                          ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -233,13 +233,13 @@ class VideoView extends GetView<VideoController> {
                   SizedBox(height: 8.h),
                   Row(
                     children: [
-                      Icon(Icons.access_time, size: 14.sp, color: Colors.grey),
+                      Icon(Icons.access_time, size: 14.sp, color: Theme.of(context).textTheme.bodySmall?.color),
                       SizedBox(width: 4.w),
                       Text(
                         _formatDate(video.createdAt),
                         style: TextStyle(
                           fontSize: 12.sp,
-                          color: Colors.grey[600],
+                          color: Theme.of(context).textTheme.bodySmall?.color,
                         ),
                       ),
                     ],

@@ -29,6 +29,7 @@ class ArticleCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final String? firstImage =
     (images != null && images!.isNotEmpty) ? images!.first : null;
 
@@ -42,6 +43,7 @@ class ArticleCardWidget extends StatelessWidget {
         );
       },
       child: Card(
+        color: theme.colorScheme.surface,
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
@@ -58,7 +60,7 @@ class ArticleCardWidget extends StatelessWidget {
                   // --- Image or Fallback Avatar ---
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: _buildImage(firstImage),
+                    child: _buildImage(context, firstImage),
                   ),
 
                   const SizedBox(width: 12),
@@ -74,7 +76,7 @@ class ArticleCardWidget extends StatelessWidget {
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                              ?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface, fontSize: 16),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -85,10 +87,10 @@ class ArticleCardWidget extends StatelessWidget {
                         if (subtitle.isNotEmpty)
                           Text(
                             subtitle,
-                            style: Theme.of(context)
+                              style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium
-                                ?.copyWith(color: Colors.black87),
+                                ?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.85), fontSize: 13),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -108,15 +110,15 @@ class ArticleCardWidget extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.blueAccent.withOpacity(0.1),
+                          color: theme.colorScheme.primary.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Text(
                           cat,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: Colors.blueAccent,
+                            color: theme.colorScheme.primary,
                           ),
                         ),
                       ),
@@ -135,16 +137,16 @@ class ArticleCardWidget extends StatelessWidget {
   //---------------------------------------------------------
   // Image builder that supports network URLs and base64 data URIs
   //---------------------------------------------------------
-  Widget _buildImage(String? image) {
+  Widget _buildImage(BuildContext context, String? image) {
     if (image == null || image.isEmpty) {
-      return _fallbackAvatar();
+      return _fallbackAvatar(context);
     }
 
     // Skip video files - they can't be displayed as images
     final lowerImage = image.toLowerCase();
     if (lowerImage.endsWith('.mp4') || lowerImage.endsWith('.mov') || 
         lowerImage.endsWith('.avi') || lowerImage.endsWith('.webm')) {
-      return _fallbackVideoAvatar();
+      return _fallbackVideoAvatar(context);
     }
 
     // Base64 data URI (e.g., data:image/png;base64,...)
@@ -156,10 +158,10 @@ class ArticleCardWidget extends StatelessWidget {
           width: 70,
           height: 70,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _fallbackAvatar(),
+          errorBuilder: (_, __, ___) => _fallbackAvatar(context),
         );
       } catch (_) {
-        return _fallbackAvatar();
+        return _fallbackAvatar(context);
       }
     }
 
@@ -169,7 +171,7 @@ class ArticleCardWidget extends StatelessWidget {
       width: 70,
       height: 70,
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => _fallbackAvatar(),
+      errorBuilder: (_, __, ___) => _fallbackAvatar(context),
     );
   }
 
@@ -180,36 +182,36 @@ class ArticleCardWidget extends StatelessWidget {
   //---------------------------------------------------------
   // Fallback Video Avatar
   //---------------------------------------------------------
-  Widget _fallbackVideoAvatar() {
+  Widget _fallbackVideoAvatar(BuildContext context) {
     return Container(
       width: 70,
       height: 70,
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: Theme.of(context).colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Icon(Icons.video_library, size: 30, color: Colors.grey[400]),
+      child: Icon(Icons.video_library, size: 30, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
     );
   }
 
   //---------------------------------------------------------
   // Fallback Avatar (if no image)
   //---------------------------------------------------------
-  Widget _fallbackAvatar() {
+  Widget _fallbackAvatar(BuildContext context) {
     return Container(
       width: 70,
       height: 70,
       decoration: BoxDecoration(
-        color: Colors.blueAccent.withOpacity(0.2),
+        color: Theme.of(context).colorScheme.primary.withOpacity(0.14),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Center(
         child: Text(
           _getInitials(title),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: Colors.blueAccent,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
       ),

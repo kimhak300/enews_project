@@ -12,16 +12,17 @@ class ManageCategoriesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Categories'),
+        title: Text('manage_categories'.tr, style: textTheme.titleLarge?.copyWith(color: theme.colorScheme.onPrimary)),
         automaticallyImplyLeading: false,
       ),
       floatingActionButton: FloatingActionButton.extended(
         icon: const Icon(Icons.add),
-        label: const Text("Add Category"),
+        label: Text("add_category".tr, style: textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onPrimary)),
         onPressed: () {
           showModalBottomSheet(
             context: context,
@@ -41,7 +42,7 @@ class ManageCategoriesView extends StatelessWidget {
           }
 
           if (controller.categories.isEmpty) {
-            return const Center(child: Text("No categories found."));
+            return Center(child: Text("No categories found.", style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7))));
           }
 
           // Pull-to-refresh
@@ -51,9 +52,8 @@ class ManageCategoriesView extends StatelessWidget {
             },
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              children: controller.categories
-                  .map((category) =>
-                  CategoryCardWidget(category: category, textTheme: textTheme))
+                children: controller.categories
+                  .map((category) => CategoryCardWidget(category: category))
                   .toList(),
             ),
           );

@@ -146,8 +146,8 @@ class ManageArticlesController extends GetxController {
       Get.snackbar(
         'Authentication Required',
         'Please login first to delete articles',
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
+        backgroundColor: Get.theme.colorScheme.secondary,
+        colorText: Get.theme.colorScheme.onSecondary,
         duration: const Duration(seconds: 4),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -172,22 +172,22 @@ class ManageArticlesController extends GetxController {
                 Get.snackbar(
                   'Success',
                   'Article deleted successfully',
-                  backgroundColor: Colors.green,
-                  colorText: Colors.white,
+                  backgroundColor: Get.theme.colorScheme.primary,
+                  colorText: Get.theme.colorScheme.onPrimary,
                   snackPosition: SnackPosition.BOTTOM,
                 );
               } catch (e) {
                 Get.snackbar(
                   'Error',
                   'Failed to delete article: ${e.toString()}',
-                  backgroundColor: Colors.red,
-                  colorText: Colors.white,
+                  backgroundColor: Get.theme.colorScheme.error,
+                  colorText: Get.theme.colorScheme.onError,
                   snackPosition: SnackPosition.BOTTOM,
                 );
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor: Get.theme.colorScheme.error),
+            child: Text('Delete', style: TextStyle(color: Get.theme.colorScheme.onError)),
           ),
         ],
       ),

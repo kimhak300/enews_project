@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:newshub/app/constants/app_constant.dart';
+import 'package:newshub/app/services/storage_service.dart';
+import 'dart:convert';
 
 class ProfileController extends GetxController {
   // Reactive state
@@ -9,6 +12,7 @@ class ProfileController extends GetxController {
   final userName = 'User Name'.obs;
   final userEmail = 'user@example.com'.obs;
   final Rxn<File> profileImage = Rxn<File>();
+  final Rxn<String> avatarPath = Rxn<String>();
 
   // Text controllers
   late TextEditingController nameController;
@@ -21,6 +25,8 @@ class ProfileController extends GetxController {
     super.onInit();
     nameController = TextEditingController(text: userName.value);
     emailController = TextEditingController(text: userEmail.value);
+    // Load persisted user info into reactive fields
+    loadFromStorage();
   }
 
   @override
@@ -93,10 +99,29 @@ class ProfileController extends GetxController {
       );
       if (pickedFile != null) {
         profileImage.value = File(pickedFile.path);
+        avatarPath.value = pickedFile.path;
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to pick image',
           snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  Future<void> loadFromStorage() async {
+    try {
+      final storage = StorageService.to;
+      final raw = await storage.read<String>(AppConstants.USER_INFO_KEY);
+      if (raw != null) {
+        final Map<String, dynamic> map = jsonDecode(raw) as Map<String, dynamic>;
+        final name = (map['display_name'] ?? map['full_name'] ?? map['name']) as String?;
+        final email = map['email'] as String?;
+        final avatar = map['avatar_url'] as String?;
+        if (name != null && name.isNotEmpty) userName.value = name;
+        if (email != null && email.isNotEmpty) userEmail.value = email;
+        if (avatar != null && avatar.isNotEmpty) avatarPath.value = avatar;
+      }
+    } catch (_) {
+      // ignore
     }
   }
 
@@ -108,16 +133,16 @@ class ProfileController extends GetxController {
   void logout() {
     Get.dialog(
       AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text('logout'.tr),
+        content: Text('logout_confirm'.tr),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
           TextButton(
             onPressed: () {
               Get.back();
               Get.offAllNamed('/login');
             },
-            child: const Text('Logout'),
+            child: Text('logout'.tr),
           ),
         ],
       ),

@@ -29,8 +29,9 @@ class UserCardWidget extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Card(
+      color: theme.colorScheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 3,
+      elevation: 0,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         child: Row(
@@ -41,16 +42,15 @@ class UserCardWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(10), // Rectangle radius
               child: avatarUrl.isNotEmpty
                   ? Image.network(
-                AppConstants.STORAGE_BASE_URL + avatarUrl,
-                width: 60,
-                height: 60,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  print('Error loading avatar: $error');
-                  return _fallbackAvatar();
-                },
-              )
-                  : _fallbackAvatar(),
+                      AppConstants.STORAGE_BASE_URL + avatarUrl,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return _fallbackAvatar(theme);
+                      },
+                    )
+                  : _fallbackAvatar(theme),
             ),
 
             const SizedBox(width: 16),
@@ -62,22 +62,25 @@ class UserCardWidget extends StatelessWidget {
                 children: [
                   Text(
                     displayName,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withOpacity(0.95)),
                   ),
+
+                  const SizedBox(height: 6),
 
                   // Role tag
                   Container(
-                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
                     decoration: BoxDecoration(
-                      color: Colors.blueAccent.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(4),
+                      color: theme.colorScheme.primary.withOpacity(0.14),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: theme.colorScheme.primary.withOpacity(0.18)),
                     ),
                     child: Text(
-                      role,
+                      role.tr,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w700,
+                        color: theme.colorScheme.onSurface.withOpacity(0.95),
+                        fontSize: (theme.textTheme.bodySmall?.fontSize ?? 12) + 0,
                       ),
                     ),
                   ),
@@ -92,10 +95,10 @@ class UserCardWidget extends StatelessWidget {
               margin: const EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.green.withOpacity(0.2),
+                color: theme.colorScheme.secondary.withOpacity(0.12),
               ),
               child: IconButton(
-                icon: Icon(Icons.edit, color: Colors.green, size: AppWidgetSize.iconSmall),
+                icon: Icon(Icons.edit, color: theme.colorScheme.secondary, size: AppWidgetSize.iconSmall),
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
@@ -120,10 +123,10 @@ class UserCardWidget extends StatelessWidget {
               width: 40,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.redAccent.withOpacity(0.2),
+                color: theme.colorScheme.error.withOpacity(0.12),
               ),
               child: IconButton(
-                icon: Icon(Icons.delete, color: Colors.redAccent, size: AppWidgetSize.iconSmall),
+                icon: Icon(Icons.delete, color: theme.colorScheme.error, size: AppWidgetSize.iconSmall),
                 onPressed: onDelete,
               ),
             ),
@@ -135,21 +138,21 @@ class UserCardWidget extends StatelessWidget {
 
 
   /// FALLBACK AVATAR (Rectangle)
-  Widget _fallbackAvatar() {
+  Widget _fallbackAvatar(ThemeData theme) {
     return Container(
       width: 60,
       height: 60,
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.15),
+        color: theme.colorScheme.primary.withOpacity(0.12),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Center(
         child: Text(
           displayName[0].toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Colors.black54,
+            color: theme.colorScheme.onSurface.withOpacity(0.95),
           ),
         ),
       ),
@@ -245,150 +248,211 @@ class _UpdateUserBottomSheetState extends State<UpdateUserBottomSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Update User',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Get.back(),
-                  ),
-                ],
-              ),
+              Builder(builder: (ctx) {
+                final theme = Theme.of(ctx);
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'update_user'.tr,
+                      style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withOpacity(0.95)),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: theme.iconTheme.color),
+                      onPressed: () => Get.back(),
+                    ),
+                  ],
+                );
+              }),
               const SizedBox(height: 20),
 
               // Profile Image
               Center(
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.grey[200],
-                      backgroundImage: _imageFile != null
-                          ? FileImage(_imageFile!)
-                          : null,
-                      child: _imageFile == null
-                          ? Icon(Icons.person, size: 50, color: Colors.grey[400])
-                          : null,
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: CircleAvatar(
-                        radius: 18,
-                        backgroundColor: Theme.of(context).primaryColor,
-                        child: IconButton(
-                          icon: const Icon(Icons.camera_alt, size: 18, color: Colors.white),
-                          onPressed: _pickImage,
-                          padding: EdgeInsets.zero,
+                child: Builder(builder: (ctx) {
+                  final theme = Theme.of(ctx);
+                  return Stack(
+                    children: [
+                      // Improved avatar container for better contrast in dark mode
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _imageFile == null
+                              ? theme.colorScheme.onSurface.withOpacity(0.08)
+                              : Colors.transparent,
+                          border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.12)),
+                        ),
+                        child: ClipOval(
+                          child: _imageFile != null
+                              ? Image.file(
+                                  _imageFile!,
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                )
+                              : Center(
+                                  child: Icon(
+                                    Icons.person,
+                                    size: 48,
+                                    color: theme.colorScheme.onSurface.withOpacity(0.95),
+                                  ),
+                                ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Material(
+                          type: MaterialType.circle,
+                          color: theme.colorScheme.primary,
+                          elevation: 2,
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: _pickImage,
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              alignment: Alignment.center,
+                              child: Icon(Icons.camera_alt, size: 18, color: theme.colorScheme.onPrimary),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
               ),
               const SizedBox(height: 20),
 
               // Display Name
-              TextFormField(
-                controller: _displayNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Display Name',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter display name';
-                  }
-                  return null;
-                },
-              ),
+              Builder(builder: (ctx) {
+                final theme = Theme.of(ctx);
+                return TextFormField(
+                  controller: _displayNameController,
+                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95)),
+                  decoration: InputDecoration(
+                    labelText: 'display_name'.tr,
+                    labelStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                    border: const OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.person, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                    focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.primary)),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'please_enter_display_name'.tr;
+                    }
+                    return null;
+                  },
+                );
+              }),
               const SizedBox(height: 16),
 
               // Email (Read-only for update)
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.email),
-                ),
-                enabled: false,
-              ),
+              Builder(builder: (ctx) {
+                final theme = Theme.of(ctx);
+                return TextFormField(
+                  controller: _emailController,
+                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.8)),
+                  decoration: InputDecoration(
+                    labelText: 'email'.tr,
+                    labelStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                    border: const OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.email, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  ),
+                  enabled: false,
+                );
+              }),
               const SizedBox(height: 16),
 
               // Role Dropdown
-              DropdownButtonFormField<String>(
-                value: _selectedRole,
-                decoration: const InputDecoration(
-                  labelText: 'Select Role',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.badge),
-                ),
-                items: const [
-                  DropdownMenuItem(value: 'user', child: Text('User')),
-                  DropdownMenuItem(value: 'organizer', child: Text('Organizer')),
-                  DropdownMenuItem(value: 'admin', child: Text('Admin')),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _selectedRole = value);
-                  }
-                },
-              ),
+              Builder(builder: (ctx) {
+                final theme = Theme.of(ctx);
+                return DropdownButtonFormField<String>(
+                  value: _selectedRole,
+                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95)),
+                  dropdownColor: theme.colorScheme.surface,
+                  iconEnabledColor: theme.colorScheme.onSurface.withOpacity(0.7),
+                  decoration: InputDecoration(
+                    labelText: 'select_role'.tr,
+                    labelStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                    border: const OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.badge, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  ),
+                  items: [
+                    DropdownMenuItem(value: 'user', child: Text('user'.tr, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95)))),
+                    DropdownMenuItem(value: 'organizer', child: Text('organizer'.tr, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95)))),
+                    DropdownMenuItem(value: 'admin', child: Text('admin'.tr, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95)))),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _selectedRole = value);
+                    }
+                  },
+                );
+              }),
               const SizedBox(height: 16),
 
               // Account Status
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Account Status', style: TextStyle(fontSize: 16)),
-                  Row(
-                    children: [
-                      Radio<bool>(
-                        value: true,
-                        groupValue: _isActive,
-                        onChanged: (value) => setState(() => _isActive = value!),
-                      ),
-                      const Text('Active'),
-                      Radio<bool>(
-                        value: false,
-                        groupValue: _isActive,
-                        onChanged: (value) => setState(() => _isActive = value!),
-                      ),
-                      const Text('Inactive'),
-                    ],
-                  ),
-                ],
-              ),
+              Builder(builder: (ctx) {
+                final theme = Theme.of(ctx);
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('account_status'.tr, style: theme.textTheme.bodyMedium),
+                    Row(
+                      children: [
+                        Radio<bool>(
+                          value: true,
+                          groupValue: _isActive,
+                          activeColor: theme.colorScheme.primary,
+                          onChanged: (value) => setState(() => _isActive = value!),
+                        ),
+                        Text('active'.tr, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.9))),
+                        Radio<bool>(
+                          value: false,
+                          groupValue: _isActive,
+                          activeColor: theme.colorScheme.primary,
+                          onChanged: (value) => setState(() => _isActive = value!),
+                        ),
+                        Text('inactive'.tr, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.9))),
+                      ],
+                    ),
+                  ],
+                );
+              }),
               const SizedBox(height: 20),
 
               // Submit Button
-              Obx(() => SizedBox(
+              Builder(builder: (ctx) {
+                final theme = Theme.of(ctx);
+                return Obx(() {
+                  return SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _userController.isLoading.value ? null : _submit,
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.colorScheme.primary,
+                        foregroundColor: theme.colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                       child: _userController.isLoading.value
-                          ? const SizedBox(
+                          ? SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(theme.colorScheme.onPrimary)),
                             )
-                          : const Text('Update User', style: TextStyle(fontSize: 16)),
+                          : Text('update_user'.tr, style: const TextStyle(fontSize: 16)),
                     ),
-                  )),
+                  );
+                });
+              }),
               const SizedBox(height: 20),
             ],
           ),

@@ -14,34 +14,51 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   Widget build(BuildContext context) {
     final RegisterController controller = Get.find<RegisterController>();
-    final text = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
+      appBar: AppBar(title: Text('register'.tr)),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Obx(() => SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Create Account",
-                  style: text.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+                Text('create_account'.tr,
+                  style: text.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onBackground)),
               const SizedBox(height: 20),
 
               TextField(
                 controller: controller.fullNameController,
+                cursorColor: theme.colorScheme.primary,
+                style: TextStyle(color: theme.colorScheme.onBackground),
                 decoration: InputDecoration(
-                  labelText: 'Full Name',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  labelText: 'name'.tr,
+                  labelStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                  hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.primary)),
+                  filled: true,
+                  fillColor: theme.inputDecorationTheme.fillColor ?? theme.colorScheme.surface,
                 ),
               ),
               const SizedBox(height: 16),
 
               TextField(
                 controller: controller.emailController,
+                cursorColor: theme.colorScheme.primary,
+                style: TextStyle(color: theme.colorScheme.onBackground),
                 decoration: InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  labelText: 'email'.tr,
+                  labelStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                  hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.primary)),
+                  filled: true,
+                  fillColor: theme.inputDecorationTheme.fillColor ?? theme.colorScheme.surface,
                 ),
                 keyboardType: TextInputType.emailAddress,
               ),
@@ -49,9 +66,17 @@ class _RegisterViewState extends State<RegisterView> {
 
               TextField(
                 controller: controller.passwordController,
+                cursorColor: theme.colorScheme.primary,
+                style: TextStyle(color: theme.colorScheme.onBackground),
                 decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  labelText: 'password'.tr,
+                  labelStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                  hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.primary)),
+                  filled: true,
+                  fillColor: theme.inputDecorationTheme.fillColor ?? theme.colorScheme.surface,
                 ),
                 obscureText: true,
               ),
@@ -59,9 +84,17 @@ class _RegisterViewState extends State<RegisterView> {
 
               TextField(
                 controller: controller.confirmPasswordController,
+                cursorColor: theme.colorScheme.primary,
+                style: TextStyle(color: theme.colorScheme.onBackground),
                 decoration: InputDecoration(
-                  labelText: 'Confirm Password',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  labelText: 'confirm_password'.tr,
+                  labelStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                  hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.primary)),
+                  filled: true,
+                  fillColor: theme.inputDecorationTheme.fillColor ?? theme.colorScheme.surface,
                 ),
                 obscureText: true,
               ),
@@ -69,9 +102,17 @@ class _RegisterViewState extends State<RegisterView> {
 
               TextField(
                 controller: controller.phoneController,
+                cursorColor: theme.colorScheme.primary,
+                style: TextStyle(color: theme.colorScheme.onBackground),
                 decoration: InputDecoration(
-                  labelText: 'Phone',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  labelText: 'phone'.tr,
+                  labelStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                  hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.primary)),
+                  filled: true,
+                  fillColor: theme.inputDecorationTheme.fillColor ?? theme.colorScheme.surface,
                 ),
                 keyboardType: TextInputType.phone,
               ),
@@ -85,24 +126,24 @@ class _RegisterViewState extends State<RegisterView> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
                   ),
-                  child: controller.isLoading.value
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text("Register",
+                    child: controller.isLoading.value
+                      ? CircularProgressIndicator(color: theme.colorScheme.onPrimary)
+                      : Text('register'.tr,
                       style: text.titleMedium?.copyWith(
-                          color: Colors.white, fontWeight: FontWeight.bold
+                        color: theme.colorScheme.onPrimary, fontWeight: FontWeight.bold
                       )),
                 ),
               ),
 
               const SizedBox(height: 20),
               Row(
-                children: const [
-                  Expanded(child: Divider()),
+                children: [
+                  const Expanded(child: Divider()),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text('or continue with'),
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text('or_continue_with'.tr),
                   ),
-                  Expanded(child: Divider()),
+                  const Expanded(child: Divider()),
                 ],
               ),
               const SizedBox(height: 16),
@@ -112,7 +153,7 @@ class _RegisterViewState extends State<RegisterView> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.g_mobiledata),
-                      label: const Text('Sign up with Google'),
+                      label: Text('sign_up_with'.tr),
                       onPressed: controller.loginWithGoogle,
                     ),
                   ),
@@ -121,7 +162,7 @@ class _RegisterViewState extends State<RegisterView> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.facebook),
-                      label: const Text('Sign up with Facebook'),
+                      label: Text('sign_up_with'.tr),
                       onPressed: controller.loginWithFacebook,
                     ),
                   ),
@@ -132,10 +173,10 @@ class _RegisterViewState extends State<RegisterView> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Already have an account? '),
+                  Text('already_have_account'.tr + ' '),
                   TextButton(
                     onPressed: () => Get.offAllNamed(Routes.LOGIN),
-                    child: const Text('Sign in'),
+                    child: Text('sign_in'.tr),
                   ),
                 ],
               ),

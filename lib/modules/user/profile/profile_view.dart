@@ -3,8 +3,13 @@ import 'package:get/get.dart';
 import 'package:newshub/app/theme/app_theme.dart';
 import 'package:newshub/app/routes/app_routes.dart';
 import 'package:newshub/modules/auth/services/auth_service.dart';
+import 'package:newshub/app/constants/app_constant.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:newshub/modules/user/profile/profile_controller.dart';
 import 'package:newshub/app/controllers/theme_controller.dart';
 import 'package:newshub/app/controllers/language_controller.dart';
+import 'package:newshub/app/services/storage_service.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -16,7 +21,7 @@ class ProfileView extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text('profile'.tr),
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
       ),
@@ -37,56 +42,193 @@ class ProfileView extends StatelessWidget {
                   end: Alignment.bottomRight,
                 ),
               ),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.person,
-                      size: 50,
-                      color: AppTheme.primaryColor,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'User Name',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'user@enews.com',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
+              child: Builder(
+                builder: (context) {
+                  final profileCtrl = Get.find<ProfileController>();
+                  return Obx(() {
+                    // compute avatar provider from controller state
+                    ImageProvider? avatarProvider;
+                    final picked = profileCtrl.profileImage.value;
+                    final avatarPath = profileCtrl.avatarPath.value;
+                    if (picked != null) {
+                      avatarProvider = FileImage(picked);
+                    } else if (avatarPath != null && avatarPath.isNotEmpty) {
+                      if (avatarPath.startsWith('data:image')) {
+                        try {
+                          final bytes = base64Decode(avatarPath.split(',').last);
+                          avatarProvider = MemoryImage(bytes);
+                        } catch (_) {
+                          avatarProvider = null;
+                        }
+                      } else {
+                        String candidate = avatarPath;
+                        if (candidate.startsWith('file://')) candidate = candidate.replaceFirst('file://', '');
+                        try {
+                          final file = File(candidate);
+                          if (file.existsSync()) avatarProvider = FileImage(file);
+                        } catch (_) {
+                          avatarProvider = null;
+                        }
+                        if (avatarProvider == null) {
+                          String url = candidate;
+                          if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                            url = '${AppConstants.STORAGE_BASE_URL}${candidate.startsWith('/') ? candidate : '/$candidate'}';
+                          }
+                          avatarProvider = NetworkImage(url);
+                        }
+                      }
+                    }
+
+                    String roleDisplay() {
+                      // role is not stored in controller; default to User
+                      return 'User';
+                    }
+
+                    return Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Colors.white,
+                          backgroundImage: avatarProvider,
+                          child: avatarProvider == null
+                              ? Icon(
+                                  Icons.person,
+                                  size: 50,
+                                  color: AppTheme.primaryColor,
+                                )
+                              : null,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          profileCtrl.userName.value,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          profileCtrl.userEmail.value,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            roleDisplay(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  });
+                },
               ),
             ),
             
             const SizedBox(height: 16),
             
             // Settings Section
-            _buildSectionTitle('Settings'),
+            // Settings Section
+            _buildSectionTitle('settings'.tr),
             _buildMenuItem(
               icon: Icons.person_outline,
-              title: 'Edit Profile',
-              onTap: () {
-                Get.snackbar('Coming Soon', 'Edit profile feature coming soon');
+              title: 'edit_profile'.tr,
+              onTap: () async {
+                final authService = AuthService();
+                final user = await authService.getSavedUser();
+                final role = user?.primaryRole ?? 'user';
+                if (role.toLowerCase() != 'user') {
+                  Get.snackbar('error'.tr, 'only_regular_users_can_edit_profile'.tr, snackPosition: SnackPosition.BOTTOM);
+                  return;
+                }
+
+                final profileCtrl = Get.find<ProfileController>();
+                final nameCtrl = TextEditingController(text: user?.name ?? '');
+                final emailCtrl = TextEditingController(text: user?.email ?? '');
+
+                await Get.dialog(AlertDialog(
+                    title: Text('edit_profile'.tr),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                        // Avatar picker button (uses ProfileController)
+                      OutlinedButton.icon(
+                        onPressed: () => profileCtrl.showImageSourceDialog(),
+                        icon: const Icon(Icons.photo_camera),
+                        label: Text('choose_avatar'.tr),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(controller: nameCtrl, decoration: InputDecoration(labelText: 'name'.tr)),
+                      TextField(controller: emailCtrl, decoration: InputDecoration(labelText: 'email'.tr)),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
+                    ElevatedButton(
+                      onPressed: () async {
+                        // Persist changes to storage and avatar path if picked
+                        final storage = StorageService.to;
+                        final raw = storage.read<String>(AppConstants.USER_INFO_KEY);
+                        if (raw != null) {
+                          try {
+                            final Map<String, dynamic> map = jsonDecode(raw) as Map<String, dynamic>;
+                            map['display_name'] = nameCtrl.text;
+                            map['full_name'] = nameCtrl.text;
+                            map['name'] = nameCtrl.text;
+                            map['email'] = emailCtrl.text;
+
+                            // If user picked an image, save its local path
+                            final picked = profileCtrl.profileImage.value;
+                            if (picked != null) {
+                              // store as local file path
+                              map['avatar_url'] = picked.path;
+                            }
+
+                            await storage.write(AppConstants.USER_INFO_KEY, jsonEncode(map));
+
+                            // Update reactive controller so profile view refreshes in-place
+                            final profile = Get.find<ProfileController>();
+                            profile.userName.value = nameCtrl.text;
+                            profile.userEmail.value = emailCtrl.text;
+                            if (picked != null) {
+                              profile.avatarPath.value = picked.path;
+                            }
+
+                            Get.back();
+                            Get.snackbar('success'.tr, 'profile_updated'.tr, snackPosition: SnackPosition.BOTTOM);
+                          } catch (e) {
+                            Get.snackbar('error'.tr, 'failed_to_save_profile'.tr);
+                          }
+                        } else {
+                          Get.snackbar('Error', 'No user session found');
+                        }
+                      },
+                      child:  Text('save'.tr),
+                    ),
+                  ],
+                ));
               },
             ),
             _buildMenuItem(
               icon: Icons.dark_mode_outlined,
-              title: 'Theme',
+              title: 'theme'.tr,
               subtitle: Obx(() => Text(
                 themeController.themeMode.value == ThemeMode.dark 
-                    ? 'Dark Mode' 
-                    : 'Light Mode'
+                    ? 'dark_mode'.tr 
+                    : 'light_mode'.tr
               )),
               trailing: Obx(() => Switch(
                 value: themeController.themeMode.value == ThemeMode.dark,
@@ -99,9 +241,9 @@ class ProfileView extends StatelessWidget {
             ),
             _buildMenuItem(
               icon: Icons.language_outlined,
-              title: 'Language',
+              title: 'language'.tr,
               subtitle: Obx(() => Text(
-                languageController.isKhmer.value ? 'ភាសាខ្មែរ' : 'English'
+                languageController.isKhmer.value ? 'khmer'.tr : 'english'.tr
               )),
               onTap: () => _showLanguageDialog(languageController),
             ),
@@ -109,43 +251,43 @@ class ProfileView extends StatelessWidget {
             const SizedBox(height: 16),
             
             // Account Section
-            _buildSectionTitle('Account'),
+            _buildSectionTitle('account'.tr),
             _buildMenuItem(
               icon: Icons.bookmark_outline,
-              title: 'Saved Articles',
+              title: 'saved'.tr,
               onTap: () {
                 Get.toNamed(Routes.USER_BOOKMARK);
               },
             ),
             _buildMenuItem(
               icon: Icons.notifications_outlined,
-              title: 'Notifications',
+              title: 'notifications'.tr,
               onTap: () {
                 Get.snackbar('Coming Soon', 'Notifications feature coming soon');
               },
             ),
             _buildMenuItem(
               icon: Icons.lock_outline,
-              title: 'Privacy & Security',
+              title: 'privacy_settings'.tr,
               onTap: () {
-                Get.snackbar('Coming Soon', 'Privacy settings coming soon');
+                Get.snackbar('coming_soon'.tr, 'privacy_settings_coming_soon'.tr);
               },
             ),
             
             const SizedBox(height: 16),
             
             // About Section
-            _buildSectionTitle('About'),
+            _buildSectionTitle('about'.tr),
             _buildMenuItem(
               icon: Icons.info_outline,
-              title: 'About App',
+              title: 'about_app'.tr,
               onTap: () => _showAboutDialog(context),
             ),
             _buildMenuItem(
               icon: Icons.help_outline,
-              title: 'Help & Support',
+              title: 'help_support'.tr,
               onTap: () {
-                Get.snackbar('Coming Soon', 'Help & Support coming soon');
+                Get.snackbar('coming_soon'.tr, 'help_support_coming_soon'.tr);
               },
             ),
             
@@ -160,8 +302,8 @@ class ProfileView extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () => _logout(context),
                   icon: const Icon(Icons.logout),
-                  label: const Text(
-                    'Logout',
+                  label: Text(
+                    'logout'.tr,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -255,7 +397,7 @@ class ProfileView extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Close'),
+            child: Text('close'.tr),
           ),
         ],
       ),
@@ -278,12 +420,12 @@ class ProfileView extends StatelessWidget {
   void _logout(BuildContext context) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text('logout'.tr),
+        content: Text('logout_confirm'.tr),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel'),
+            child: Text('cancel'.tr),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -309,8 +451,8 @@ class ProfileView extends StatelessWidget {
               
               // Show success message
               Get.snackbar(
-                'Logged Out',
-                'You have been successfully logged out',
+                'logged_out'.tr,
+                'logged_out_message'.tr,
                 snackPosition: SnackPosition.BOTTOM,
               );
             },
@@ -318,7 +460,7 @@ class ProfileView extends StatelessWidget {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Logout'),
+            child: Text('logout'.tr),
           ),
         ],
       ),

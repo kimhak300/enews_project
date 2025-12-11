@@ -42,7 +42,8 @@ class _AddCategoryBottomsheetState extends State<AddCategoryBottomsheet> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
     final isEditMode = widget.categoryToEdit != null;
 
@@ -65,7 +66,7 @@ class _AddCategoryBottomsheetState extends State<AddCategoryBottomsheet> {
                   width: 50,
                   height: 5,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade400,
+                    color: theme.colorScheme.onSurface.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -73,15 +74,14 @@ class _AddCategoryBottomsheetState extends State<AddCategoryBottomsheet> {
               const SizedBox(height: 20),
 
               Text(
-                isEditMode ? "Edit Category" : "Create Category",
-                style: textTheme.titleLarge
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                isEditMode ? "edit_category".tr : "create_category".tr,
+                style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withOpacity(0.95)),
               ),
               const SizedBox(height: 20),
 
               // Parent Category Dropdown
               DropdownButtonFormField<CategoryModel>(
-                decoration: _input("Parent Category"),
+                decoration: _input(context, "parent_category".tr),
                 value: selectedParent,
                 items: [
                   const DropdownMenuItem(
@@ -91,7 +91,7 @@ class _AddCategoryBottomsheetState extends State<AddCategoryBottomsheet> {
                   ...categoryController.categories.map((c) {
                     return DropdownMenuItem(
                       value: c,
-                      child: Text(c.name, style: textTheme.bodyMedium),
+                      child: Text(c.name, style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface)),
                     );
                   }).toList(),
                 ],
@@ -102,18 +102,20 @@ class _AddCategoryBottomsheetState extends State<AddCategoryBottomsheet> {
               // Category Name
               TextFormField(
                 controller: nameController,
-                decoration: _input("Category Name"),
-                validator: (v) =>
-                v == null || v.isEmpty ? "Required" : null,
+                style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface),
+                cursorColor: theme.colorScheme.primary,
+                decoration: _input(context, "category_name".tr),
+                validator: (v) => v == null || v.isEmpty ? "Required" : null,
               ),
               const SizedBox(height: 16),
 
               // Slug
               TextFormField(
                 controller: slugController,
-                decoration: _input("Slug"),
-                validator: (v) =>
-                v == null || v.isEmpty ? "Required" : null,
+                style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface),
+                cursorColor: theme.colorScheme.primary,
+                decoration: _input(context, "slug".tr),
+                validator: (v) => v == null || v.isEmpty ? "Required" : null,
               ),
               const SizedBox(height: 16),
 
@@ -121,7 +123,9 @@ class _AddCategoryBottomsheetState extends State<AddCategoryBottomsheet> {
               TextFormField(
                 controller: descriptionController,
                 maxLines: 3,
-                decoration: _input("Description"),
+                style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface),
+                cursorColor: theme.colorScheme.primary,
+                decoration: _input(context, "description".tr),
               ),
               const SizedBox(height: 24),
 
@@ -134,7 +138,7 @@ class _AddCategoryBottomsheetState extends State<AddCategoryBottomsheet> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    backgroundColor: Colors.blueAccent,
+                    backgroundColor: theme.colorScheme.primary,
                   ),
                   onPressed: categoryController.isLoading.value
                       ? null
@@ -162,17 +166,17 @@ class _AddCategoryBottomsheetState extends State<AddCategoryBottomsheet> {
                     }
                   },
                   child: categoryController.isLoading.value
-                      ? const SizedBox(
+                      ? SizedBox(
                     height: 20,
                     width: 20,
                     child: CircularProgressIndicator(
-                      color: Colors.white,
+                      color: theme.colorScheme.onPrimary,
                       strokeWidth: 2,
                     ),
                   ) : Text(
-                    isEditMode ? "Update Category" : "Save Category",
+                    isEditMode ? "update_category".tr : "save_category".tr,
                     style: textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
+                      color: theme.colorScheme.onPrimary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -186,11 +190,13 @@ class _AddCategoryBottomsheetState extends State<AddCategoryBottomsheet> {
     );
   }
 
-  InputDecoration _input(String label) {
+  InputDecoration _input(BuildContext context, String label) {
+    final theme = Theme.of(context);
     return InputDecoration(
       labelText: label,
+      labelStyle: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
       filled: true,
-      fillColor: Colors.grey.shade100,
+      fillColor: theme.colorScheme.surfaceVariant,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
       ),

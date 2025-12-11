@@ -7,19 +7,20 @@ import 'package:newshub/modules/admin/manage_categories/widgets/add_category_bot
 
 class CategoryCardWidget extends StatelessWidget {
   final CategoryModel category;
-  final TextTheme textTheme;
 
   const CategoryCardWidget({
     super.key,
     required this.category,
-    required this.textTheme,
   });
 
   @override
   Widget build(BuildContext context) {
     final CategoryController controller = Get.find();
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
     return Card(
+      color: theme.colorScheme.surface,
       child: Container(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -31,8 +32,7 @@ class CategoryCardWidget extends StatelessWidget {
               children: [
                 Text(
                   category.name,
-                  style: textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
+                  style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
                 ),
 
                 Row(
@@ -44,21 +44,18 @@ class CategoryCardWidget extends StatelessWidget {
                           context: context,
                           isScrollControlled: true,
                           shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(20)),
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                           ),
-                          builder: (_) =>
-                              AddCategoryBottomsheet(categoryToEdit: category),
+                          builder: (_) => AddCategoryBottomsheet(categoryToEdit: category),
                         );
                       },
                       child: Container(
                         padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFE3F2FD), // light blue
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary.withOpacity(0.12),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.edit,
-                            color: Colors.blueAccent, size: 20),
+                        child: Icon(Icons.edit, color: theme.colorScheme.primary, size: 20),
                       ),
                     ),
 
@@ -69,8 +66,7 @@ class CategoryCardWidget extends StatelessWidget {
                       onTap: () {
                         Get.defaultDialog(
                           title: "Delete Category",
-                          middleText:
-                          "Are you sure you want to delete this category?",
+                          middleText: "Are you sure you want to delete this category?",
                           onConfirm: () async {
                             Get.back(); // Close dialog first
                             await controller.deleteCategory(category.id);
@@ -80,12 +76,11 @@ class CategoryCardWidget extends StatelessWidget {
                       },
                       child: Container(
                         padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFFFEBEE), // light red
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.error.withOpacity(0.12),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.delete,
-                            color: Colors.redAccent, size: 20),
+                        child: Icon(Icons.delete, color: theme.colorScheme.error, size: 20),
                       ),
                     ),
                   ],
@@ -94,9 +89,8 @@ class CategoryCardWidget extends StatelessWidget {
             ),
 
             // Description
-            if (category.description != null &&
-                category.description!.isNotEmpty)
-              Text(category.description!, style: textTheme.bodyMedium),
+            if (category.description != null && category.description!.isNotEmpty)
+              Text(category.description!, style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface)),
 
             const SizedBox(height: 8),
 
@@ -107,8 +101,7 @@ class CategoryCardWidget extends StatelessWidget {
                 children: [
                   Text(
                     'Subcategories:',
-                    style: textTheme.bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
                   ),
                   const SizedBox(height: 4),
 
@@ -117,15 +110,14 @@ class CategoryCardWidget extends StatelessWidget {
                       margin: const EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.blueAccent.withOpacity(0.05),
+                        color: theme.colorScheme.primary.withOpacity(0.05),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child:
-                            Text(sub.name, style: textTheme.bodyMedium),
+                            child: Text(sub.name, style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface)),
                           ),
 
                           Row(
@@ -133,20 +125,18 @@ class CategoryCardWidget extends StatelessWidget {
                               // ---- Edit Subcategory ----
                               Container(
                                 padding: const EdgeInsets.all(6),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFE3F2FD), // light blue
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.primary.withOpacity(0.12),
                                   shape: BoxShape.circle,
                                 ),
                                 child: IconButton(
-                                  icon: const Icon(Icons.edit,
-                                      color: Colors.blueAccent, size: 18),
+                                  icon: Icon(Icons.edit, color: theme.colorScheme.primary, size: 18),
                                   onPressed: () {
                                     showModalBottomSheet(
                                       context: context,
                                       isScrollControlled: true,
                                       shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.vertical(
-                                            top: Radius.circular(20)),
+                                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                                       ),
                                       builder: (_) => AddCategoryBottomsheet(
                                         categoryToEdit: sub,
@@ -161,22 +151,19 @@ class CategoryCardWidget extends StatelessWidget {
                               // ---- Delete Subcategory ----
                               Container(
                                 padding: const EdgeInsets.all(6),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFFFEBEE), // light red
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.error.withOpacity(0.12),
                                   shape: BoxShape.circle,
                                 ),
                                 child: IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      color: Colors.redAccent, size: 18),
+                                  icon: Icon(Icons.delete, color: theme.colorScheme.error, size: 18),
                                   onPressed: () {
                                     Get.defaultDialog(
                                       title: "Delete Subcategory",
-                                      middleText:
-                                      "Are you sure you want to delete this subcategory?",
+                                      middleText: "Are you sure you want to delete this subcategory?",
                                       onConfirm: () async {
                                         Get.back(); // Close dialog first
-                                        await controller
-                                            .deleteCategory(sub.id);
+                                        await controller.deleteCategory(sub.id);
                                       },
                                       onCancel: () {},
                                     );

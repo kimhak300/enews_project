@@ -4,7 +4,7 @@ import 'package:newshub/app/services/language_service.dart';
 
 class LanguageController extends GetxController {
 
-  final LanguageService _service = LanguageService();
+  final LanguageService _service = Get.find<LanguageService>();
 
   RxBool isKhmer = false.obs;
 

@@ -8,10 +8,11 @@ class AnalyticsView extends GetView<AnalyticsController> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reports & Analytics'),
-        backgroundColor: Colors.blueAccent,
+        title:  Text('reports_analytics'.tr),
+        backgroundColor: theme.colorScheme.primary,
         elevation: 2,
       ),
       body: Obx(() {
@@ -27,18 +28,16 @@ class AnalyticsView extends GetView<AnalyticsController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Engagement Metrics Section
                 Text(
-                  'Engagement Metrics',
-                  style: TextStyle(
+                  'article_statistics'.tr,
+                  style: theme.textTheme.titleMedium?.copyWith(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
                 SizedBox(height: 12.h),
-                
-                // Engagement Cards Grid
+
                 GridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -48,43 +47,35 @@ class AnalyticsView extends GetView<AnalyticsController> {
                   childAspectRatio: 1.5,
                   children: [
                     _buildMetricCard(
+                      context,
                       icon: Icons.favorite,
                       color: Colors.red,
-                      title: 'Total Likes',
+                      title: 'total_likes'.tr,
                       value: controller.totalLikes.value.toString(),
                     ),
                     _buildMetricCard(
+                      context,
                       icon: Icons.comment,
                       color: Colors.blue,
-                      title: 'Total Comments',
+                      title: 'total_comments'.tr,
                       value: controller.totalComments.value.toString(),
                     ),
                     _buildMetricCard(
+                      context,
                       icon: Icons.share,
                       color: Colors.green,
-                      title: 'Total Shares',
+                      title: 'total_shares'.tr,
                       value: controller.totalShares.value.toString(),
                     ),
                     _buildMetricCard(
+                      context,
                       icon: Icons.bookmark,
                       color: Colors.orange,
-                      title: 'Total Bookmarks',
+                      title: 'total_bookmarks'.tr,
                       value: controller.totalBookmarks.value.toString(),
                     ),
                   ],
                 ),
-                
-                SizedBox(height: 24.h),
-                
-                // Article Stats Section
-                Text(
-                  'Article Statistics',
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
                 SizedBox(height: 12.h),
                 
                 GridView.count(
@@ -96,28 +87,18 @@ class AnalyticsView extends GetView<AnalyticsController> {
                   childAspectRatio: 1.5,
                   children: [
                     _buildMetricCard(
-                      icon: Icons.article,
-                      color: Colors.purple,
-                      title: 'Total Articles',
-                      value: controller.totalArticles.value.toString(),
-                    ),
-                    _buildMetricCard(
+                      context,
                       icon: Icons.publish,
                       color: Colors.teal,
-                      title: 'Published',
+                      title: 'published'.tr,
                       value: controller.publishedArticles.value.toString(),
                     ),
                     _buildMetricCard(
+                      context,
                       icon: Icons.drafts,
                       color: Colors.grey,
-                      title: 'Drafts',
+                      title: 'drafts'.tr,
                       value: controller.draftArticles.value.toString(),
-                    ),
-                    _buildMetricCard(
-                      icon: Icons.people,
-                      color: Colors.indigo,
-                      title: 'Total Users',
-                      value: controller.totalUsers.value.toString(),
                     ),
                   ],
                 ),
@@ -129,12 +110,13 @@ class AnalyticsView extends GetView<AnalyticsController> {
     );
   }
 
-  Widget _buildMetricCard({
+  Widget _buildMetricCard(BuildContext context, {
     required IconData icon,
     required Color color,
     required String title,
     required String value,
   }) {
+    final theme = Theme.of(context);
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(
@@ -145,7 +127,7 @@ class AnalyticsView extends GetView<AnalyticsController> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12.r),
           gradient: LinearGradient(
-            colors: [color.withOpacity(0.1), Colors.white],
+            colors: [color.withOpacity(0.12), theme.colorScheme.surfaceVariant],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -159,13 +141,13 @@ class AnalyticsView extends GetView<AnalyticsController> {
               color: color,
               size: 28.sp,
             ),
-            Spacer(),
+            const Spacer(),
             Text(
               value,
-              style: TextStyle(
+              style: theme.textTheme.titleLarge?.copyWith(
                 fontSize: 20.sp,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: theme.colorScheme.onSurface,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -173,9 +155,9 @@ class AnalyticsView extends GetView<AnalyticsController> {
             SizedBox(height: 2.h),
             Text(
               title,
-              style: TextStyle(
+              style: theme.textTheme.bodySmall?.copyWith(
                 fontSize: 11.sp,
-                color: Colors.grey[600],
+                color: theme.colorScheme.onSurface.withOpacity(0.7),
                 fontWeight: FontWeight.w500,
               ),
               maxLines: 1,

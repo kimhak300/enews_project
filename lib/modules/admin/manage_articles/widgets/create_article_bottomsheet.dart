@@ -14,8 +14,7 @@ class CreateArticleBottomsheet extends StatefulWidget {
   const CreateArticleBottomsheet({super.key, this.article});
 
   @override
-  State<CreateArticleBottomsheet> createState() =>
-      _CreateArticleBottomsheetState();
+  State<CreateArticleBottomsheet> createState() => _CreateArticleBottomsheetState();
 }
 
 class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
@@ -38,8 +37,6 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
   List<String> mediaBase64 = [];
   List<File> pickedFiles = [];
   File? pickedVideo;
-  
-  bool isPickingMedia = false;
 
   @override
   void initState() {
@@ -51,7 +48,6 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
 
     categoryController.fetchCategories();
 
-    // If update, prefill fields
     if (widget.article != null) {
       final a = widget.article!;
       titleController.text = a['title'] ?? '';
@@ -59,7 +55,6 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
       excerptController.text = a['excerpt'] ?? '';
       contentController.text = a['content_html'] ?? '';
       selectedStatus = a['status'] ?? 'draft';
-      selectedType = a['type'] ?? 'article';
       isFeatured = a['is_featured'] ?? false;
       selectedCategories = List<String>.from(a['categories'] ?? []);
       selectedTags = List<String>.from(a['tags'] ?? []);
@@ -68,259 +63,272 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
   }
 
   Future<void> pickImages() async {
-    if (isPickingMedia) return;
-    
-    try {
-      isPickingMedia = true;
-      final ImagePicker picker = ImagePicker();
-      final List<XFile>? images = await picker.pickMultiImage(imageQuality: 80);
-      if (images != null && images.isNotEmpty) {
-        pickedFiles = images.map((e) => File(e.path)).toList();
-        mediaBase64 = pickedFiles.map((file) {
-          final bytes = file.readAsBytesSync();
-          return 'data:image/${file.path.split('.').last};base64,${base64Encode(bytes)}';
-        }).toList();
-        setState(() {});
-      }
-    } catch (e) {
-      print('Error picking images: $e');
-      if (mounted) {
-        Get.snackbar(
-          'Error',
-          'Failed to pick images. Please try again.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-      }
-    } finally {
-      isPickingMedia = false;
+    final ImagePicker picker = ImagePicker();
+    final List<XFile>? images = await picker.pickMultiImage(imageQuality: 80);
+    if (images != null && images.isNotEmpty) {
+      pickedFiles = images.map((e) => File(e.path)).toList();
+      mediaBase64 = pickedFiles.map((file) {
+        final bytes = file.readAsBytesSync();
+        return 'data:image/${file.path.split('.').last};base64,${base64Encode(bytes)}';
+      }).toList();
+      setState(() {});
     }
   }
 
   Future<void> pickVideo() async {
-    if (isPickingMedia) return;
-    
-    try {
-      isPickingMedia = true;
-      final ImagePicker picker = ImagePicker();
-      final XFile? video = await picker.pickVideo(source: ImageSource.gallery);
-      if (video != null) {
-        pickedVideo = File(video.path);
-        setState(() {});
-      }
-    } catch (e) {
-      print('Error picking video: $e');
-      if (mounted) {
-        Get.snackbar(
-          'Error',
-          'Failed to pick video. Please try again.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-      }
-    } finally {
-      isPickingMedia = false;
+    final ImagePicker picker = ImagePicker();
+    final XFile? video = await picker.pickVideo(source: ImageSource.gallery);
+    if (video != null) {
+      pickedVideo = File(video.path);
+      setState(() {});
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.article != null ? 'Update Article' : 'Create Article',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
+    final theme = Theme.of(context);
 
-              // Title
-              TextFormField(
-                controller: titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
-                validator: (v) => v!.isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-
-              // Subtitle
-              TextFormField(
-                controller: subtitleController,
-                decoration: const InputDecoration(labelText: 'Subtitle'),
-              ),
-              const SizedBox(height: 12),
-
-              // Excerpt
-              TextFormField(
-                controller: excerptController,
-                decoration: const InputDecoration(labelText: 'Excerpt'),
-              ),
-              const SizedBox(height: 12),
-
-              // Content
-              TextFormField(
-                controller: contentController,
-                maxLines: 5,
-                decoration: const InputDecoration(labelText: 'Content HTML'),
-                validator: (v) => v!.isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-
-              // Status
-              DropdownButtonFormField<String>(
-                value: selectedStatus,
-                decoration: const InputDecoration(labelText: 'Status'),
-                items: ['draft', 'published', 'archived']
-                    .map((s) => DropdownMenuItem(
-                  value: s,
-                  child: Text(s.toUpperCase()),
-                ))
-                    .toList(),
-                onChanged: (v) => setState(() => selectedStatus = v!),
-              ),
-              const SizedBox(height: 12),
-
-              // Type
-              DropdownButtonFormField<String>(
-                value: selectedType,
-                decoration: const InputDecoration(labelText: 'Type'),
-                items: ['article', 'video', 'news_feed']
-                    .map((s) => DropdownMenuItem(
-                          value: s,
-                          child: Text(s.toUpperCase()),
-                        ))
-                    .toList(),
-                onChanged: (v) => setState(() => selectedType = v ?? 'article'),
-              ),
-              const SizedBox(height: 12),
-
-              // Featured
-              Row(
-                children: [
-                  Checkbox(
-                    value: isFeatured,
-                    onChanged: (v) => setState(() => isFeatured = v!),
-                  ),
-                  const Text('Featured Article')
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Categories
-              Obx(() {
-                if (categoryController.isLoading.value) {
-                  return const CircularProgressIndicator();
-                }
-                return DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Select Category'),
-                  items: categoryController.categories
-                      .map(
-                        (cat) => DropdownMenuItem(
-                      value: cat.name,
-                      child: Text(cat.name),
+    return Container(
+      color: theme.colorScheme.surface,
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        ),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      widget.article != null ? 'Update Article' : 'Create Article',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: theme.colorScheme.onSurface.withOpacity(0.95),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  )
-                      .toList(),
-                  onChanged: (v) {
-                    if (v != null && !selectedCategories.contains(v)) {
-                      setState(() => selectedCategories.add(v));
-                    }
-                  },
-                );
-              }),
-              const SizedBox(height: 6),
-              Wrap(
-                spacing: 6,
-                children: selectedCategories
-                    .map(
-                      (c) => Chip(
-                    label: Text(c),
-                    onDeleted: () => setState(() => selectedCategories.remove(c)),
-                  ),
-                )
-                    .toList(),
-              ),
-              const SizedBox(height: 12),
-
-              if (selectedType != 'video') ...[
-                ElevatedButton.icon(
-                  onPressed: pickImages,
-                  icon: const Icon(Icons.image),
-                  label: const Text('Pick Images'),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(Icons.close, color: theme.colorScheme.onSurface),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 20),
+
+                // Title
+                TextFormField(
+                  controller: titleController,
+                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface),
+                  decoration: InputDecoration(
+                    labelText: 'Title',
+                    labelStyle: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.primary)),
+                  ),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+                const SizedBox(height: 12),
+
+                // Subtitle
+                TextFormField(
+                  controller: subtitleController,
+                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface),
+                  decoration: InputDecoration(
+                    labelText: 'Subtitle',
+                    labelStyle: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.primary)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Excerpt
+                TextFormField(
+                  controller: excerptController,
+                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface),
+                  decoration: InputDecoration(
+                    labelText: 'Excerpt',
+                    labelStyle: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.primary)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Content
+                TextFormField(
+                  controller: contentController,
+                  maxLines: 5,
+                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface),
+                  decoration: InputDecoration(
+                    labelText: 'Content HTML',
+                    labelStyle: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.primary)),
+                  ),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+                const SizedBox(height: 12),
+
+                // Status
+                DropdownButtonFormField<String>(
+                  value: selectedStatus,
+                  decoration: InputDecoration(
+                    labelText: 'Status',
+                    labelStyle: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  ),
+                  items: ['draft', 'published', 'archived']
+                      .map((s) => DropdownMenuItem(
+                            value: s,
+                            child: Text(s.toUpperCase(), style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface)),
+                          ))
+                      .toList(),
+                  onChanged: (v) => setState(() => selectedStatus = v!),
+                ),
+                const SizedBox(height: 12),
+
+                // Type
+                DropdownButtonFormField<String>(
+                  value: selectedType,
+                  decoration: InputDecoration(
+                    labelText: 'Type',
+                    labelStyle: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  ),
+                  items: ['article', 'video', 'news_feed']
+                      .map((s) => DropdownMenuItem(
+                            value: s,
+                            child: Text(s.toUpperCase(), style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface)),
+                          ))
+                      .toList(),
+                  onChanged: (v) => setState(() => selectedType = v ?? 'article'),
+                ),
+                const SizedBox(height: 12),
+
+                // Featured
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isFeatured,
+                      onChanged: (v) => setState(() => isFeatured = v!),
+                      fillColor: MaterialStateProperty.all(theme.colorScheme.primary),
+                    ),
+                    Text('Featured Article', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.85))),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Categories
+                Obx(() {
+                  if (categoryController.isLoading.value) {
+                    return CircularProgressIndicator(color: theme.colorScheme.primary);
+                  }
+                  return DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      labelText: 'Select Category',
+                      labelStyle: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                    ),
+                    items: categoryController.categories
+                        .map(
+                          (cat) => DropdownMenuItem(
+                            value: cat.name,
+                            child: Text(cat.name, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface)),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) {
+                      if (v != null && !selectedCategories.contains(v)) {
+                        setState(() => selectedCategories.add(v));
+                      }
+                    },
+                  );
+                }),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 6,
-                  children: pickedFiles
-                      .map((file) => ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.file(
-                      file,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                    ),
-                  ))
+                  children: selectedCategories
+                      .map(
+                        (c) => Chip(
+                          label: Text(c, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onPrimary)),
+                          backgroundColor: theme.colorScheme.primary,
+                          onDeleted: () => setState(() => selectedCategories.remove(c)),
+                        ),
+                      )
                       .toList(),
                 ),
-                const SizedBox(height: 20),
-              ]
-
-              else ...[
-                ElevatedButton.icon(
-                  onPressed: pickVideo,
-                  icon: const Icon(Icons.video_library),
-                  label: const Text('Pick Video'),
-                ),
-                const SizedBox(height: 6),
-                if (pickedVideo != null)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Selected: ${pickedVideo!.path.split('/').last}',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ),
-                if (pickedVideo == null)
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Select one video file (mp4/mov/avi, up to ~200 MB).',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ),
                 const SizedBox(height: 12),
-              ],
 
-              // Submit
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _saveArticle,
-                  child: Text(widget.article != null ? 'Update' : 'Create'),
+                if (selectedType != 'video') ...[
+                  ElevatedButton.icon(
+                    onPressed: pickImages,
+                    icon: Icon(Icons.image, color: theme.colorScheme.onPrimary),
+                    label: Text('Pick Images', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onPrimary)),
+                    style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.primary),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    children: pickedFiles
+                        .map((file) => ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(
+                                file,
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
+                              ),
+                            ))
+                        .toList(),
+                  ),
+                  const SizedBox(height: 20),
+                ]
+
+                else ...[
+                  ElevatedButton.icon(
+                    onPressed: pickVideo,
+                    icon: Icon(Icons.video_library, color: theme.colorScheme.onPrimary),
+                    label: Text('Pick Video', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onPrimary)),
+                    style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.primary),
+                  ),
+                  const SizedBox(height: 6),
+                  if (pickedVideo != null)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Selected: ${pickedVideo!.path.split('/').last}',
+                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.85)),
+                      ),
+                    ),
+                  if (pickedVideo == null)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Select one video file (mp4/mov/avi, up to ~200 MB).',
+                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                      ),
+                    ),
+                  const SizedBox(height: 12),
+                ],
+
+                // Submit
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _saveArticle,
+                    style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.primary),
+                    child: Text(widget.article != null ? 'Update' : 'Create', style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onPrimary)),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -335,7 +343,7 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
         ? Get.find<AuthService>()
         : Get.put(AuthService(), permanent: true);
     final currentUser = await authService.getSavedUser();
-    
+
     if (currentUser == null) {
       Get.snackbar(
         'Authentication Required',
@@ -365,31 +373,22 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
     List<String> mediaPayload = mediaBase64;
     if (selectedType == 'video') {
       if (pickedVideo == null) {
-        Get.snackbar('Error', 'Please pick a video');
+        Get.snackbar('Error', 'Please pick a video', backgroundColor: Get.theme.colorScheme.error, colorText: Get.theme.colorScheme.onError);
         return;
       }
-      
-      print('🎥 Uploading video: ${pickedVideo!.path}');
-      
+
       try {
         final service = ArticleService();
         final url = await service.uploadMedia(file: pickedVideo!, type: 'video');
-        
-        print('✅ Video uploaded successfully: $url');
-        
-        if (url.isEmpty) {
-    throw Exception('Video upload returned empty URL');
-        }
-        
+        if (url.isEmpty) throw Exception('Video upload returned empty URL');
         mediaPayload = [url];
       } catch (e) {
-        print('❌ Video upload failed: $e');
         if (mounted) {
           Get.snackbar(
             'Error',
             'Failed to upload video: ${e.toString()}',
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
+            backgroundColor: Get.theme.colorScheme.error,
+            colorText: Get.theme.colorScheme.onError,
             snackPosition: SnackPosition.BOTTOM,
             duration: const Duration(seconds: 5),
           );
@@ -397,8 +396,6 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
         return;
       }
     }
-    
-    print('📦 Media payload: $mediaPayload');
 
     final body = {
       'title': titleController.text,
@@ -417,44 +414,38 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
 
     try {
       if (widget.article != null) {
-        // Update
         final id = widget.article!['id'];
         await articleController.updateArticle(id, body);
-        
         if (mounted) {
           Get.snackbar(
             'Success',
             'Article updated successfully',
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
+            backgroundColor: Get.theme.colorScheme.primary,
+            colorText: Get.theme.colorScheme.onPrimary,
             snackPosition: SnackPosition.BOTTOM,
           );
         }
       } else {
-        // Create
         await articleController.createArticle(body);
-        
         if (mounted) {
           Get.snackbar(
             'Success',
             'Article created successfully',
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
+            backgroundColor: Get.theme.colorScheme.primary,
+            colorText: Get.theme.colorScheme.onPrimary,
             snackPosition: SnackPosition.BOTTOM,
           );
         }
       }
 
-      if (mounted) {
-        Navigator.pop(context);
-      }
+      if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
         Get.snackbar(
           'Error',
           'Failed to save article: ${e.toString()}',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
+          backgroundColor: Get.theme.colorScheme.error,
+          colorText: Get.theme.colorScheme.onError,
           snackPosition: SnackPosition.BOTTOM,
         );
       }

@@ -73,29 +73,36 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
+    final theme = Theme.of(context);
+
+    return Container(
+      color: theme.colorScheme.surface,
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        ),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
               // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     'Update Article',
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close),
+                    icon: Icon(Icons.close, color: theme.colorScheme.onSurface),
                   ),
                 ],
               ),
@@ -104,7 +111,23 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
               // Title
               TextFormField(
                 controller: titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
+                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface),
+                decoration: InputDecoration(
+                  labelText: 'Title',
+                  labelStyle: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95)),
+                  filled: true,
+                  fillColor: theme.colorScheme.surfaceVariant,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: theme.colorScheme.primary)),
+                ),
                 validator: (v) => v!.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 12),
@@ -112,14 +135,32 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
               // Subtitle
               TextFormField(
                 controller: subtitleController,
-                decoration: const InputDecoration(labelText: 'Subtitle'),
+                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface),
+                decoration: InputDecoration(
+                  labelText: 'Subtitle',
+                  labelStyle: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95)),
+                  filled: true,
+                  fillColor: theme.colorScheme.surfaceVariant,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.primary)),
+                ),
               ),
               const SizedBox(height: 12),
 
               // Excerpt
               TextFormField(
                 controller: excerptController,
-                decoration: const InputDecoration(labelText: 'Excerpt'),
+                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface),
+                decoration: InputDecoration(
+                  labelText: 'Excerpt',
+                  labelStyle: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95)),
+                  filled: true,
+                  fillColor: theme.colorScheme.surfaceVariant,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.primary)),
+                ),
               ),
               const SizedBox(height: 12),
 
@@ -127,7 +168,16 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
               TextFormField(
                 controller: contentController,
                 maxLines: 5,
-                decoration: const InputDecoration(labelText: 'Content HTML'),
+                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface),
+                decoration: InputDecoration(
+                  labelText: 'Content HTML',
+                  labelStyle: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95)),
+                  filled: true,
+                  fillColor: theme.colorScheme.surfaceVariant,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.primary)),
+                ),
                 validator: (v) => v!.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 12),
@@ -135,11 +185,19 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
               // Status
               DropdownButtonFormField<String>(
                 value: selectedStatus,
-                decoration: const InputDecoration(labelText: 'Status'),
+                decoration: InputDecoration(
+                  labelText: 'Status',
+                  labelStyle: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95)),
+                  filled: true,
+                  fillColor: theme.colorScheme.surfaceVariant,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.primary)),
+                ),
                 items: ['draft', 'published', 'archived']
                     .map((s) => DropdownMenuItem(
                   value: s,
-                  child: Text(s.toUpperCase()),
+                  child: Text(s.toUpperCase(), style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface)),
                 ))
                     .toList(),
                 onChanged: (v) => setState(() => selectedStatus = v!),
@@ -152,8 +210,9 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
                   Checkbox(
                     value: isFeatured,
                     onChanged: (v) => setState(() => isFeatured = v!),
+                    fillColor: MaterialStateProperty.all(theme.colorScheme.primary),
                   ),
-                  const Text('Featured Article')
+                  Text('Featured Article', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface)),
                 ],
               ),
               const SizedBox(height: 12),
@@ -161,16 +220,20 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
               // Categories
               Obx(() {
                 if (categoryController.isLoading.value) {
-                  return const CircularProgressIndicator();
+                  return CircularProgressIndicator(color: theme.colorScheme.primary);
                 }
                 return DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Select Category'),
+                  decoration: InputDecoration(
+                    labelText: 'Select Category',
+                    labelStyle: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.85)),
+                    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.18))),
+                  ),
                   items: categoryController.categories
                       .map(
-                        (cat) => DropdownMenuItem(
-                      value: cat.name,
-                      child: Text(cat.name),
-                    ),
+                        (c) => DropdownMenuItem(
+                          value: c.name,
+                          child: Text(c.name, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95))),
+                        ),
                   )
                       .toList(),
                   onChanged: (v) {
@@ -186,9 +249,9 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
                 children: selectedCategories
                     .map(
                       (c) => Chip(
-                    label: Text(c),
-                    onDeleted: () =>
-                        setState(() => selectedCategories.remove(c)),
+                    label: Text(c, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onPrimary)),
+                    backgroundColor: theme.colorScheme.primary,
+                    onDeleted: () => setState(() => selectedCategories.remove(c)),
                   ),
                 )
                     .toList(),
@@ -198,8 +261,9 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
               // Media Picker
               ElevatedButton.icon(
                 onPressed: pickImages,
-                icon: const Icon(Icons.image),
-                label: const Text('Pick Images'),
+                icon: Icon(Icons.image, color: theme.colorScheme.onPrimary),
+                label: Text('Pick Images', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onPrimary)),
+                style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.primary),
               ),
               const SizedBox(height: 6),
               Wrap(
@@ -225,14 +289,16 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _updateArticle,
-                  child: const Text('Update'),
+                  style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.primary),
+                  child: Text('Update', style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onPrimary)),
                 ),
               ),
             ],
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 
   void _updateArticle() async {
@@ -261,8 +327,8 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
         Get.snackbar(
           'Success',
           'Article updated successfully',
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
+          backgroundColor: Get.theme.colorScheme.primary,
+          colorText: Get.theme.colorScheme.onPrimary,
           snackPosition: SnackPosition.BOTTOM,
         );
         Navigator.pop(context);
@@ -272,8 +338,8 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
         Get.snackbar(
           'Error',
           'Failed to update article: ${e.toString()}',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
+          backgroundColor: Get.theme.colorScheme.error,
+          colorText: Get.theme.colorScheme.onError,
           snackPosition: SnackPosition.BOTTOM,
         );
       }

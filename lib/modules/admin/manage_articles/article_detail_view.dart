@@ -26,6 +26,7 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final media = List<String>.from(widget.article['media'] ?? []);
     final categories = List<String>.from(widget.article['categories'] ?? []);
     final content = widget.article['content_html'] ?? '';
@@ -34,7 +35,7 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(title, style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.onPrimary)),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -138,8 +139,8 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
                       : EdgeInsets.zero,
                   decoration: currentImageIndex == index
                       ? BoxDecoration(
-                    border: Border.all(
-                        color: Colors.blueAccent, width: 2),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.primary, width: 2),
                     borderRadius: BorderRadius.circular(12),
                   )
                       : null,
@@ -160,7 +161,9 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
   Widget _title() {
     final title = widget.article['title'] ?? '';
     final subtitle = widget.article['subtitle'] ?? '';
+    final theme = Theme.of(context);
     return Card(
+      color: theme.colorScheme.surface,
       child: Container(
         padding: const EdgeInsets.all(16),
         width: double.infinity,
@@ -169,13 +172,16 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
           children: [
             Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 20),
             ),
             const SizedBox(height: 8),
             if (subtitle.isNotEmpty)
               Text(
                 subtitle,
-                style: Theme.of(context).textTheme.bodyLarge,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.9), fontSize: 15),
               ),
           ],
         ),
@@ -192,7 +198,7 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
       children: categories
           .map(
             (cat) => Chip(
-          backgroundColor: Colors.blueAccent.shade100,
+          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.12),
           label: Text(
             cat,
             style: Theme.of(context)
@@ -200,7 +206,7 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
                 .bodySmall
                 ?.copyWith(
               fontWeight: FontWeight.bold,
-              color: Colors.blueAccent.shade700,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
         ),
@@ -220,7 +226,7 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
           content,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             height: 1.5,
-            color: Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 16,
           ),
         ),
@@ -248,8 +254,8 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
       Get.snackbar(
         'Authentication Required',
         'Please login first to delete articles',
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
+        backgroundColor: Get.theme.colorScheme.secondary,
+        colorText: Get.theme.colorScheme.onSecondary,
         duration: const Duration(seconds: 4),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -277,8 +283,8 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
                 Get.snackbar(
                   'Error',
                   'Invalid article ID',
-                  backgroundColor: Colors.red,
-                  colorText: Colors.white,
+                  backgroundColor: Get.theme.colorScheme.error,
+                  colorText: Get.theme.colorScheme.onError,
                   snackPosition: SnackPosition.BOTTOM,
                 );
                 return;
@@ -300,8 +306,8 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
                   Get.snackbar(
                     'Success',
                     'Article deleted successfully',
-                    backgroundColor: Colors.green,
-                    colorText: Colors.white,
+                    backgroundColor: Get.theme.colorScheme.primary,
+                    colorText: Get.theme.colorScheme.onPrimary,
                     snackPosition: SnackPosition.BOTTOM,
                   );
                 }
@@ -326,15 +332,15 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
                 Get.snackbar(
                   'Error',
                   errorMessage,
-                  backgroundColor: Colors.red,
-                  colorText: Colors.white,
+                  backgroundColor: Get.theme.colorScheme.error,
+                  colorText: Get.theme.colorScheme.onError,
                   snackPosition: SnackPosition.BOTTOM,
                   duration: const Duration(seconds: 5),
                 );
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-            child: const Text('Delete'),
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
+            child: Text('Delete', style: TextStyle(color: Theme.of(context).colorScheme.onError)),
           ),
         ],
       ),
@@ -436,8 +442,8 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
     return Container(
       width: width,
       height: height,
-      color: Colors.grey[300],
-      child: const Center(child: Icon(Icons.broken_image, color: Colors.grey)),
+      color: Theme.of(context).colorScheme.surfaceVariant,
+      child: Center(child: Icon(Icons.broken_image, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
     );
   }
 }

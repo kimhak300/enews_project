@@ -6,21 +6,39 @@ import 'package:newshub/app/constants/app_spacing.dart';
 import 'package:newshub/modules/admin/manage_articles/widgets/article_card_widget.dart';
 import 'package:newshub/modules/admin/manage_articles/widgets/create_article_bottomsheet.dart';
 
-class ManageArticlesView extends StatelessWidget {
-  final ArticleController controller = Get.put(ArticleController());
-  final CategoryController categoryController = Get.put(CategoryController());
-
+class ManageArticlesView extends StatefulWidget {
   ManageArticlesView({super.key});
 
   @override
+  State<ManageArticlesView> createState() => _ManageArticlesViewState();
+}
+
+class _ManageArticlesViewState extends State<ManageArticlesView> {
+  late final ArticleController controller;
+  late final CategoryController categoryController;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.put(ArticleController());
+    categoryController = Get.put(CategoryController());
+
+    // Defer fetching until after the first frame to avoid triggering
+    // setState/Obx during the build phase.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      categoryController.fetchCategories();
+      controller.fetchArticles();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Load categories and articles initially
-    categoryController.fetchCategories();
-    controller.fetchArticles();
+    final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Articles'),
+        title: Text('articles'.tr),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
@@ -30,7 +48,7 @@ class ManageArticlesView extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         icon: const Icon(Icons.add),
-        label: const Text("Add Article"),
+        label:  Text("add_article".tr),
         onPressed: () {
           showModalBottomSheet(
             context: context,
@@ -45,7 +63,7 @@ class ManageArticlesView extends StatelessWidget {
         }
 
         if (controller.articles.isEmpty) {
-          return const Center(child: Text('No articles found.'));
+          return Center(child: Text('No articles found.', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7))));
         }
 
         return Padding(
@@ -79,7 +97,7 @@ class ManageArticlesView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
+            builder: (context, setState) => AlertDialog(
           title: const Text('Filter by Category'),
           content: Obx(() {
             if (categoryController.isLoading.value) {
@@ -109,14 +127,14 @@ class ManageArticlesView extends StatelessWidget {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                controller.fetchArticles(); // Clear filter
+                    controller.fetchArticles(); // Clear filter
               },
               child: const Text('Clear'),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                controller.fetchArticles(category: selectedCategory); // Pass category
+                    controller.fetchArticles(category: selectedCategory); // Pass category
               },
               child: const Text('Apply'),
             ),

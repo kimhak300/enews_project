@@ -1,6 +1,10 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:newshub/app/config/api_constants.dart';
 import 'package:newshub/modules/user/search/search_controller.dart' as user_search;
 
 class SearchView extends GetView<user_search.SearchController> {
@@ -236,7 +240,7 @@ class SearchView extends GetView<user_search.SearchController> {
                         itemBuilder: (context, index) {
                           final article = controller.filteredArticles[index];
                           print(article..media);
-                          return _buildArticleCard(article);
+                          return _buildArticleCard(context, article);
                         },
                       ),
                     ),
@@ -250,16 +254,17 @@ class SearchView extends GetView<user_search.SearchController> {
     );
   }
 
-  Widget _buildArticleCard(article) {
+  Widget _buildArticleCard(BuildContext context, article) {
+    final theme = Theme.of(context);
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
@@ -276,18 +281,7 @@ class SearchView extends GetView<user_search.SearchController> {
             if (article.coverImage != null)
               ClipRRect(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
-                child: Image.network(
-                  article.coverImage!,
-                  width: double.infinity,
-                  height: 180.h,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    width: double.infinity,
-                    height: 180.h,
-                    color: Colors.grey[300],
-                    child: Icon(Icons.broken_image, size: 64.sp, color: Colors.grey),
-                  ),
-                ),
+                child: _buildArticleImage(article.coverImage!),
               ),
             // Content
             Padding(
@@ -301,26 +295,18 @@ class SearchView extends GetView<user_search.SearchController> {
                       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                       margin: EdgeInsets.only(bottom: 8.h),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.1),
+                        color: theme.colorScheme.primary.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(4.r),
                       ),
                       child: Text(
                         article.categories!.first.name,
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.primary, fontSize: 11.sp, fontWeight: FontWeight.w600),
                       ),
                     ),
                   // Title
                   Text(
                     article.title,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
+                    style: theme.textTheme.titleMedium?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withOpacity(0.95)),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -329,10 +315,7 @@ class SearchView extends GetView<user_search.SearchController> {
                   if (article.excerpt != null)
                     Text(
                       article.excerpt!,
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        color: Colors.grey[600],
-                      ),
+                      style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13.sp, color: theme.colorScheme.onSurface.withOpacity(0.72)),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -340,26 +323,17 @@ class SearchView extends GetView<user_search.SearchController> {
                   // Meta Info
                   Row(
                     children: [
-                      Icon(Icons.visibility, size: 16.sp, color: Colors.grey),
+                      Icon(Icons.visibility, size: 16.sp, color: theme.colorScheme.onSurface.withOpacity(0.7)),
                       SizedBox(width: 4.w),
-                      Text(
-                        '${article.viewCount ?? 0}',
-                        style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
-                      ),
+                      Text('${article.viewCount ?? 0}', style: theme.textTheme.bodySmall?.copyWith(fontSize: 12.sp, color: theme.colorScheme.onSurface.withOpacity(0.72))),
                       SizedBox(width: 16.w),
-                      Icon(Icons.thumb_up, size: 16.sp, color: Colors.grey),
+                      Icon(Icons.thumb_up, size: 16.sp, color: theme.colorScheme.onSurface.withOpacity(0.7)),
                       SizedBox(width: 4.w),
-                      Text(
-                        '${article.likeCount ?? 0}',
-                        style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
-                      ),
+                      Text('${article.likeCount ?? 0}', style: theme.textTheme.bodySmall?.copyWith(fontSize: 12.sp, color: theme.colorScheme.onSurface.withOpacity(0.72))),
                       SizedBox(width: 16.w),
-                      Icon(Icons.comment, size: 16.sp, color: Colors.grey),
+                      Icon(Icons.comment, size: 16.sp, color: theme.colorScheme.onSurface.withOpacity(0.7)),
                       SizedBox(width: 4.w),
-                      Text(
-                        '${article.commentCount ?? 0}',
-                        style: TextStyle(fontSize: 12.sp, color: Colors.grey[600]),
-                      ),
+                      Text('${article.commentCount ?? 0}', style: theme.textTheme.bodySmall?.copyWith(fontSize: 12.sp, color: theme.colorScheme.onSurface.withOpacity(0.72))),
                     ],
                   ),
                 ],
@@ -367,6 +341,56 @@ class SearchView extends GetView<user_search.SearchController> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  String _getImageUrl(String imageUrl) {
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+    return '${ApiConstants.mediaBaseUrl}${imageUrl.startsWith('/') ? imageUrl : '/$imageUrl'}';
+  }
+
+  Widget _buildArticleImage(String imageData) {
+    // Handle base64 images
+    if (imageData.startsWith('data:image')) {
+      try {
+        final base64String = imageData.split(',').last;
+        final Uint8List bytes = base64Decode(base64String);
+        return Image.memory(
+          bytes,
+          width: double.infinity,
+          height: 180.h,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            width: double.infinity,
+            height: 180.h,
+            color: Colors.grey[300],
+            child: Icon(Icons.broken_image, size: 64.sp, color: Colors.grey),
+          ),
+        );
+      } catch (e) {
+        return Container(
+          width: double.infinity,
+          height: 180.h,
+          color: Colors.grey[300],
+          child: Icon(Icons.article, size: 64.sp, color: Colors.grey),
+        );
+      }
+    }
+    
+    // Handle regular URL images
+    return Image.network(
+      _getImageUrl(imageData),
+      width: double.infinity,
+      height: 180.h,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => Container(
+        width: double.infinity,
+        height: 180.h,
+        color: Colors.grey[300],
+        child: Icon(Icons.broken_image, size: 64.sp, color: Colors.grey),
       ),
     );
   }

@@ -4,8 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:newshub/core/widgets/video_player_widget.dart';
 import 'package:newshub/app/config/api_constants.dart';
+import 'user_article_detail_controller.dart';
 
-class UserArticleDetailView extends StatelessWidget {
+class UserArticleDetailView extends GetView<UserArticleDetailController> {
   const UserArticleDetailView({super.key});
 
   @override
@@ -123,6 +124,16 @@ class UserArticleDetailView extends StatelessWidget {
                     ),
                   ],
                   
+                  SizedBox(height: 24.h),
+                  
+                  // Action Buttons Row
+                  _buildActionButtons(),
+                  
+                  SizedBox(height: 24.h),
+                  
+                  // Comments Section
+                  _buildCommentsSection(),
+                  
                   SizedBox(height: 32.h),
                 ],
               ),
@@ -131,6 +142,282 @@ class UserArticleDetailView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildActionButtons() {
+    return Obx(() => Container(
+      padding: EdgeInsets.symmetric(vertical: 12.h),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Colors.grey[300]!, width: 1),
+          bottom: BorderSide(color: Colors.grey[300]!, width: 1),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          // Like Button
+          _buildActionButton(
+            icon: controller.isLiked.value ? Icons.favorite : Icons.favorite_border,
+            label: controller.likeCount.value.toString(),
+            color: controller.isLiked.value ? Colors.red : Colors.grey,
+            onTap: () => controller.toggleLike(),
+          ),
+          
+          // Comment Button
+          _buildActionButton(
+            icon: Icons.comment_outlined,
+            label: controller.commentCount.value.toString(),
+            color: Colors.grey,
+            onTap: () => _showCommentDialog(),
+          ),
+          
+          // Share Button
+          _buildActionButton(
+            icon: Icons.share_outlined,
+            label: controller.shareCount.value.toString(),
+            color: Colors.grey,
+            onTap: () => controller.shareArticle(),
+          ),
+          
+          // Bookmark Button
+          _buildActionButton(
+            icon: controller.isBookmarked.value ? Icons.bookmark : Icons.bookmark_border,
+            label: controller.isBookmarked.value ? 'Saved' : 'Save',
+            color: controller.isBookmarked.value ? Colors.amber : Colors.grey,
+            onTap: () => controller.toggleBookmark(),
+          ),
+        ],
+      ),
+    ));
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 24.sp),
+          SizedBox(height: 4.h),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12.sp,
+              color: color,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCommentsSection() {
+    return Obx(() {
+      if (controller.comments.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 20.h),
+            child: Column(
+              children: [
+                Icon(Icons.comment_outlined, size: 48.sp, color: Colors.grey[400]),
+                SizedBox(height: 8.h),
+                Text(
+                  'No comments yet',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14.sp),
+                ),
+                SizedBox(height: 8.h),
+                TextButton.icon(
+                  onPressed: () => _showCommentDialog(),
+                  icon: Icon(Icons.add_comment),
+                  label: Text('Be the first to comment'),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Comments (${controller.commentCount.value})',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextButton.icon(
+                onPressed: () => _showCommentDialog(),
+                icon: Icon(Icons.add_comment, size: 18.sp),
+                label: Text('Add'),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: controller.comments.length,
+            separatorBuilder: (_, __) => Divider(height: 24.h),
+            itemBuilder: (context, index) {
+              final comment = controller.comments[index];
+              return _buildCommentItem(comment);
+            },
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildCommentItem(CommentModel comment) {
+    // Fix avatar URL
+    String? avatarUrl;
+    if (comment.authorAvatar != null && comment.authorAvatar!.isNotEmpty) {
+      avatarUrl = comment.authorAvatar!;
+      if (!avatarUrl.startsWith('http://') && !avatarUrl.startsWith('https://')) {
+        avatarUrl = '${ApiConstants.mediaBaseUrl}${avatarUrl.startsWith('/') ? avatarUrl : '/$avatarUrl'}';
+      }
+    }
+    
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CircleAvatar(
+          radius: 20.r,
+          backgroundColor: Colors.blue[100],
+          child: avatarUrl != null
+              ? ClipOval(
+                  child: Image.network(
+                    avatarUrl,
+                    width: 40.w,
+                    height: 40.w,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Icon(Icons.person, size: 20.sp, color: Colors.blue),
+                  ),
+                )
+              : Icon(Icons.person, size: 20.sp, color: Colors.blue),
+        ),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                comment.authorName,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.sp,
+                ),
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                comment.content,
+                style: TextStyle(fontSize: 14.sp, height: 1.4),
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                _formatTime(comment.createdAt),
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showCommentDialog() {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        child: Padding(
+          padding: EdgeInsets.all(16.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Add Comment',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 16.h),
+              TextField(
+                controller: controller.commentController,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  hintText: 'Write your comment...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  contentPadding: EdgeInsets.all(12.w),
+                ),
+              ),
+              SizedBox(height: 16.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      controller.commentController.clear();
+                      Get.back();
+                    },
+                    child: Text('Cancel'),
+                  ),
+                  SizedBox(width: 8.w),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (controller.commentController.text.trim().isNotEmpty) {
+                        controller.postComment();
+                        Get.back();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                    ),
+                    child: Text('Post'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays}d ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m ago';
+    } else {
+      return 'Just now';
+    }
   }
 
   Widget _buildVideoSection(List<String> media) {

@@ -22,7 +22,7 @@ class CommentModel {
   factory CommentModel.fromJson(Map<String, dynamic> json) {
     return CommentModel(
       id: json['id'] ?? 0,
-      content: json['content'] ?? '',
+      content: json['content_text'] ?? '',
       authorName: json['user']?['display_name'] ?? 'Anonymous',
       authorAvatar: json['user']?['avatar'],
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
@@ -59,14 +59,22 @@ class UserArticleDetailController extends GetxController {
       // Initialize counts from article data
       likeCount.value = article.likeCount ?? 0;
       commentCount.value = article.commentCount ?? 0;
-      shareCount.value = 0; // Client-side tracking
+      shareCount.value = 0;
       
-      // Check if bookmarked
-      checkBookmarkStatus();
-      
-      // Load comments
-      loadComments();
+      // Load all data - these will update the UI as they complete
+      _initializeArticleData();
     }
+  }
+  
+  /// Initialize article data from backend
+  Future<void> _initializeArticleData() async {
+    // Run these in parallel for better performance
+    await Future.wait([
+      reloadArticleStats(),
+      checkLikeStatus(),
+      checkBookmarkStatus(),
+      loadComments(),
+    ]);
   }
 
   @override
@@ -84,6 +92,18 @@ class UserArticleDetailController extends GetxController {
     }
   }
 
+  /// Check if article is liked by current user
+  Future<void> checkLikeStatus() async {
+    try {
+      // Call backend to check if user has liked this article
+      final result = await _interactionService.checkIfLiked(article.id);
+      isLiked.value = result;
+    } catch (e) {
+      print('Error checking like status: $e');
+      isLiked.value = false;
+    }
+  }
+
   /// Toggle like/unlike
   /// ✅ This updates the Reaction table → Admin analytics will count it
   Future<void> toggleLike() async {
@@ -93,7 +113,9 @@ class UserArticleDetailController extends GetxController {
         final result = await _interactionService.unlikeArticle(article.id);
         if (result['success']) {
           isLiked.value = false;
-          likeCount.value--;
+          if (likeCount.value > 0) likeCount.value--;
+          // Reload actual count from backend
+          await reloadArticleStats();
           Get.snackbar(
             'Success',
             'Article unliked!',
@@ -117,6 +139,8 @@ class UserArticleDetailController extends GetxController {
         if (result['success']) {
           isLiked.value = true;
           likeCount.value++;
+          // Reload actual count from backend
+          await reloadArticleStats();
           Get.snackbar(
             'Success',
             'Article liked! ❤️',
@@ -167,6 +191,7 @@ class UserArticleDetailController extends GetxController {
         final result = await _interactionService.removeBookmark(article.id);
         if (result['success']) {
           isBookmarked.value = false;
+          await reloadArticleStats();
           Get.snackbar(
             'Success',
             'Bookmark removed!',
@@ -189,6 +214,7 @@ class UserArticleDetailController extends GetxController {
         final result = await _interactionService.addBookmark(article.id);
         if (result['success']) {
           isBookmarked.value = true;
+          await reloadArticleStats();
           Get.snackbar(
             'Success',
             'Article bookmarked! 🔖',
@@ -230,7 +256,7 @@ class UserArticleDetailController extends GetxController {
   }
 
   /// Share article
-  /// 📊 Currently client-side only. Future: Add backend endpoint to track shares in admin analytics
+  /// ✅ Tracked in backend Share table → Admin analytics will count it
   Future<void> shareArticle() async {
     try {
       // Copy article content/link to clipboard
@@ -243,10 +269,12 @@ Read more at: NewsHub
       ''';
       
       await Clipboard.setData(ClipboardData(text: shareText));
-      shareCount.value++;
       
-      // Track share (currently client-side only)
-      await _interactionService.trackShare(article.id);
+      // Track share in backend (adds to shares table → counted in admin analytics)
+      await _interactionService.trackShare(article.id, platform: 'copy_link');
+      
+      // Reload actual count from backend
+      await reloadArticleStats();
       
       Get.snackbar(
         'Shared',
@@ -265,6 +293,22 @@ Read more at: NewsHub
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
       );
+    }
+  }
+
+  /// Reload article stats from backend after interaction
+  Future<void> reloadArticleStats() async {
+    try {
+      // Get updated article details from backend
+      final response = await _interactionService.getArticleStats(article.id);
+      if (response['success']) {
+        final data = response['data'];
+        likeCount.value = data['like_count'] ?? likeCount.value;
+        commentCount.value = data['comment_count'] ?? commentCount.value;
+        shareCount.value = data['share_count'] ?? shareCount.value;
+      }
+    } catch (e) {
+      print('Error reloading stats: $e');
     }
   }
 

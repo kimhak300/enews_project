@@ -20,6 +20,10 @@ void main() async {
   await GetStorage.init();
   await SharedPreferences.getInstance();
 
+  // Register core services before creating controllers so controllers
+  // can use Get.find to access them.
+  InitialBindings().dependencies();
+
   /// Put controllers
   Get.put(ThemeController());
   Get.put(RatioController());
@@ -41,13 +45,13 @@ class ENewsApp extends StatelessWidget {
       designSize: const Size(375, 812),
       minTextAdapt: true,
       builder: (context, child) {
-        return GetMaterialApp(
+        return Obx(() => GetMaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'E-News',
 
           /// Language
           translations: AppTranslation(),
-          locale: languageController.isKhmer.value
+            locale: languageController.isKhmer.value
               ? const Locale('km', 'KH')
               : const Locale('en', 'US'),
           fallbackLocale: const Locale('en', 'US'),
@@ -59,9 +63,8 @@ class ENewsApp extends StatelessWidget {
 
           /// Route
           initialRoute: Routes.SPLASH,
-          initialBinding: InitialBindings(),
           getPages: AppPages.pages,
-        );
+        ));
       },
     );
   }

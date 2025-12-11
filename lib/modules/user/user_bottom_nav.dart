@@ -5,24 +5,25 @@ import 'package:newshub/modules/user/user_controller.dart';
 class UserBottomNav extends StatelessWidget {
   final UserController controller = Get.find();
 
-  final Color selectedColor = Colors.blueAccent;
-  final Color unselectedColor = Colors.grey;
-
   @override
   Widget build(BuildContext context) {
+    final selectedColor = Theme.of(context).bottomNavigationBarTheme.selectedItemColor ?? Theme.of(context).colorScheme.primary;
+    final unselectedColor = Theme.of(context).bottomNavigationBarTheme.unselectedItemColor ?? Theme.of(context).unselectedWidgetColor;
+    final background = Theme.of(context).bottomNavigationBarTheme.backgroundColor ?? Theme.of(context).colorScheme.surface;
+
     return Obx(
           () => Scaffold(
         body: controller.pages[controller.currentIndex.value],
         bottomNavigationBar: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black12,
                 blurRadius: 10,
                 spreadRadius: 2,
-                offset: Offset(0, -2), // shadow on top
+                offset: const Offset(0, -2), // shadow on top
               ),
             ],
           ),
@@ -30,28 +31,28 @@ class UserBottomNav extends StatelessWidget {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: BottomNavigationBar(
               type: BottomNavigationBarType.fixed,
-              backgroundColor: Colors.white,
+              backgroundColor: background,
               selectedItemColor: selectedColor,
               unselectedItemColor: unselectedColor,
               currentIndex: controller.currentIndex.value,
               onTap: controller.changeTab,
               showUnselectedLabels: true,
-              items: const [
+              items: [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.home),
-                  label: 'Home',
+                  label: 'home'.tr,
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.video_library),
-                  label: 'Video',
+                  label: 'video'.tr,
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.local_fire_department),
-                  label: 'Hot News',
+                  label: 'hot_news'.tr,
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person),
-                  label: 'Profile',
+                  label: 'profile'.tr,
                 ),
               ],
             ),

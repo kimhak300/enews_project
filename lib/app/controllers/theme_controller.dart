@@ -4,7 +4,7 @@ import 'package:newshub/app/services/theme_service.dart';
 
 class ThemeController extends GetxController {
 
-  final ThemeService _service = ThemeService();
+  final ThemeService _service = Get.find<ThemeService>();
 
   Rx<ThemeMode> themeMode = ThemeMode.light.obs;
 

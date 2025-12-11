@@ -10,9 +10,10 @@ class ManageUsersView extends GetView<ManageUsersController> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Users'),
+        title:  Text('manage_users'.tr),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
@@ -22,20 +23,22 @@ class ManageUsersView extends GetView<ManageUsersController> {
         ],
         bottom: TabBar(
           controller: controller.tabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          tabs: const [
-            Tab(text: "All"),
-            Tab(text: "User"),
-            Tab(text: "Organizer"),
+          indicatorColor: theme.colorScheme.onPrimary,
+          labelColor: theme.colorScheme.onPrimary,
+          unselectedLabelColor: theme.colorScheme.onPrimary.withOpacity(0.75),
+          tabs:  [
+            Tab(text: "all".tr),
+            Tab(text: "user".tr),
+            Tab(text: "organizer".tr),
           ],
         ),
       ),
 
       floatingActionButton: FloatingActionButton.extended(
-        icon: const Icon(Icons.add),
-        label: const Text("Add User"),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
+        icon: Icon(Icons.add, color: theme.colorScheme.onPrimary),
+        label: Text('create_user'.tr, style: TextStyle(color: theme.colorScheme.onPrimary)),
         onPressed: () => _openBottomSheet(context),
       ),
 
@@ -196,8 +199,8 @@ class ManageUsersView extends GetView<ManageUsersController> {
         builder: (context, scrollController) {
           return Container(
             padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: SingleChildScrollView(

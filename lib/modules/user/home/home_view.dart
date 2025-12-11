@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:newshub/modules/user/home/home_controller.dart';
-import 'package:newshub/modules/user/user_controller.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -12,7 +11,7 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Obx(() {
         if (controller.isLoading.value && controller.articles.isEmpty) {
           return const Center(child: CircularProgressIndicator());
@@ -28,12 +27,12 @@ class HomeView extends GetView<HomeController> {
                 Text(
                   controller.errorMessage.value,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14.sp),
+                  style: TextStyle(fontSize: 14.sp, color: Theme.of(context).textTheme.bodyMedium?.color),
                 ),
                 SizedBox(height: 16.h),
                 ElevatedButton(
                   onPressed: controller.refresh,
-                  child: const Text('Retry'),
+                  child: Text('retry'.tr),
                 ),
               ],
             ),
@@ -49,7 +48,7 @@ class HomeView extends GetView<HomeController> {
                 floating: true,
                 snap: true,
                 elevation: 0,
-                backgroundColor: Colors.white,
+                backgroundColor: Theme.of(context).appBarTheme.backgroundColor ?? Theme.of(context).colorScheme.primary,
                 expandedHeight: 60.h,
                 flexibleSpace: FlexibleSpaceBar(
                   titlePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
@@ -57,19 +56,9 @@ class HomeView extends GetView<HomeController> {
                     children: [
                       Container(
                         padding: EdgeInsets.all(6.w),
-
                         child: CircleAvatar(
-                          child: Image.asset('assets/images/logo1.png',
-                            width: 24.w, height: 24.h),
-                        ),
-                      ),
-                      SizedBox(width: 10.w),
-                      Text(
-                        'Enews',
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: 22.sp,
-                          fontWeight: FontWeight.bold,
+                          backgroundColor: Colors.transparent,
+                          child: Image.asset('assets/images/logo1.png', width: 24.w, height: 24.h),
                         ),
                       ),
                     ],
@@ -77,59 +66,55 @@ class HomeView extends GetView<HomeController> {
                 ),
                 actions: [
                   IconButton(
-                    icon: Icon(Icons.search, color: Colors.black87, size: 24.sp),
-                    onPressed: () {
-                      Get.find<UserController>().changeTab(1);
-                    },
+                    icon: Icon(Icons.search, color: Theme.of(context).appBarTheme.foregroundColor ?? Theme.of(context).colorScheme.onPrimary, size: 24.sp),
+                    onPressed: () {},
                   ),
                   IconButton(
-                    icon: Icon(Icons.notifications_outlined, color: Colors.black87, size: 24.sp),
+                    icon: Icon(Icons.notifications_outlined, color: Theme.of(context).appBarTheme.foregroundColor ?? Theme.of(context).colorScheme.onPrimary, size: 24.sp),
                     onPressed: () {},
                   ),
                 ],
               ),
 
-              // Trending Topics Section
-              if (controller.trendingArticles.isNotEmpty)
-                SliverToBoxAdapter(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-
-                    ],
-                  ),
-                ),
-
-              // Category Pills
-              if (controller.categories.isNotEmpty)
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: 45.h,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      itemCount: controller.categories.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index == 0) {
-                          return _buildCategoryPill(
-                            'All',
-                            controller.selectedCategory.value == null,
-                            () => controller.selectCategory(null),
-                            Colors.blue,
-                          );
-                        }
-                        final category = controller.categories[index - 1];
-                        final isSelected = controller.selectedCategory.value?.id == category.id;
-                        return _buildCategoryPill(
-                          category.name,
-                          isSelected,
-                          () => controller.selectCategory(category),
-                          _getCategoryColor(index),
-                        );
-                      },
+              // Trending / Categories Section
+              SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                     ),
-                  ),
+                    SizedBox(
+                      height: 45.h,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        itemCount: controller.categories.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            return _buildCategoryPill(
+                              context,
+                              'all'.tr,
+                              controller.selectedCategory.value == null,
+                              () => controller.selectCategory(null),
+                              Theme.of(context).colorScheme.primary,
+                            );
+                          }
+                          final category = controller.categories[index - 1];
+                          final isSelected = controller.selectedCategory.value?.id == category.id;
+                          return _buildCategoryPill(
+                            context,
+                            category.name,
+                            isSelected,
+                            () => controller.selectCategory(category),
+                            _getCategoryColor(index),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
+              ),
 
               SliverToBoxAdapter(child: SizedBox(height: 16.h)),
 
@@ -138,7 +123,7 @@ class HomeView extends GetView<HomeController> {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: _buildFeaturedArticle(controller.filteredArticles.first),
+                    child: _buildFeaturedArticle(context, controller.filteredArticles.first),
                   ),
                 ),
 
@@ -155,7 +140,7 @@ class HomeView extends GetView<HomeController> {
                         SizedBox(height: 16.h),
                         Text(
                           'No articles available',
-                          style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
+                          style: TextStyle(fontSize: 16.sp, color: Theme.of(context).textTheme.bodyMedium?.color),
                         ),
                       ],
                     ),
@@ -187,7 +172,7 @@ class HomeView extends GetView<HomeController> {
                         
                         // Article card
                         final article = controller.filteredArticles[articleIndex];
-                        return _buildArticleCard(article);
+                        return _buildArticleCard(context, article);
                       },
                       childCount: controller.filteredArticles.length + 1,
                     ),
@@ -201,7 +186,7 @@ class HomeView extends GetView<HomeController> {
   }
 
 
-  Widget _buildCategoryPill(String name, bool isSelected, VoidCallback onTap, Color color) {
+  Widget _buildCategoryPill(BuildContext context, String name, bool isSelected, VoidCallback onTap, Color color) {
     return Padding(
       padding: EdgeInsets.only(right: 8.w),
       child: InkWell(
@@ -213,7 +198,7 @@ class HomeView extends GetView<HomeController> {
             gradient: isSelected
                 ? LinearGradient(colors: [color, color.withOpacity(0.7)])
                 : null,
-            color: isSelected ? null : Colors.grey[200],
+            color: isSelected ? null : Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(20.r),
             border: Border.all(
               color: isSelected ? color : Colors.transparent,
@@ -223,7 +208,7 @@ class HomeView extends GetView<HomeController> {
           child: Text(
             name,
             style: TextStyle(
-              color: isSelected ? Colors.white : Colors.black87,
+              color: isSelected ? (Theme.of(context).colorScheme.onPrimary) : (Theme.of(context).textTheme.bodyMedium?.color ?? Theme.of(context).colorScheme.onBackground),
               fontSize: 13.sp,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
             ),
@@ -233,7 +218,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildFeaturedArticle(article) {
+  Widget _buildFeaturedArticle(BuildContext context, article) {
     return GestureDetector(
       onTap: () {
         // Navigate to article detail
@@ -258,13 +243,13 @@ class HomeView extends GetView<HomeController> {
             // Image
             Container(
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: Theme.of(context).colorScheme.surface,
                 image: null,
               ),
               child: _buildImage(
                 article.coverImage ?? article.media?.first,
                 fit: BoxFit.cover,
-                placeholder: Center(child: Icon(Icons.image, size: 80.sp, color: Colors.grey[400])),
+                placeholder: Center(child: Icon(Icons.image, size: 80.sp, color: Theme.of(context).disabledColor)),
               ),
             ),
             // Gradient
@@ -275,7 +260,7 @@ class HomeView extends GetView<HomeController> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.85),
+                    Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                   ],
                   stops: const [0.4, 1.0],
                 ),
@@ -402,7 +387,8 @@ class HomeView extends GetView<HomeController> {
     // Use localization key `min_read` (e.g. "min read") and format with minutes
     return '$minutes ${'min_read'.tr}';
   }
-  Widget _buildArticleCard(article) {
+  Widget _buildArticleCard(BuildContext context, article) {
+    final theme = Theme.of(context);
     // Get cover image from media list or coverImage
     String? coverImage;
     if (article.media != null && article.media!.isNotEmpty) {
@@ -434,13 +420,13 @@ class HomeView extends GetView<HomeController> {
                 Container(
                   height: 120.h,
                   width: 120.w,
-                  color: Colors.grey[300],
+                  color: Theme.of(context).colorScheme.surface,
                   child: coverImage != null
                       ? _buildImage(coverImage)
                       : Icon(
                           _getArticleIcon(article.type),
                           size: 36.sp,
-                          color: Colors.grey[500],
+                          color: Theme.of(context).disabledColor,
                         ),
                 ),
                 // Type badge (Video/Article badge)
@@ -451,18 +437,18 @@ class HomeView extends GetView<HomeController> {
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
                       decoration: BoxDecoration(
-                        color: Colors.red,
+                        color: Theme.of(context).colorScheme.error,
                         borderRadius: BorderRadius.circular(4.r),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.play_circle, color: Colors.white, size: 12.sp),
-                          SizedBox(width: 2.w),
+                          Icon(Icons.play_circle, color: Theme.of(context).colorScheme.onError, size: 12.sp),
+                          SizedBox(width: 4.w),
                           Text(
-                            'VIDEO',
+                            'video'.tr.toUpperCase(),
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onError,
                               fontSize: 9.sp,
                               fontWeight: FontWeight.bold,
                             ),
@@ -495,31 +481,31 @@ class HomeView extends GetView<HomeController> {
                             // Handle CategoryModel object
                             catName = cat.name ?? 'Category';
                           }
-                          return Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                            child: Text(
-                              catName,
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          );
+                                return Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                                    borderRadius: BorderRadius.circular(12.r),
+                                  ),
+                                  child: Text(
+                                    catName,
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      fontSize: 10.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                );
                         }).toList(),
                       ),
                     SizedBox(height: 6.h),
                     // Title
                     Text(
                       article.title,
-                      style: TextStyle(
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: theme.colorScheme.onSurface.withOpacity(0.95),
                         height: 1.3,
                       ),
                       maxLines: 2,
@@ -529,26 +515,20 @@ class HomeView extends GetView<HomeController> {
                     // Meta info
                     Row(
                       children: [
-                        Icon(Icons.schedule, size: 12.sp, color: Colors.grey[600]),
+                        Icon(Icons.schedule, size: 12.sp, color: theme.colorScheme.onSurface.withOpacity(0.7)),
                         SizedBox(width: 4.w),
                         Text(
                           _formatDate(
                             (article.publishedAt ?? article.createdAt ?? article.updatedAt) as DateTime?,
                           ),
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            color: Colors.grey[600],
-                          ),
+                          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7), fontSize: 11.sp),
                         ),
                         SizedBox(width: 8.w),
-                        Icon(Icons.remove_red_eye_outlined, size: 12.sp, color: Colors.grey[600]),
+                        Icon(Icons.remove_red_eye_outlined, size: 12.sp, color: theme.colorScheme.onSurface.withOpacity(0.7)),
                         SizedBox(width: 4.w),
                         Text(
                           '${article.viewCount ?? 0}',
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            color: Colors.grey[600],
-                          ),
+                          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7), fontSize: 11.sp),
                         ),
                       ],
                     ),

@@ -251,12 +251,92 @@ class ArticleInteractionService {
     }
   }
 
-  /// Share article (currently client-side only, but can track in future)
-  /// Note: Shares are tracked client-side for now. 
-  /// In the future, add a backend endpoint to track share counts
-  Future<void> trackShare(int articleId) async {
-    // TODO: Add backend endpoint to track shares
-    // This would add to a Share table → counted in admin analytics
-    print('🔗 Share tracked for article: $articleId (client-side only)');
+  /// Check if article is liked by current user
+  Future<bool> checkIfLiked(int articleId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/reactions'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final reactions = (data is List) ? data : (data['data'] as List? ?? []);
+        return reactions.any((reaction) {
+          final reactionArticleId = reaction['article_id'];
+          return reactionArticleId != null && reactionArticleId == articleId;
+        });
+      }
+      return false;
+    } catch (e) {
+      print('❌ Error checking like status: $e');
+      return false;
+    }
+  }
+
+  /// Share article → tracked in backend Share table → counted in admin analytics
+  /// Platform can be: 'facebook', 'twitter', 'copy_link', 'whatsapp', etc.
+  Future<Map<String, dynamic>> trackShare(int articleId, {String? platform}) async {
+    try {
+      print('🔗 Tracking share for article: $articleId, platform: $platform');
+      final response = await http.post(
+        Uri.parse('$baseUrl/shares'),
+        headers: headers,
+        body: jsonEncode({
+          'article_id': articleId,
+          'platform': platform,
+        }),
+      );
+
+      print('🔗 Share track response: ${response.statusCode}');
+      print('🔗 Share track body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return {
+          'success': true,
+          'data': jsonDecode(response.body),
+        };
+      } else {
+        return {
+          'success': false,
+          'error': 'Failed to track share: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      print('❌ Error tracking share: $e');
+      return {
+        'success': false,
+        'error': e.toString(),
+      };
+    }
+  }
+
+  /// Get article stats (likes, comments, shares)
+  Future<Map<String, dynamic>> getArticleStats(int articleId) async {
+    try {
+      print('📊 Getting article stats for: $articleId');
+      final response = await http.get(
+        Uri.parse('$baseUrl/articles/$articleId/stats'),
+        headers: headers,
+      );
+
+      print('📊 Stats response: ${response.statusCode}');
+      print('📊 Stats body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {
+          'success': false,
+          'error': 'Failed to get stats: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      print('❌ Error getting article stats: $e');
+      return {
+        'success': false,
+        'error': e.toString(),
+      };
+    }
   }
 }

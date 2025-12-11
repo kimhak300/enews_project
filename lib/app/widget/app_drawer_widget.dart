@@ -5,6 +5,10 @@ import 'package:newshub/app/theme/app_theme.dart';
 import 'package:newshub/app/controllers/theme_controller.dart';
 import 'package:newshub/app/controllers/language_controller.dart';
 import 'package:newshub/modules/auth/services/auth_service.dart';
+import 'package:newshub/app/constants/app_constant.dart';
+import 'dart:convert';
+// removed unused typed_data import
+import 'dart:io';
 
 class AppDrawerWidget extends StatelessWidget {
   final String userRole;
@@ -39,7 +43,43 @@ class AppDrawerWidget extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
-    final hasAvatar = userAvatar != null && userAvatar!.isNotEmpty;
+    // Resolve avatar into ImageProvider: support base64, local files and network URLs
+    String? avatar = userAvatar;
+    ImageProvider? avatarProvider;
+
+    if (avatar != null && avatar.isNotEmpty) {
+      if (avatar.startsWith('data:image')) {
+        try {
+          final bytes = base64Decode(avatar.split(',').last);
+          avatarProvider = MemoryImage(bytes);
+        } catch (_) {
+          avatarProvider = null;
+        }
+      } else {
+        // Normalize file://
+        String candidate = avatar;
+        if (candidate.startsWith('file://')) candidate = candidate.replaceFirst('file://', '');
+
+        try {
+          final file = File(candidate);
+          if (file.existsSync()) {
+            avatarProvider = FileImage(file);
+          }
+        } catch (_) {
+          avatarProvider = null;
+        }
+
+        if (avatarProvider == null) {
+          // Treat as network/relative path
+          String url = candidate;
+          if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            url = '${AppConstants.STORAGE_BASE_URL}${candidate.startsWith('/') ? candidate : '/$candidate'}';
+          }
+          avatarProvider = NetworkImage(url);
+        }
+      }
+    }
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.only(
@@ -61,20 +101,28 @@ class AppDrawerWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            radius: 35,
-            backgroundColor: Colors.white,
-            backgroundImage: hasAvatar ? NetworkImage(userAvatar!) : null,
-            child: !hasAvatar
-                ? Text(
-                    userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryColor,
-                    ),
-                  )
-                : null,
+          GestureDetector(
+            onTap: () {
+              // Allow admin users to quickly change language by tapping avatar
+              if (userRole.toLowerCase() == 'admin') {
+                _showLanguageDialog(context);
+              }
+            },
+            child: CircleAvatar(
+              radius: 35,
+              backgroundColor: Colors.white,
+              backgroundImage: avatarProvider,
+              child: avatarProvider == null
+                  ? Text(
+                      userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryColor,
+                      ),
+                    )
+                  : null,
+            ),
           ),
           const SizedBox(height: 12),
           Text(
@@ -117,11 +165,11 @@ class AppDrawerWidget extends StatelessWidget {
   String _getRoleDisplayName() {
     switch (userRole.toLowerCase()) {
       case 'admin':
-        return 'Administrator';
+        return 'administrator'.tr;
       case 'organization':
-        return 'Organization';
+        return 'organization'.tr;
       default:
-        return 'User';
+        return 'user'.tr;
     }
   }
 
@@ -145,28 +193,28 @@ class AppDrawerWidget extends StatelessWidget {
 
     // Common settings section
     items.add(const Divider(height: 32));
-    items.add(_buildSectionHeader('Settings'));
-    items.add(_buildMenuItem(
-      icon: Icons.person,
-      title: 'Profile',
-      onTap: () => _navigateToProfile(context),
-    ));
+    items.add(_buildSectionHeader('settings'.tr));
+    // items.add(_buildMenuItem(
+    //   icon: Icons.person,
+    //   title: 'Profile',
+    //   onTap: () => _navigateToProfile(context),
+    // ));
     items.add(_buildMenuItem(
       icon: Icons.dark_mode,
-      title: 'Theme',
+      title: 'theme'.tr,
       subtitle: _getThemeText(),
       trailing: _buildThemeToggle(),
       onTap: () {},
     ));
     items.add(_buildMenuItem(
       icon: Icons.language,
-      title: 'Language',
+      title: 'language'.tr,
       subtitle: _getLanguageText(),
       onTap: () => _showLanguageDialog(context),
     ));
     items.add(_buildMenuItem(
       icon: Icons.info_outline,
-      title: 'About',
+      title: 'about'.tr,
       onTap: () => _showAboutDialog(context),
     ));
 
@@ -175,25 +223,25 @@ class AppDrawerWidget extends StatelessWidget {
 
   String _getThemeText() {
     final themeController = Get.find<ThemeController>();
-    return themeController.themeMode.value == ThemeMode.dark ? 'Dark Mode' : 'Light Mode';
+    return themeController.themeMode.value == ThemeMode.dark ? 'dark_mode'.tr : 'light_mode'.tr;
   }
 
   String _getLanguageText() {
     final languageController = Get.find<LanguageController>();
-    return languageController.isKhmer.value ? 'ភាសាខ្មែរ' : 'English';
+    return languageController.isKhmer.value ? 'khmer'.tr : 'english'.tr;
   }
 
   List<Widget> _buildAdminMenu(BuildContext context) {
     return [
-      _buildSectionHeader('Admin Panel'),
+      _buildSectionHeader('admin_panel'.tr),
       _buildMenuItem(
         icon: Icons.dashboard,
-        title: 'Dashboard',
+        title: 'dashboard'.tr,
         onTap: () => Get.offAllNamed(Routes.ADMIN_BOTTOM_NAV),
       ),
       _buildMenuItem(
         icon: Icons.people,
-        title: 'Manage Users',
+        title: 'manage_users'.tr,
         onTap: () {
           Get.back();
           Get.toNamed(Routes.ADMIN_MANAGE_USER);
@@ -201,7 +249,7 @@ class AppDrawerWidget extends StatelessWidget {
       ),
       _buildMenuItem(
         icon: Icons.article,
-        title: 'Manage Articles',
+        title: 'manage_articles'.tr,
         onTap: () {
           Get.back();
           Get.toNamed(Routes.ADMIN_MANAGE_ARTICLE);
@@ -209,7 +257,7 @@ class AppDrawerWidget extends StatelessWidget {
       ),
       _buildMenuItem(
         icon: Icons.category,
-        title: 'Manage Categories',
+        title: 'manage_categories'.tr,
         onTap: () {
           Get.back();
           Get.toNamed(Routes.ADMIN_MANAGE_CATEGORY);
@@ -217,7 +265,7 @@ class AppDrawerWidget extends StatelessWidget {
       ),
       _buildMenuItem(
         icon: Icons.bar_chart,
-        title: 'Reports & Analytics',
+        title: 'reports_analytics'.tr,
         onTap: () {
           Get.back();
           Get.toNamed(Routes.ADMIN_ANALYTICS);
@@ -228,15 +276,15 @@ class AppDrawerWidget extends StatelessWidget {
 
   List<Widget> _buildOrganizationMenu(BuildContext context) {
     return [
-      _buildSectionHeader('Organization'),
+      _buildSectionHeader('organization'.tr),
       _buildMenuItem(
         icon: Icons.home,
-        title: 'Home',
+        title: 'home'.tr,
         onTap: () => Get.offAllNamed(Routes.ORG_BOTTOM_NAV),
       ),
       _buildMenuItem(
         icon: Icons.article,
-        title: 'My Articles',
+        title: 'my_articles'.tr,
         onTap: () {
           Get.back();
           Get.toNamed(Routes.ORG_MANAGE_ARTICLE);
@@ -244,7 +292,7 @@ class AppDrawerWidget extends StatelessWidget {
       ),
       _buildMenuItem(
         icon: Icons.group,
-        title: 'Team',
+        title: 'team'.tr,
         onTap: () {
           Get.back();
           Get.toNamed(Routes.ORG_TEAM);
@@ -252,7 +300,7 @@ class AppDrawerWidget extends StatelessWidget {
       ),
       _buildMenuItem(
         icon: Icons.analytics,
-        title: 'Reports',
+        title: 'reports'.tr,
         onTap: () {
           Get.back();
           Get.toNamed(Routes.ORG_REPORT);
@@ -260,7 +308,7 @@ class AppDrawerWidget extends StatelessWidget {
       ),
       _buildMenuItem(
         icon: Icons.person,
-        title: 'Profile',
+        title: 'profile'.tr,
         onTap: () {
           Get.back();
           Get.toNamed(Routes.ORG_PROFILE);
@@ -271,15 +319,15 @@ class AppDrawerWidget extends StatelessWidget {
 
   List<Widget> _buildUserMenu(BuildContext context) {
     return [
-      _buildSectionHeader('Menu'),
+      _buildSectionHeader('menu'.tr),
       _buildMenuItem(
         icon: Icons.home,
-        title: 'Home',
+        title: 'home'.tr,
         onTap: () => Get.offAllNamed(Routes.USER_BOTTOM_NAV),
       ),
       _buildMenuItem(
         icon: Icons.search,
-        title: 'Search',
+        title: 'search'.tr,
         onTap: () {
           Get.back();
           Get.toNamed(Routes.USER_SEARCH);
@@ -287,7 +335,7 @@ class AppDrawerWidget extends StatelessWidget {
       ),
       _buildMenuItem(
         icon: Icons.bookmark,
-        title: 'Saved Articles',
+        title: 'saved_articles'.tr,
         onTap: () {
           Get.back();
           Get.toNamed(Routes.USER_BOOKMARK);
@@ -295,7 +343,7 @@ class AppDrawerWidget extends StatelessWidget {
       ),
       _buildMenuItem(
         icon: Icons.person,
-        title: 'Profile',
+        title: 'profile'.tr,
         onTap: () {
           Get.back();
           Get.toNamed(Routes.USER_PROFILE);
@@ -382,13 +430,13 @@ class AppDrawerWidget extends StatelessWidget {
               color: Colors.red.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.logout, color: Colors.red),
                 SizedBox(width: 8),
                 Text(
-                  'Logout',
+                  'logout'.tr,
                   style: TextStyle(
                     color: Colors.red,
                     fontSize: 16,
@@ -406,7 +454,7 @@ class AppDrawerWidget extends StatelessWidget {
   void _navigateToSettings(BuildContext context) {
     Get.back();
     // Navigate to settings page
-    Get.snackbar('Settings', 'Settings page coming soon');
+    Get.snackbar('settings'.tr, 'settings_coming_soon'.tr);
   }
 
   void _navigateToProfile(BuildContext context) {
@@ -414,7 +462,7 @@ class AppDrawerWidget extends StatelessWidget {
     // Navigate to profile based on role
     switch (userRole.toLowerCase()) {
       case 'admin':
-        Get.snackbar('Profile', 'Admin profile page coming soon');
+        Get.snackbar('profile'.tr, 'admin_profile_coming_soon'.tr);
         break;
       case 'organization':
         Get.toNamed(Routes.ORG_PROFILE);
@@ -429,12 +477,12 @@ class AppDrawerWidget extends StatelessWidget {
     final languageController = Get.find<LanguageController>();
     Get.dialog(
       AlertDialog(
-        title: const Text('Select Language'),
+        title: Text('select_language'.tr),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Obx(() => ListTile(
-              title: const Text('English'),
+              title: Text('english'.tr),
               leading: languageController.isKhmer.value 
                   ? null 
                   : const Icon(Icons.check, color: Colors.green),
@@ -444,7 +492,7 @@ class AppDrawerWidget extends StatelessWidget {
               },
             )),
             Obx(() => ListTile(
-              title: const Text('ភាសាខ្មែរ (Khmer)'),
+              title: Text('khmer'.tr),
               leading: languageController.isKhmer.value 
                   ? const Icon(Icons.check, color: Colors.green) 
                   : null,
@@ -458,7 +506,7 @@ class AppDrawerWidget extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Close'),
+            child: Text('close'.tr),
           ),
         ],
       ),
@@ -482,12 +530,12 @@ class AppDrawerWidget extends StatelessWidget {
   void _logout(BuildContext context) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text('logout'.tr),
+        content: Text('logout_confirm'.tr),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel'),
+            child: Text('cancel'.tr),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -499,7 +547,7 @@ class AppDrawerWidget extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text('Logout', style: TextStyle(color: Colors.white)),
+            child: Text('logout'.tr, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),

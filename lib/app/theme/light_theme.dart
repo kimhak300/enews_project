@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:newshub/app/constants/app_colors.dart';
 import 'package:newshub/app/theme/theme_constant/text_theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
@@ -24,7 +25,8 @@ final ThemeData lightTheme = ThemeData(
     elevation: 0,
     centerTitle: true,
   ),
-  textTheme: AppTextTheme.lightTextTheme,
+  textTheme:
+      GoogleFonts.getTextTheme('Kantumruy Pro', AppTextTheme.lightTextTheme),
   cardTheme: CardThemeData(
     color: AppColors.surface,
     shadowColor: AppColors.shadow,

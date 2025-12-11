@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:newshub/app/constants/app_colors.dart';
 import 'package:newshub/app/theme/theme_constant/text_theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
@@ -21,8 +22,11 @@ final ThemeData darkTheme = ThemeData(
   appBarTheme: const AppBarTheme(
     backgroundColor: AppColors.primaryDark,
     foregroundColor: Colors.white,
+    elevation: 0,
+    centerTitle: true,
   ),
-  textTheme: AppTextTheme.darkTextTheme,
+  textTheme:
+      GoogleFonts.getTextTheme('Kantumruy Pro', AppTextTheme.lightTextTheme),
   cardTheme: CardThemeData(
     color: AppColors.surfaceDark,
     shadowColor: AppColors.shadow,

@@ -37,6 +37,7 @@ analyzer:
     unused_local_variable: ignore
     unnecessary_to_list_in_spreads: ignore
     body_might_complete_normally_nullable: ignore
+    sized_box_for_whitespace: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:

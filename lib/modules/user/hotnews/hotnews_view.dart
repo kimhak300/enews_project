@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:newshub/app/config/api_constants.dart';
 import 'package:newshub/modules/user/hotnews/hotnews_controller.dart';
 import 'package:newshub/data/models/article_model.dart';
 
@@ -12,13 +13,13 @@ class HotNewsView extends GetView<HotNewsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Hot News'),
+        title: Text('hot_news'.tr),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor ?? Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor ?? Theme.of(context).colorScheme.onPrimary,
       ),
       body: Obx(() {
         if (controller.isLoading.value && controller.hotNews.isEmpty) {
@@ -40,7 +41,7 @@ class HotNewsView extends GetView<HotNewsController> {
                 SizedBox(height: 16.h),
                 ElevatedButton(
                   onPressed: controller.refresh,
-                  child: const Text('Retry'),
+                  child: Text('retry'.tr),
                 ),
               ],
             ),
@@ -55,7 +56,7 @@ class HotNewsView extends GetView<HotNewsController> {
                 Icon(Icons.local_fire_department_outlined, size: 64.sp, color: Colors.grey),
                 SizedBox(height: 16.h),
                 Text(
-                  'No hot news available',
+                  'no_hot_news'.tr,
                   style: TextStyle(
                     fontSize: 16.sp,
                     color: Colors.grey[600],
@@ -93,7 +94,7 @@ class HotNewsView extends GetView<HotNewsController> {
                 }
 
                 final news = controller.hotNews[index];
-                return _buildHotNewsCard(news);
+                return _buildHotNewsCard(context, news);
               },
             ),
           ),
@@ -102,7 +103,7 @@ class HotNewsView extends GetView<HotNewsController> {
     );
   }
 
-  Widget _buildHotNewsCard(ArticleModel news) {
+  Widget _buildHotNewsCard(BuildContext context, ArticleModel news) {
     // Get cover image from media list
     String? coverImage;
     if (news.media != null && news.media!.isNotEmpty) {
@@ -130,13 +131,13 @@ class HotNewsView extends GetView<HotNewsController> {
                 Container(
                   height: 120.h,
                   width: 120.w,
-                  color: Colors.grey[300],
+                  color: Theme.of(context).colorScheme.surface,
                   child: coverImage != null
                       ? _buildImage(coverImage)
                       : Icon(
                           Icons.newspaper,
                           size: 36.sp,
-                          color: Colors.grey[500],
+                          color: Theme.of(context).disabledColor,
                         ),
                 ),
                 // Hot badge
@@ -146,18 +147,18 @@ class HotNewsView extends GetView<HotNewsController> {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
                     decoration: BoxDecoration(
-                      color: Colors.orange,
+                      color: Theme.of(context).colorScheme.secondary,
                       borderRadius: BorderRadius.circular(4.r),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.local_fire_department, color: Colors.white, size: 12.sp),
+                        Icon(Icons.local_fire_department, color: Theme.of(context).colorScheme.onSecondary, size: 12.sp),
                         SizedBox(width: 2.w),
                         Text(
-                          'HOT',
+                          'hot'.tr,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onSecondary,
                             fontSize: 9.sp,
                             fontWeight: FontWeight.bold,
                           ),
@@ -190,7 +191,7 @@ class HotNewsView extends GetView<HotNewsController> {
                         news.subtitle!,
                         style: TextStyle(
                           fontSize: 12.sp,
-                          color: Colors.grey[600],
+                          color: Theme.of(context).textTheme.bodyMedium?.color,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -236,9 +237,14 @@ class HotNewsView extends GetView<HotNewsController> {
         return Icon(Icons.broken_image, size: 36.sp, color: Colors.grey[500]);
       }
     } else {
-      // URL image
+      // URL image - convert relative paths to full URLs
+      String imageUrl = imageData;
+      if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
+        imageUrl = '${ApiConstants.mediaBaseUrl}${imageUrl.startsWith('/') ? imageUrl : '/$imageUrl'}';
+      }
+      
       return Image.network(
-        imageData,
+        imageUrl,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,

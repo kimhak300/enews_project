@@ -8,10 +8,10 @@ class AddUserBottomSheet extends StatefulWidget {
   const AddUserBottomSheet({super.key});
 
   @override
-  State<AddUserBottomSheet> createState() => AddUserBottomSheetState();
+  State<AddUserBottomSheet> createState() => _AddUserBottomSheetState();
 }
 
-class AddUserBottomSheetState extends State<AddUserBottomSheet> {
+class _AddUserBottomSheetState extends State<AddUserBottomSheet> {
   final _formKey = GlobalKey<FormState>();
 
   // Controllers
@@ -23,7 +23,7 @@ class AddUserBottomSheetState extends State<AddUserBottomSheet> {
   bool isActive = true;
   DateTime? createdAt;
   String? selectedRole;
-  List<String> roles = ["Admin", "Organizer", "User"];
+  final List<String> roles = ['Admin', 'Organizer', 'User'];
 
   // Image File
   File? imageFile;
@@ -33,9 +33,7 @@ class AddUserBottomSheetState extends State<AddUserBottomSheet> {
   final UserController userController = Get.put(UserController());
 
   Future<void> pickImage() async {
-    final XFile? pickedFile =
-    await _picker.pickImage(source: ImageSource.gallery);
-
+    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() => imageFile = File(pickedFile.path));
     }
@@ -48,23 +46,25 @@ class AddUserBottomSheetState extends State<AddUserBottomSheet> {
       lastDate: DateTime(2100),
       initialDate: DateTime.now(),
     );
-
     if (picked != null) setState(() => createdAt = picked);
   }
 
-  InputDecoration _input(String label) {
+  InputDecoration _input(String label, ThemeData theme) {
     return InputDecoration(
-      labelText: label,
+      labelText: label.tr,
+      labelStyle: theme.inputDecorationTheme.labelStyle ?? TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.78)),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.14))),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.primary)),
       filled: true,
-      fillColor: Colors.grey.shade100,
+      fillColor: theme.inputDecorationTheme.fillColor ?? theme.colorScheme.surfaceVariant,
     );
   }
 
   void _saveUser() async {
     if (!_formKey.currentState!.validate()) return;
     if (selectedRole == null) {
-      Get.snackbar("Role Required", "Please select a role");
+      Get.snackbar('role_required'.tr, 'please_select_role'.tr);
       return;
     }
 
@@ -76,165 +76,148 @@ class AddUserBottomSheetState extends State<AddUserBottomSheet> {
       isActive: isActive,
       avatarFile: imageFile,
     );
+    if (mounted) Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Handle
-          Center(
-            child: Container(
-              width: 50,
-              height: 5,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade400,
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-
-          Text(
-            "Create User",
-            style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 20),
-
-          // Profile Image Picker
-          Text(
-            "Profile Image",
-            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Center(
-            child: InkWell(
-              onTap: pickImage,
-              child: CircleAvatar(
-                radius: 55,
-                backgroundColor: Colors.grey.shade200,
-                backgroundImage:
-                imageFile != null ? FileImage(imageFile!) : null,
-                child: imageFile == null
-                    ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.camera_alt,
-                        size: 35, color: Colors.grey),
-                    const SizedBox(height: 6),
-                    Text(
-                      "Tap to add",
-                      style: textTheme.bodyMedium,
-                    )
-                  ],
-                )
-                    : null,
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Email
-          TextFormField(
-            controller: emailController,
-            validator: (v) =>
-            (v == null || v.isEmpty) ? "Email is required" : null,
-            decoration: _input("Email"),
-          ),
-          const SizedBox(height: 16),
-
-          // Password
-          TextFormField(
-            controller: passwordController,
-            obscureText: true,
-            validator: (v) =>
-            (v == null || v.isEmpty) ? "Password is required" : null,
-            decoration: _input("Password"),
-          ),
-          const SizedBox(height: 16),
-
-          // Display Name
-          TextFormField(
-            controller: displayNameController,
-            validator: (v) =>
-            (v == null || v.isEmpty) ? "Display name is required" : null,
-            decoration: _input("Display Name"),
-          ),
-          const SizedBox(height: 16),
-
-          // Account Status
-          Text(
-            "Account Status",
-            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          Row(
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Radio(
-                value: true,
-                groupValue: isActive,
-                onChanged: (v) => setState(() => isActive = v!),
+              // Handle
+              Center(
+                child: Container(
+                  width: 50,
+                  height: 5,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.onSurface.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
               ),
-              Text("Active", style: textTheme.bodyMedium),
-              Radio(
-                value: false,
-                groupValue: isActive,
-                onChanged: (v) => setState(() => isActive = v!),
+              Text('create_user'.tr, style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 14),
+
+              // Profile Image Picker
+              Text('profile_image'.tr, style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Center(
+                child: InkWell(
+                  onTap: pickImage,
+                  child: CircleAvatar(
+                    radius: 55,
+                    backgroundColor: theme.colorScheme.surfaceVariant.withOpacity(0.6),
+                    backgroundImage: imageFile != null ? FileImage(imageFile!) : null,
+                    child: imageFile == null
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.camera_alt, size: 32, color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                              const SizedBox(height: 8),
+                              Text('tap_to_add'.tr, style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.9))),
+                            ],
+                          )
+                        : null,
+                  ),
+                ),
               ),
-              Text("Inactive", style: textTheme.bodyMedium),
+              const SizedBox(height: 18),
+
+              // Email
+              TextFormField(
+                controller: emailController,
+                validator: (v) => (v == null || v.isEmpty) ? 'email_required'.tr : null,
+                decoration: _input('email'.tr, theme).copyWith(
+                  prefixIcon: Icon(Icons.email, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                ),
+                keyboardType: TextInputType.emailAddress,
+                style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95)),
+              ),
+              const SizedBox(height: 12),
+
+              // Password
+              TextFormField(
+                controller: passwordController,
+                obscureText: true,
+                validator: (v) => (v == null || v.isEmpty) ? 'password_required'.tr : null,
+                decoration: _input('password'.tr, theme).copyWith(
+                  prefixIcon: Icon(Icons.lock, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                ),
+                style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95)),
+              ),
+              const SizedBox(height: 12),
+
+              // Display Name
+              TextFormField(
+                controller: displayNameController,
+                validator: (v) => (v == null || v.isEmpty) ? 'display_name_required'.tr : null,
+                decoration: _input('display_name'.tr, theme).copyWith(
+                  prefixIcon: Icon(Icons.person, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                ),
+                style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95)),
+              ),
+              const SizedBox(height: 12),
+
+              // Account Status
+              Text('account_status'.tr, style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+              Row(
+                children: [
+                  Radio<bool>(value: true, groupValue: isActive, activeColor: theme.colorScheme.primary, onChanged: (v) => setState(() => isActive = v ?? true)),
+                  Text('active'.tr, style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95))),
+                  Radio<bool>(value: false, groupValue: isActive, activeColor: theme.colorScheme.primary, onChanged: (v) => setState(() => isActive = v ?? false)),
+                  Text('inactive'.tr, style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95))),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              // Role Dropdown
+              DropdownButtonFormField<String>(
+                decoration: _input('select_role'.tr, theme),
+                value: selectedRole,
+                dropdownColor: theme.colorScheme.surface,
+                style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95)),
+                iconEnabledColor: theme.colorScheme.onSurface.withOpacity(0.7),
+                items: roles.map((role) => DropdownMenuItem(value: role, child: Text(role.tr, style: textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.95))))).toList(),
+                onChanged: (value) => setState(() => selectedRole = value),
+              ),
+              const SizedBox(height: 18),
+
+              // Save Button
+              SizedBox(
+                width: double.infinity,
+                child: Obx(() {
+                  return ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      backgroundColor: theme.colorScheme.primary,
+                    ),
+                    onPressed: userController.isLoading.value ? null : _saveUser,
+                    child: userController.isLoading.value
+                        ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: theme.colorScheme.onPrimary, strokeWidth: 2))
+                        : Text('save_user'.tr, style: textTheme.titleMedium?.copyWith(color: theme.colorScheme.onPrimary, fontWeight: FontWeight.bold)),
+                  );
+                }),
+              ),
+              const SizedBox(height: 8),
             ],
           ),
-          const SizedBox(height: 16),
-
-          // Role Dropdown
-          DropdownButtonFormField<String>(
-            decoration: _input("Select Role"),
-            value: selectedRole,
-            items: roles.map((role) {
-              return DropdownMenuItem(
-                value: role,
-                child: Text(role, style: textTheme.bodyMedium),
-              );
-            }).toList(),
-            onChanged: (value) => setState(() => selectedRole = value),
-          ),
-          const SizedBox(height: 24),
-
-          // Save Button
-          SizedBox(
-            width: double.infinity,
-            child: Obx(() {
-              return ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  backgroundColor: Colors.blueAccent,
-                ),
-                onPressed: userController.isLoading.value ? null : _saveUser,
-                child: userController.isLoading.value
-                    ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
-                )
-                    : Text(
-                  "Save User",
-                  style: textTheme.titleMedium?.copyWith(
-                      color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-              );
-            }),
-          ),
-          const SizedBox(height: 30),
-        ],
+        ),
       ),
     );
   }

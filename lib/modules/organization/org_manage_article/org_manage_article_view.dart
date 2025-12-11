@@ -8,8 +8,10 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Manage Articles'),
         actions: [
@@ -47,7 +49,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
             // Search and Filter Bar
             Container(
               padding: EdgeInsets.all(16.w),
-              color: Colors.white,
+              color: theme.colorScheme.surface,
               child: Column(
                 children: [
                   // Search Bar
@@ -57,7 +59,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                       prefixIcon: const Icon(Icons.search),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.r),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
+                        borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12)),
                       ),
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 16.w,
@@ -70,11 +72,11 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                   // Status Filter
                   Row(
                     children: [
-                      _buildFilterChip('All', 'all'),
+                      _buildFilterChip(context, 'All', 'all'),
                       SizedBox(width: 8.w),
-                      _buildFilterChip('Published', 'published'),
+                      _buildFilterChip(context, 'Published', 'published'),
                       SizedBox(width: 8.w),
-                      _buildFilterChip('Draft', 'draft'),
+                      _buildFilterChip(context, 'Draft', 'draft'),
                     ],
                   ),
                 ],
@@ -112,9 +114,9 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                       child: ListView.builder(
                         padding: EdgeInsets.all(16.w),
                         itemCount: controller.filteredArticles.length,
-                        itemBuilder: (context, index) {
+                          itemBuilder: (context, index) {
                           final article = controller.filteredArticles[index];
-                          return _buildArticleCard(article);
+                          return _buildArticleCard(context, article);
                         },
                       ),
                     ),
@@ -129,29 +131,31 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
     );
   }
 
-  Widget _buildFilterChip(String label, String value) {
+  Widget _buildFilterChip(BuildContext context, String label, String value) {
+    final theme = Theme.of(context);
     return Obx(() {
       final isSelected = controller.selectedStatus.value == value;
       return FilterChip(
-        label: Text(label),
+        label: Text(label, style: theme.textTheme.bodySmall),
         selected: isSelected,
         onSelected: (_) => controller.setStatusFilter(value),
-        backgroundColor: Colors.grey[200],
-        selectedColor: Colors.blue[100],
-        checkmarkColor: Colors.blue,
+        backgroundColor: theme.colorScheme.surfaceVariant,
+        selectedColor: theme.colorScheme.primaryContainer,
+        checkmarkColor: theme.colorScheme.onPrimary,
       );
     });
   }
 
-  Widget _buildArticleCard(Map<String, dynamic> article) {
+  Widget _buildArticleCard(BuildContext context, Map<String, dynamic> article) {
+    final theme = Theme.of(context);
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: theme.colorScheme.onSurface.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -169,7 +173,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                 width: 80.w,
                 height: 80.w,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: theme.colorScheme.surfaceVariant,
                   borderRadius: BorderRadius.circular(8.r),
                   image: article['cover_image'] != null
                       ? DecorationImage(
@@ -179,7 +183,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                       : null,
                 ),
                 child: article['cover_image'] == null
-                    ? Icon(Icons.article, size: 32.sp, color: Colors.grey[600])
+                    ? Icon(Icons.article, size: 32.sp, color: theme.colorScheme.onSurface.withOpacity(0.7))
                     : null,
               ),
               SizedBox(width: 12.w),
@@ -191,11 +195,8 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                   children: [
                     Text(
                       article['title'] ?? 'Untitled',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
+                      style: theme.textTheme.titleMedium?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.w600) ??
+                          TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -209,32 +210,30 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                             vertical: 4.h,
                           ),
                           decoration: BoxDecoration(
-                            color: article['status'] == 'published'
-                                ? Colors.green.withOpacity(0.1)
-                                : Colors.orange.withOpacity(0.1),
+                            color: (article['status'] == 'published'
+                                    ? theme.colorScheme.primary
+                                    : theme.colorScheme.secondary)
+                                .withOpacity(0.12),
                             borderRadius: BorderRadius.circular(4.r),
                           ),
                           child: Text(
                             article['status'] ?? 'draft',
-                            style: TextStyle(
-                              fontSize: 11.sp,
-                              color: article['status'] == 'published'
-                                  ? Colors.green
-                                  : Colors.orange,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                                  fontSize: 11.sp,
+                                  color: article['status'] == 'published' ? theme.colorScheme.primary : theme.colorScheme.secondary,
+                                  fontWeight: FontWeight.w600,
+                                ) ??
+                                TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface),
                           ),
                         ),
                         SizedBox(width: 8.w),
                         // Views Count
-                        Icon(Icons.visibility, size: 14.sp, color: Colors.grey),
+                        Icon(Icons.visibility, size: 14.sp, color: theme.colorScheme.onSurface.withOpacity(0.7)),
                         SizedBox(width: 4.w),
                         Text(
                           '${article['views_count'] ?? 0}',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: Colors.grey[600],
-                          ),
+                          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7)) ??
+                              TextStyle(fontSize: 12.sp, color: theme.colorScheme.onSurface.withOpacity(0.7)),
                         ),
                       ],
                     ),
@@ -252,23 +251,23 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                   }
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'edit',
                     child: Row(
                       children: [
-                        Icon(Icons.edit, size: 20),
+                        Icon(Icons.edit, size: 20, color: theme.colorScheme.onSurface),
                         SizedBox(width: 8),
-                        Text('Edit'),
+                        Text('Edit', style: theme.textTheme.bodyMedium),
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'delete',
                     child: Row(
                       children: [
-                        Icon(Icons.delete, size: 20, color: Colors.red),
+                        Icon(Icons.delete, size: 20, color: theme.colorScheme.error),
                         SizedBox(width: 8),
-                        Text('Delete', style: TextStyle(color: Colors.red)),
+                        Text('Delete', style: TextStyle(color: theme.colorScheme.error)),
                       ],
                     ),
                   ),

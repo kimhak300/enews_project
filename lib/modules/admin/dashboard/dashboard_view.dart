@@ -3,8 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newshub/app/constants/app_constant.dart';
-import 'package:newshub/app/theme/app_theme.dart';
 import 'package:newshub/app/widget/app_drawer_widget.dart';
+import 'package:newshub/modules/auth/services/auth_service.dart';
+import 'package:newshub/data/models/user_model.dart';
 import 'package:newshub/data/models/stats_model.dart';
 import 'package:newshub/modules/admin/dashboard/dashboard_controller.dart';
 
@@ -13,26 +14,41 @@ class DashboardView extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Dashboard'),
-        backgroundColor: AppTheme.primaryColor,
-        foregroundColor: Colors.white,
+        title: Text('admin_dashboard'.tr),
+        backgroundColor: theme.appBarTheme.backgroundColor ?? theme.colorScheme.primary,
+        foregroundColor: theme.appBarTheme.foregroundColor ?? theme.colorScheme.onPrimary,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: Icon(Icons.refresh, color: theme.iconTheme.color),
             onPressed: controller.refresh,
           ),
         ],
       ),
-      drawer: const AppDrawerWidget(
-        userRole: 'admin',
-        userName: 'Admin User',
-        userEmail: 'admin@enews.com',
+      drawer: FutureBuilder<UserModel?>(
+        future: AuthService().getSavedUser(),
+        builder: (context, snapshot) {
+          final user = snapshot.data;
+          final role = user?.primaryRole ?? 'user';
+          final name = user?.name ?? 'Guest';
+          final email = user?.email ?? '';
+          final avatar = user?.avatarUrl;
+
+          // Render drawer with dynamic values; while loading, show minimal drawer
+          return AppDrawerWidget(
+            userRole: role,
+            userName: name,
+            userEmail: email,
+            userAvatar: avatar,
+          );
+        },
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator(color: theme.colorScheme.primary));
         }
 
         if (controller.errorMessage.value.isNotEmpty) {
@@ -40,17 +56,17 @@ class DashboardView extends GetView<DashboardController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
+                Icon(Icons.error_outline, size: 64, color: theme.colorScheme.onSurface.withOpacity(0.4)),
                 const SizedBox(height: 16),
                 Text(
                   controller.errorMessage.value,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: controller.refresh,
-                  child: const Text('Retry'),
+                  child: Text('retry'.tr),
                 ),
               ],
             ),
@@ -66,19 +82,19 @@ class DashboardView extends GetView<DashboardController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Stats Cards Grid
-                _buildStatsGrid(),
+                _buildStatsGrid(context),
                 const SizedBox(height: 24),
 
                 // Recent Users Section
-                _buildSectionTitle('Recent Users'),
+                _buildSectionTitle(context, 'recent_users'.tr),
                 const SizedBox(height: 12),
-                _buildRecentUsersList(),
+                _buildRecentUsersList(context),
                 const SizedBox(height: 24),
 
                 // Recent Articles Section
-                _buildSectionTitle('Recent Articles'),
+                _buildSectionTitle(context, 'recent_articles'.tr),
                 const SizedBox(height: 12),
-                _buildRecentArticlesList(),
+                _buildRecentArticlesList(context),
               ],
             ),
           ),
@@ -87,7 +103,8 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildStatsGrid() {
+  Widget _buildStatsGrid(BuildContext context) {
+    final theme = Theme.of(context);
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -97,28 +114,32 @@ class DashboardView extends GetView<DashboardController> {
       childAspectRatio: 1.5,
       children: [
         _buildStatCard(
-          title: 'Total Users',
+          title: 'total_users'.tr,
           value: controller.totalUsers.value.toString(),
           icon: Icons.people,
-          color: Colors.blue,
+          color: theme.colorScheme.primary,
+          context: context,
         ),
         _buildStatCard(
-          title: 'Total Articles',
+          title: 'total_articles'.tr,
           value: controller.totalArticles.value.toString(),
           icon: Icons.article,
-          color: Colors.green,
+          color: theme.colorScheme.secondary,
+          context: context,
         ),
         _buildStatCard(
-          title: 'Categories',
+          title: 'categories'.tr,
           value: controller.totalCategories.value.toString(),
           icon: Icons.category,
-          color: Colors.orange,
+          color: theme.colorScheme.primaryContainer,
+          context: context,
         ),
         _buildStatCard(
-          title: 'Tags',
+          title: 'tags'.tr,
           value: controller.totalTags.value.toString(),
           icon: Icons.tag,
-          color: Colors.purple,
+          color: theme.colorScheme.secondaryContainer,
+          context: context,
         ),
       ],
     );
@@ -129,13 +150,16 @@ class DashboardView extends GetView<DashboardController> {
     required String value,
     required IconData icon,
     required Color color,
+    required BuildContext context,
   }) {
+    final theme = Theme.of(context);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.06)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,59 +169,50 @@ class DashboardView extends GetView<DashboardController> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
-              ),
+              Text(value, style: theme.textTheme.titleLarge?.copyWith(fontSize: 24, fontWeight: FontWeight.bold, color: color)),
+              Text(title, style: theme.textTheme.bodySmall?.copyWith(fontSize: 12, color: theme.colorScheme.onSurface.withOpacity(0.7))),
             ],
           ),
         ],
       ),
     );
   }
-
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Text(
+        title,
+        style: theme.textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.bold,
+          fontSize: (theme.textTheme.titleMedium?.fontSize ?? 16) + 2,
+          color: theme.colorScheme.onSurface.withOpacity(0.92),
+        ),
       ),
     );
   }
 
-  Widget _buildRecentUsersList() {
+  Widget _buildRecentUsersList(BuildContext context) {
     if (controller.recentUsers.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.grey[100],
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Center(
-          child: Text('No recent users'),
+        child: Center(
+          child: Text('no_recent_users'.tr, style: Theme.of(context).textTheme.bodyMedium),
         ),
       );
     }
-
+    
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Theme.of(context).shadowColor.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -207,7 +222,7 @@ class DashboardView extends GetView<DashboardController> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: controller.recentUsers.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
+        separatorBuilder: (_, __) => Divider(height: 1, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.12), thickness: 1),
         itemBuilder: (context, index) {
           final user = controller.recentUsers[index];
           final avatarUrl = user.avatar != null && user.avatar!.isNotEmpty
@@ -215,26 +230,23 @@ class DashboardView extends GetView<DashboardController> {
                   ? user.avatar!
                   : '${AppConstants.STORAGE_BASE_URL}${user.avatar}')
               : null;
-          
+
           return ListTile(
             leading: CircleAvatar(
-              backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+              backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.08),
               backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
               child: avatarUrl == null
                   ? Text(
                       user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
-                      style: TextStyle(color: AppTheme.primaryColor),
+                      style: TextStyle(color: Theme.of(context).colorScheme.primary),
                     )
                   : null,
             ),
-            title: Text(user.name),
-            subtitle: Text(user.email),
+            title: Text(user.name, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.95))),
+            subtitle: Text(user.email, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.80))),
             trailing: Text(
               _formatDateTime(user.createdAt),
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85)),
             ),
           );
         },
@@ -242,27 +254,26 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildRecentArticlesList() {
+  Widget _buildRecentArticlesList(BuildContext context) {
     if (controller.recentArticles.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.grey[100],
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: const Center(
-          child: Text('No recent articles'),
-        ),
+        child: Center(child: Text('no_recent_articles'.tr, style: Theme.of(context).textTheme.bodyMedium)),
       );
     }
 
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: theme.shadowColor.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -276,18 +287,19 @@ class DashboardView extends GetView<DashboardController> {
         separatorBuilder: (_, __) => const SizedBox(height: 16),
         itemBuilder: (context, index) {
           final article = controller.recentArticles[index];
-          return _buildArticleCard(article);
+          return _buildArticleCard(context, article);
         },
       ),
     );
   }
 
-  Widget _buildArticleCard(RecentArticle article) {
+  Widget _buildArticleCard(BuildContext context, RecentArticle article) {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.06)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,11 +311,11 @@ class DashboardView extends GetView<DashboardController> {
               bottomLeft: Radius.circular(12),
             ),
             child: Container(
-              width: 100,
-              height: 100,
-              color: Colors.grey[200],
-              child: _buildCoverImage(article.coverImage),
-            ),
+                width: 100,
+                height: 100,
+                color: theme.colorScheme.surfaceVariant,
+                child: _buildCoverImage(context, article.coverImage),
+              ),
           ),
           // Content
           Expanded(
@@ -317,23 +329,13 @@ class DashboardView extends GetView<DashboardController> {
                     article.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      height: 1.3,
-                    ),
+                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, height: 1.3, color: theme.colorScheme.onSurface.withOpacity(0.95)),
                   ),
                   const SizedBox(height: 8),
                   // Date and Status
                   Row(
                     children: [
-                      Text(
-                        _formatArticleDate(article.publishedAt ?? article.createdAt),
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[600],
-                        ),
-                      ),
+                      Text(_formatArticleDate(article.publishedAt ?? article.createdAt), style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.85))),
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -341,8 +343,7 @@ class DashboardView extends GetView<DashboardController> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(article.status ?? 'draft')
-                              .withOpacity(0.1),
+                          color: _getStatusColor(article.status ?? 'draft').withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -365,16 +366,16 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  Widget _buildCoverImage(String? imageData) {
+  Widget _buildCoverImage(BuildContext context, String? imageData) {
     if (imageData == null || imageData.isEmpty) {
-      return _buildPlaceholderImage();
+      return _buildPlaceholderImage(context);
     }
 
     // Skip video files - they can't be displayed as images
     final lowerData = imageData.toLowerCase();
     if (lowerData.endsWith('.mp4') || lowerData.endsWith('.mov') || 
         lowerData.endsWith('.avi') || lowerData.endsWith('.webm')) {
-      return _buildVideoPlaceholder();
+      return _buildVideoPlaceholder(context);
     }
 
     // Check if it's a base64 string
@@ -387,10 +388,10 @@ class DashboardView extends GetView<DashboardController> {
           fit: BoxFit.cover,
           width: 100,
           height: 100,
-          errorBuilder: (_, __, ___) => _buildPlaceholderImage(),
+          errorBuilder: (_, __, ___) => _buildPlaceholderImage(context),
         );
       } catch (e) {
-        return _buildPlaceholderImage();
+        return _buildPlaceholderImage(context);
       }
     }
     
@@ -401,8 +402,8 @@ class DashboardView extends GetView<DashboardController> {
         fit: BoxFit.cover,
         width: 100,
         height: 100,
-        errorBuilder: (_, __, ___) => _buildPlaceholderImage(),
-        loadingBuilder: (context, child, loadingProgress) {
+        errorBuilder: (_, __, ___) => _buildPlaceholderImage(context),
+        loadingBuilder: (ctx, child, loadingProgress) {
           if (loadingProgress == null) return child;
           return Center(
             child: CircularProgressIndicator(
@@ -416,27 +417,29 @@ class DashboardView extends GetView<DashboardController> {
       );
     }
 
-    return _buildPlaceholderImage();
+    return _buildPlaceholderImage(context);
   }
 
-  Widget _buildVideoPlaceholder() {
+  Widget _buildVideoPlaceholder(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
-      color: Colors.grey[300],
+      color: theme.colorScheme.surfaceVariant,
       child: Icon(
         Icons.video_library,
         size: 40,
-        color: Colors.grey[500],
+        color: theme.colorScheme.onSurface.withOpacity(0.6),
       ),
     );
   }
 
-  Widget _buildPlaceholderImage() {
+  Widget _buildPlaceholderImage(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
-      color: Colors.grey[300],
+      color: theme.colorScheme.surfaceVariant,
       child: Icon(
         Icons.article,
         size: 40,
-        color: Colors.grey[500],
+        color: theme.colorScheme.onSurface.withOpacity(0.6),
       ),
     );
   }
@@ -462,26 +465,6 @@ class DashboardView extends GetView<DashboardController> {
         return Colors.blue;
       default:
         return Colors.grey;
-    }
-  }
-
-  String _formatDate(String dateString) {
-    try {
-      final date = DateTime.parse(dateString);
-      final now = DateTime.now();
-      final diff = now.difference(date);
-
-      if (diff.inDays == 0) {
-        return 'Today';
-      } else if (diff.inDays == 1) {
-        return 'Yesterday';
-      } else if (diff.inDays < 7) {
-        return '${diff.inDays} days ago';
-      } else {
-        return '${date.day}/${date.month}/${date.year}';
-      }
-    } catch (e) {
-      return dateString;
     }
   }
 

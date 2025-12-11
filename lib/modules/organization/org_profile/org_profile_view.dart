@@ -202,8 +202,8 @@ class OrgProfileView extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () => _logout(context),
                   icon: const Icon(Icons.logout),
-                  label: const Text(
-                    'Logout',
+                  label: Text(
+                    'logout'.tr,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -320,12 +320,12 @@ class OrgProfileView extends StatelessWidget {
   void _logout(BuildContext context) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text('logout'.tr),
+        content: Text('logout_confirm'.tr),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel'),
+            child: Text('cancel'.tr),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -351,8 +351,8 @@ class OrgProfileView extends StatelessWidget {
               
               // Show success message
               Get.snackbar(
-                'Logged Out',
-                'You have been successfully logged out',
+                'logged_out'.tr,
+                'logged_out_message'.tr,
                 snackPosition: SnackPosition.BOTTOM,
               );
             },
@@ -360,7 +360,7 @@ class OrgProfileView extends StatelessWidget {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Logout'),
+            child: Text('logout'.tr),
           ),
         ],
       ),
