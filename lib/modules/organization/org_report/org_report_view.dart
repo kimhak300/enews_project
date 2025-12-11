@@ -8,10 +8,12 @@ class OrgReportView extends GetView<OrgReportController> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Reports & Analytics'),
+        title: Text('reports_analytics'.tr),
+        backgroundColor: theme.colorScheme.primary,
+        elevation: 2,
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -38,240 +40,148 @@ class OrgReportView extends GetView<OrgReportController> {
 
         return RefreshIndicator(
           onRefresh: controller.refresh,
-          child: ListView(
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.all(16.w),
-            children: [
-              // Overview Stats
-              Text(
-                'Overview',
-                style: TextStyle(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'article_statistics'.tr,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
-              ),
-              SizedBox(height: 16.h),
+                SizedBox(height: 12.h),
 
-              // Stats Grid
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 12.h,
-                crossAxisSpacing: 12.w,
-                childAspectRatio: 1.3,
-                children: [
-                  _buildStatCard(
-                    'Total Articles',
-                    controller.totalArticles.value.toString(),
-                    Icons.article,
-                    Colors.blue,
-                  ),
-                  _buildStatCard(
-                    'Published',
-                    controller.publishedArticles.value.toString(),
-                    Icons.check_circle,
-                    Colors.green,
-                  ),
-                  _buildStatCard(
-                    'Drafts',
-                    controller.draftArticles.value.toString(),
-                    Icons.drafts,
-                    Colors.orange,
-                  ),
-                  _buildStatCard(
-                    'Total Views',
-                    controller.totalViews.value.toString(),
-                    Icons.visibility,
-                    Colors.purple,
-                  ),
-                ],
-              ),
-              SizedBox(height: 24.h),
-
-              // Engagement Metrics Section
-              Text(
-                'Engagement Metrics',
-                style: TextStyle(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              SizedBox(height: 16.h),
-
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 12.h,
-                crossAxisSpacing: 12.w,
-                childAspectRatio: 1.3,
-                children: [
-                  _buildStatCard(
-                    'Total Likes',
-                    controller.totalLikes.value.toString(),
-                    Icons.favorite,
-                    Colors.red,
-                  ),
-                  _buildStatCard(
-                    'Total Comments',
-                    controller.totalComments.value.toString(),
-                    Icons.comment,
-                    Colors.blue,
-                  ),
-                  _buildStatCard(
-                    'Total Shares',
-                    controller.totalShares.value.toString(),
-                    Icons.share,
-                    Colors.green,
-                  ),
-                  _buildStatCard(
-                    'Total Bookmarks',
-                    controller.totalBookmarks.value.toString(),
-                    Icons.bookmark,
-                    Colors.orange,
-                  ),
-                ],
-              ),
-              SizedBox(height: 32.h),
-
-              // Top Performing Articles
-              Text(
-                'Top Performing Articles',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              SizedBox(height: 16.h),
-
-              if (controller.topArticles.isEmpty)
-                Container(
-                  padding: EdgeInsets.all(24.w),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'No articles yet',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14.sp,
-                      ),
-                    ),
-                  ),
-                )
-              else
-                ...controller.topArticles.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final article = entry.value;
-                  return _buildTopArticleCard(article, index + 1);
-                }),
-
-              SizedBox(height: 32.h),
-
-              // Performance Chart Section (Placeholder)
-              Text(
-                'Performance Trends',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              SizedBox(height: 16.h),
-
-              Container(
-                padding: EdgeInsets.all(24.w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12.w,
+                  mainAxisSpacing: 12.h,
+                  childAspectRatio: 1.5,
                   children: [
-                    Icon(
-                      Icons.bar_chart,
-                      size: 64.sp,
-                      color: Colors.grey[400],
+                    _buildMetricCard(
+                      context,
+                      icon: Icons.favorite,
+                      color: Colors.red,
+                      title: 'total_likes'.tr,
+                      value: controller.totalLikes.value.toString(),
                     ),
-                    SizedBox(height: 16.h),
-                    Text(
-                      'Chart visualization coming soon',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: Colors.grey[600],
-                      ),
+                    _buildMetricCard(
+                      context,
+                      icon: Icons.comment,
+                      color: Colors.blue,
+                      title: 'total_comments'.tr,
+                      value: controller.totalComments.value.toString(),
                     ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      'Track your article performance over time',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: Colors.grey[500],
-                      ),
-                      textAlign: TextAlign.center,
+                    _buildMetricCard(
+                      context,
+                      icon: Icons.share,
+                      color: Colors.green,
+                      title: 'total_shares'.tr,
+                      value: controller.totalShares.value.toString(),
+                    ),
+                    _buildMetricCard(
+                      context,
+                      icon: Icons.bookmark,
+                      color: Colors.orange,
+                      title: 'total_bookmarks'.tr,
+                      value: controller.totalBookmarks.value.toString(),
                     ),
                   ],
                 ),
-              ),
-            ],
+                SizedBox(height: 12.h),
+
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12.w,
+                  mainAxisSpacing: 12.h,
+                  childAspectRatio: 1.5,
+                  children: [
+                    _buildMetricCard(
+                      context,
+                      icon: Icons.publish,
+                      color: Colors.teal,
+                      title: 'published'.tr,
+                      value: controller.publishedArticles.value.toString(),
+                    ),
+                    _buildMetricCard(
+                      context,
+                      icon: Icons.drafts,
+                      color: Colors.grey,
+                      title: 'drafts'.tr,
+                      value: controller.draftArticles.value.toString(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       }),
     );
   }
-
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
+  Widget _buildMetricCard(BuildContext context, {
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String value,
+  }) {
+    final theme = Theme.of(context);
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color, size: 24.sp),
-          Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 20.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+      child: Container(
+        padding: EdgeInsets.all(12.w),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.r),
+          gradient: LinearGradient(
+            colors: [color.withOpacity(0.12), theme.colorScheme.surfaceVariant],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          SizedBox(height: 2.h),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 10.sp,
-              color: Colors.black54,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              icon,
+              color: color,
+              size: 28.sp,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+            const Spacer(),
+            Text(
+              value,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            SizedBox(height: 2.h),
+            Text(
+              title,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontSize: 11.sp,
+                color: theme.colorScheme.onSurface.withOpacity(0.7),
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }

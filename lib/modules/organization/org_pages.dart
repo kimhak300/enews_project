@@ -4,7 +4,7 @@ import 'package:newshub/modules/organization/org_binding.dart';
 import 'package:newshub/modules/organization/org_bottom_nav.dart';
 import 'package:newshub/modules/organization/org_home/org_home_view.dart';
 import 'package:newshub/modules/organization/org_manage_article/org_manage_article_view.dart';
-import 'package:newshub/modules/organization/org_profile/org_profile_view.dart';
+import 'package:newshub/modules/organization/org_category/org_category_view.dart';
 import 'package:newshub/modules/organization/org_report/org_report_view.dart';
 import 'package:newshub/modules/organization/org_team/org_team_view.dart';
 

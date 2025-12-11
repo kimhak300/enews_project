@@ -40,8 +40,12 @@ class OrgReportController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
-      // Fetch engagement stats from backend
-      await fetchEngagementStats();
+      // Try admin stats endpoint first (admin can view organizer data)
+      final usedAdmin = await fetchAdminStatsIfAllowed();
+      if (!usedAdmin) {
+        // Fallback to organizer stats endpoint
+        await fetchEngagementStats();
+      }
 
       // Fetch articles
       final articlesResponse = await _apiService.getArticles();
@@ -119,7 +123,6 @@ class OrgReportController extends GetxController {
   Future<void> fetchEngagementStats() async {
     try {
       final token = box.read('token');
-      
       final response = await http.get(
         Uri.parse('${AppConfig.apiBaseUrl}/organizer/stats'),
         headers: {
@@ -127,7 +130,7 @@ class OrgReportController extends GetxController {
           'Accept': 'application/json',
         },
       );
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success'] == true) {
@@ -145,5 +148,39 @@ class OrgReportController extends GetxController {
     } catch (e) {
       print('Error fetching engagement stats: $e');
     }
+  }
+
+  /// Attempt to call admin stats endpoint. Returns true if admin stats used.
+  Future<bool> fetchAdminStatsIfAllowed() async {
+    try {
+      final token = box.read('token');
+      final response = await http.get(
+        Uri.parse('${AppConfig.apiBaseUrl}/admin/stats'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          final stats = data['data'];
+          totalLikes.value = stats['total_likes'] ?? 0;
+          totalComments.value = stats['total_comments'] ?? 0;
+          totalShares.value = stats['total_shares'] ?? 0;
+          totalBookmarks.value = stats['total_bookmarks'] ?? 0;
+          totalUsers.value = stats['total_users'] ?? 0;
+          totalArticles.value = stats['total_articles'] ?? 0;
+          publishedArticles.value = stats['published_articles'] ?? 0;
+          draftArticles.value = stats['draft_articles'] ?? 0;
+          return true;
+        }
+      }
+    } catch (e) {
+      // likely not authorized for admin endpoint - ignore and fallback
+      print('Admin stats fetch error or not allowed: $e');
+    }
+    return false;
   }
 }

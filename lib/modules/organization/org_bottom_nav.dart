@@ -10,9 +10,13 @@ class OrgBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final selectedColor = theme.bottomNavigationBarTheme.selectedItemColor ?? theme.colorScheme.primary;
-    final unselectedColor = theme.bottomNavigationBarTheme.unselectedItemColor ?? theme.unselectedWidgetColor;
-    final background = theme.bottomNavigationBarTheme.backgroundColor ?? theme.colorScheme.surface;
+    final selectedColor = theme.bottomNavigationBarTheme.selectedItemColor ??
+        theme.colorScheme.primary;
+    final unselectedColor =
+        theme.bottomNavigationBarTheme.unselectedItemColor ??
+            theme.unselectedWidgetColor;
+    final background = theme.bottomNavigationBarTheme.backgroundColor ??
+        theme.colorScheme.surface;
 
     return Obx(
       () => Scaffold(
@@ -46,20 +50,20 @@ class OrgBottomNav extends StatelessWidget {
                   label: 'dashboard'.tr,
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.people),
-                  label: 'users'.tr,
-                ),
-                BottomNavigationBarItem(
                   icon: Icon(Icons.article),
                   label: 'articles'.tr,
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.category),
-                  label: 'categories'.tr,
+                  icon: Icon(Icons.people),
+                  label: 'users'.tr,
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.bar_chart),
                   label: 'reports'.tr,
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.category),
+                  label: 'categories'.tr,
                 ),
               ],
             ),
