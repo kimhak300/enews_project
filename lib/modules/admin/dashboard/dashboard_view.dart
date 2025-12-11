@@ -2,12 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:newshub/app/config/app_config.dart';
 import 'package:newshub/app/constants/app_constant.dart';
 import 'package:newshub/app/widget/app_drawer_widget.dart';
 import 'package:newshub/modules/auth/services/auth_service.dart';
 import 'package:newshub/data/models/user_model.dart';
 import 'package:newshub/data/models/stats_model.dart';
 import 'package:newshub/modules/admin/dashboard/dashboard_controller.dart';
+import 'package:newshub/modules/admin/manage_articles/widgets/small_video_player.dart';
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
@@ -371,11 +373,20 @@ class DashboardView extends GetView<DashboardController> {
       return _buildPlaceholderImage(context);
     }
 
-    // Skip video files - they can't be displayed as images
+    // Check if it's a video file and show small video player
     final lowerData = imageData.toLowerCase();
     if (lowerData.endsWith('.mp4') || lowerData.endsWith('.mov') || 
         lowerData.endsWith('.avi') || lowerData.endsWith('.webm')) {
-      return _buildVideoPlaceholder(context);
+      // Construct full URL for video
+      String videoUrl = imageData;
+      if (!videoUrl.startsWith('http://') && !videoUrl.startsWith('https://')) {
+        videoUrl = AppConfig.getImageUrl(imageData);
+      }
+      return SmallVideoPlayer(
+        url: videoUrl,
+        width: 100,
+        height: 100,
+      );
     }
 
     // Check if it's a base64 string
@@ -423,7 +434,12 @@ class DashboardView extends GetView<DashboardController> {
   Widget _buildVideoPlaceholder(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      color: theme.colorScheme.surfaceVariant,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceVariant,
+        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.08)),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Icon(
         Icons.video_library,
         size: 40,

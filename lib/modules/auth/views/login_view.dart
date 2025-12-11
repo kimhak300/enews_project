@@ -95,39 +95,39 @@ class _LoginViewState extends State<LoginView> {
                       ),
                   ),
                 )),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    const Expanded(child: Divider()),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text('or_continue_with'.tr),
-                    ),
-                    const Expanded(child: Divider()),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Column(
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        icon: const Icon(Icons.g_mobiledata),
-                        label: Text('continue_with'.tr),
-                        onPressed: controller.loginWithGoogle,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        icon: const Icon(Icons.facebook),
-                        label: Text('continue_with'.tr),
-                        onPressed: controller.loginWithFacebook,
-                      ),
-                    ),
-                  ],
-                ),
+                // const SizedBox(height: 16),
+                // Row(
+                //   children: [
+                //     const Expanded(child: Divider()),
+                //     Padding(
+                //       padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                //       child: Text('or_continue_with'.tr),
+                //     ),
+                //     const Expanded(child: Divider()),
+                //   ],
+                // ),
+                // const SizedBox(height: 16),
+                // Column(
+                //   children: [
+                //     SizedBox(
+                //       width: double.infinity,
+                //       child: OutlinedButton.icon(
+                //         icon: const Icon(Icons.g_mobiledata),
+                //         label: Text('continue_with'.tr),
+                //         onPressed: controller.loginWithGoogle,
+                //       ),
+                //     ),
+                //     const SizedBox(height: 12),
+                //     SizedBox(
+                //       width: double.infinity,
+                //       child: OutlinedButton.icon(
+                //         icon: const Icon(Icons.facebook),
+                //         label: Text('continue_with'.tr),
+                //         onPressed: controller.loginWithFacebook,
+                //       ),
+                //     ),
+                //   ],
+                // ),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
