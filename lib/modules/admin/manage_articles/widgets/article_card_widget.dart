@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:newshub/app/config/app_config.dart';
 import 'package:newshub/modules/admin/manage_articles/article_detail_view.dart';
+import 'package:newshub/modules/admin/manage_articles/widgets/small_video_player.dart';
 
 class ArticleCardWidget extends StatelessWidget {
   final String title;
@@ -33,6 +35,9 @@ class ArticleCardWidget extends StatelessWidget {
     final String? firstImage =
     (images != null && images!.isNotEmpty) ? images!.first : null;
 
+    // Check for video URL in media or images
+    final String? videoUrl = _findVideoUrl();
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -57,10 +62,16 @@ class ArticleCardWidget extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // --- Image or Fallback Avatar ---
+                  // --- Video Player or Image or Fallback Avatar ---
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: _buildImage(context, firstImage),
+                    child: videoUrl != null
+                        ? SmallVideoPlayer(
+                            url: videoUrl,
+                            width: 70,
+                            height: 70,
+                          )
+                        : _buildImage(context, firstImage),
                   ),
 
                   const SizedBox(width: 12),
@@ -179,6 +190,52 @@ class ArticleCardWidget extends StatelessWidget {
     return value.startsWith('data:image');
   }
 
+  /// Find video URL from article media or images
+  String? _findVideoUrl() {
+    // First check if firstImage is a video
+    if (images != null && images!.isNotEmpty) {
+      final firstImage = images!.first;
+      if (_isVideoUrl(firstImage)) {
+        return _constructFullUrl(firstImage);
+      }
+    }
+
+    // Then check media field from articleData
+    try {
+      final media = articleData['media'];
+      if (media is List && media.isNotEmpty) {
+        for (final item in media) {
+          final url = item?.toString() ?? '';
+          if (_isVideoUrl(url)) {
+            return _constructFullUrl(url);
+          }
+        }
+      }
+    } catch (_) {}
+
+    return null;
+  }
+
+  /// Construct full URL from relative or absolute path
+  String _constructFullUrl(String url) {
+    // If already a full URL, return as is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    
+    // For relative paths, use AppConfig to construct full URL
+    return AppConfig.getImageUrl(url);
+  }
+
+  /// Check if URL is a video file
+  bool _isVideoUrl(String url) {
+    final lower = url.toLowerCase();
+    return lower.endsWith('.mp4') ||
+        lower.endsWith('.mov') ||
+        lower.endsWith('.avi') ||
+        lower.endsWith('.webm');
+  }
+
   //---------------------------------------------------------
   // Fallback Video Avatar
   //---------------------------------------------------------
@@ -188,9 +245,16 @@ class ArticleCardWidget extends StatelessWidget {
       height: 70,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceVariant,
+        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.08)),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Icon(Icons.video_library, size: 30, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+      child: Center(
+        child: Icon(
+          Icons.video_library,
+          size: 30,
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+        ),
+      ),
     );
   }
 

@@ -103,6 +103,7 @@ class RecentUser {
   final String email;
   final String? phone;
   final String? avatar;
+  final String? role;
   final DateTime? createdAt;
 
   RecentUser({
@@ -111,6 +112,7 @@ class RecentUser {
     required this.email,
     this.phone,
     this.avatar,
+    this.role,
     this.createdAt,
   });
 
@@ -121,6 +123,7 @@ class RecentUser {
       email: json['email'] ?? '',
       phone: json['phone'],
       avatar: json['avatar'],
+      role: json['role'],
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'])
           : null,
