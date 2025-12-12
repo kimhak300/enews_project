@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:newshub/modules/user/home/home_controller.dart';
 import 'package:newshub/modules/user/search/search_view.dart';
 import 'package:newshub/modules/user/search/search_controller.dart' as user_search;
-import 'package:newshub/modules/user/video_detail_view.dart';
+import 'package:newshub/modules/user/video/video_detail_view.dart';
 import 'package:newshub/core/utils/video_helper.dart';
 
 class HomeView extends GetView<HomeController> {

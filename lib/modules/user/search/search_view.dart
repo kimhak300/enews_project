@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:newshub/app/config/api_constants.dart';
 import 'package:newshub/modules/user/search/search_controller.dart' as user_search;
 import 'package:newshub/modules/user/search/search_small_video_player.dart';
-import 'package:newshub/modules/user/video_detail_view.dart';
+import 'package:newshub/modules/user/video/video_detail_view.dart';
 
 class SearchView extends StatelessWidget {
   const SearchView({super.key});
@@ -18,13 +18,15 @@ class SearchView extends StatelessWidget {
         ? Get.find<user_search.SearchController>()
         : Get.put(user_search.SearchController());
 
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Column(
         children: [
           // Search Header
           Container(
-            color: Colors.white,
+            color: theme.cardColor,
             padding: EdgeInsets.fromLTRB(16.w, 48.h, 16.w, 16.h),
             child: Column(
               children: [
@@ -32,7 +34,7 @@ class SearchView extends StatelessWidget {
                 Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.arrow_back_ios, size: 20.sp, color: Theme.of(context).iconTheme.color),
+                      icon: Icon(Icons.arrow_back_ios, size: 20.sp, color: theme.iconTheme.color),
                       onPressed: () => Get.back(),
                     ),
                     Expanded(
@@ -40,7 +42,7 @@ class SearchView extends StatelessWidget {
                         controller: controller.searchTextController,
                         onChanged: controller.search,
                         decoration: InputDecoration(
-                          hintText: 'Search articles...',
+                              hintText: 'search_news'.tr,
                           prefixIcon: const Icon(Icons.search),
                           suffixIcon: Obx(() => controller.searchQuery.isNotEmpty
                               ? IconButton(
@@ -49,7 +51,7 @@ class SearchView extends StatelessWidget {
                                 )
                               : const SizedBox()),
                           filled: true,
-                          fillColor: Colors.grey[100],
+                          fillColor: theme.colorScheme.surfaceVariant,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.r),
                             borderSide: BorderSide.none,
@@ -79,9 +81,9 @@ class SearchView extends StatelessWidget {
                               vertical: 8.h,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.grey[100],
+                              color: theme.colorScheme.surfaceVariant,
                               borderRadius: BorderRadius.circular(8.r),
-                              border: Border.all(color: Colors.grey[300]!),
+                              border: Border.all(color: theme.dividerColor),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -89,11 +91,11 @@ class SearchView extends StatelessWidget {
                                 Icon(Icons.filter_list, size: 18.sp),
                                 SizedBox(width: 6.w),
                                 Flexible(
-                                  child: Text(
-                                    controller.selectedCategory.value ?? 'All Categories',
-                                    style: TextStyle(fontSize: 13.sp),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                       child: Text(
+                                         controller.selectedCategory.value ?? 'all'.tr,
+                                         style: TextStyle(fontSize: 13.sp),
+                                         overflow: TextOverflow.ellipsis,
+                                       ),
                                 ),
                                 SizedBox(width: 4.w),
                                 Icon(Icons.arrow_drop_down, size: 18.sp),
@@ -101,11 +103,11 @@ class SearchView extends StatelessWidget {
                             ),
                           ),
                           itemBuilder: (context) => [
-                            PopupMenuItem<String?>(
-                              value: null,
-                              child: Text('All Categories',
-                                  style: TextStyle(fontSize: 13.sp)),
-                            ),
+                                 PopupMenuItem<String?>(
+                                   value: null,
+                                   child: Text('all'.tr,
+                                       style: TextStyle(fontSize: 13.sp)),
+                                 ),
                             ...categories.map(
                               (cat) => PopupMenuItem<String?>(
                                 value: cat,
@@ -127,41 +129,41 @@ class SearchView extends StatelessWidget {
                               vertical: 8.h,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.grey[100],
+                              color: theme.colorScheme.surfaceVariant,
                               borderRadius: BorderRadius.circular(8.r),
-                              border: Border.all(color: Colors.grey[300]!),
+                              border: Border.all(color: theme.dividerColor),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(Icons.sort, size: 18.sp),
                                 SizedBox(width: 6.w),
-                                Text(
-                                  controller.selectedSort.value == 'latest'
-                                      ? 'Latest'
-                                      : controller.selectedSort.value == 'popular'
-                                          ? 'Popular'
-                                          : 'Oldest',
-                                  style: TextStyle(fontSize: 13.sp),
-                                ),
+                                      Text(
+                                       controller.selectedSort.value == 'latest'
+                                           ? 'sort_latest'.tr
+                                           : controller.selectedSort.value == 'popular'
+                                               ? 'sort_popular'.tr
+                                               : 'sort_oldest'.tr,
+                                       style: TextStyle(fontSize: 13.sp),
+                                     ),
                                 SizedBox(width: 4.w),
                                 Icon(Icons.arrow_drop_down, size: 18.sp),
                               ],
                             ),
                           ),
                           itemBuilder: (context) => [
-                            PopupMenuItem(
-                              value: 'latest',
-                              child: Text('Latest', style: TextStyle(fontSize: 13.sp)),
-                            ),
-                            PopupMenuItem(
-                              value: 'popular',
-                              child: Text('Popular', style: TextStyle(fontSize: 13.sp)),
-                            ),
-                            PopupMenuItem(
-                              value: 'oldest',
-                              child: Text('Oldest', style: TextStyle(fontSize: 13.sp)),
-                            ),
+                                 PopupMenuItem(
+                                   value: 'latest',
+                                   child: Text('sort_latest'.tr, style: TextStyle(fontSize: 13.sp)),
+                                 ),
+                                 PopupMenuItem(
+                                   value: 'popular',
+                                   child: Text('sort_popular'.tr, style: TextStyle(fontSize: 13.sp)),
+                                 ),
+                                 PopupMenuItem(
+                                   value: 'oldest',
+                                   child: Text('sort_oldest'.tr, style: TextStyle(fontSize: 13.sp)),
+                                 ),
                           ],
                         )),
                   ],
@@ -182,15 +184,15 @@ class SearchView extends StatelessWidget {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.error_outline, size: 64.sp, color: Colors.red),
+                      children: [
+                      Icon(Icons.error_outline, size: 64.sp, color: theme.colorScheme.error),
                       SizedBox(height: 16.h),
-                      Text(controller.errorMessage.value),
+                      Text(controller.errorMessage.value, style: theme.textTheme.bodyMedium),
                       SizedBox(height: 16.h),
-                      ElevatedButton(
-                        onPressed: controller.refresh,
-                        child: const Text('Retry'),
-                      ),
+                           ElevatedButton(
+                             onPressed: controller.refresh,
+                             child: Text('retry'.tr),
+                           ),
                     ],
                   ),
                 );
@@ -200,29 +202,26 @@ class SearchView extends StatelessWidget {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.search_off, size: 64.sp, color: Colors.grey),
+                      children: [
+                      Icon(Icons.search_off, size: 64.sp, color: theme.disabledColor),
                       SizedBox(height: 16.h),
-                      Text(
-                        controller.searchQuery.isNotEmpty
-                            ? 'No articles found for "${controller.searchQuery.value}"'
-                            : 'No articles available',
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          color: Colors.grey[600],
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
+                          Obx(() => Text(
+                            controller.searchQuery.isNotEmpty
+                                ? 'no_articles_for'.trParams({'query': controller.searchQuery.value})
+                                : 'no_articles'.tr,
+                            style: theme.textTheme.bodyMedium?.copyWith(fontSize: 16.sp),
+                            textAlign: TextAlign.center,
+                          )),
                       if (controller.searchQuery.isNotEmpty ||
                           controller.selectedCategory.value != null)
                         Padding(
                           padding: EdgeInsets.only(top: 16.h),
                           child: ElevatedButton(
-                            onPressed: () {
-                              controller.clearSearch();
-                              controller.setCategory(null);
-                            },
-                            child: const Text('Clear Filters'),
+                                onPressed: () {
+                                  controller.clearSearch();
+                                  controller.setCategory(null);
+                                },
+                                child: Text('clear_filters'.tr),
                           ),
                         ),
                     ],
@@ -238,14 +237,10 @@ class SearchView extends StatelessWidget {
                     // Results Count
                     Padding(
                       padding: EdgeInsets.all(16.w),
-                      child: Text(
-                        '${controller.filteredArticles.length} article${controller.filteredArticles.length != 1 ? 's' : ''} found',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                          child: Text(
+                            'articles_found'.trParams({'count': controller.filteredArticles.length.toString()}),
+                            style: theme.textTheme.bodySmall?.copyWith(fontSize: 14.sp, fontWeight: FontWeight.w500),
+                          ),
                     ),
                     // Articles List
                     Expanded(
@@ -500,19 +495,23 @@ class SearchView extends StatelessWidget {
           width: double.infinity,
           height: height ?? 180.h,
           fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => Container(
-            width: double.infinity,
-            height: height ?? 180.h,
-            color: Colors.grey[300],
-            child: Icon(Icons.broken_image, size: 64.sp, color: Colors.grey),
-          ),
+          errorBuilder: (context, error, stackTrace) {
+            final theme = Theme.of(context);
+            return Container(
+              width: double.infinity,
+              height: height ?? 180.h,
+              color: theme.colorScheme.surfaceVariant,
+              child: Icon(Icons.broken_image, size: 64.sp, color: theme.disabledColor),
+            );
+          },
         );
       } catch (e) {
+        final theme = Theme.of(Get.context!);
         return Container(
           width: double.infinity,
           height: height ?? 180.h,
-          color: Colors.grey[300],
-          child: Icon(Icons.article, size: 64.sp, color: Colors.grey),
+          color: theme.colorScheme.surfaceVariant,
+          child: Icon(Icons.article, size: 64.sp, color: theme.disabledColor),
         );
       }
     }
@@ -523,12 +522,15 @@ class SearchView extends StatelessWidget {
       width: double.infinity,
       height: height ?? 180.h,
       fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => Container(
-        width: double.infinity,
-        height: height ?? 180.h,
-        color: Colors.grey[300],
-        child: Icon(Icons.broken_image, size: 64.sp, color: Colors.grey),
-      ),
+      errorBuilder: (context, error, stackTrace) {
+        final theme = Theme.of(context);
+        return Container(
+          width: double.infinity,
+          height: height ?? 180.h,
+          color: theme.colorScheme.surfaceVariant,
+          child: Icon(Icons.broken_image, size: 64.sp, color: theme.disabledColor),
+        );
+      },
     );
   }
 }

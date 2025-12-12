@@ -195,6 +195,14 @@ const Map<String, String> kmKh = {
   'trending_topics': 'ប្រធានបទពេញនិយម',
   'trending_videos': 'វីដេអូពេញនិយម',
 
+  // Search additions
+  'clear_filters': 'លុបតម្រុយ',
+  'no_articles_for': 'រកមិនឃើញអត្ថបទសម្រាប់ "{query}"',
+  'sort_latest': 'អុងថ្មី',
+  'sort_popular': 'ពេញនិយម',
+  'sort_oldest': 'ច្រើនចាស់',
+  'articles_found': 'អត្ថបទ ត្រូវបានរកឃើញ',
+
   // Article
   'read_more': 'អានបន្ថែម',
   'min_read': 'នាទីអាន',

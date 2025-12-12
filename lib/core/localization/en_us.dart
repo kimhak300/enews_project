@@ -198,6 +198,14 @@ const Map<String, String> enUs = {
   'trending_topics': 'Trending Topics',
   'trending_videos': 'Trending Videos',
 
+  // Search additions
+  'clear_filters': 'Clear Filters',
+  'no_articles_for': 'No articles found for "{query}"',
+  'sort_latest': 'Latest',
+  'sort_popular': 'Popular',
+  'sort_oldest': 'Oldest',
+  'articles_found': '{count} article(s) found',
+
   // Article
   'read_more': 'Read More',
   'min_read': 'min read',

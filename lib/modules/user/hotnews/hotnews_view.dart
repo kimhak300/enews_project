@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:newshub/app/config/api_constants.dart';
 import 'package:newshub/core/utils/video_helper.dart';
-import 'package:newshub/modules/user/video_detail_view.dart';
+import 'package:newshub/modules/user/video/video_detail_view.dart';
 import 'package:newshub/modules/user/hotnews/hotnews_controller.dart';
 import 'package:newshub/data/models/article_model.dart';
 
