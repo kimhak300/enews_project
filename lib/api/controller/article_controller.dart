@@ -1,4 +1,5 @@
 // lib/modules/articles/controllers/article_controller.dart
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:newshub/api/model/article_model.dart';
 import 'package:newshub/api/service/article_service.dart';
@@ -7,7 +8,43 @@ class ArticleController extends GetxController {
   final ArticleService _service = ArticleService();
 
   var articles = <ArticleModel>[].obs;
+  // Keep an unfiltered copy of fetched articles for client-side search/filter
+  List<ArticleModel> allArticles = [];
+  final TextEditingController searchController = TextEditingController();
   var isLoading = false.obs;
+
+  /// Client-side search by title/subtitle/excerpt
+  void searchArticles(String query) {
+    final q = query.trim().toLowerCase();
+    if (q.isEmpty) {
+      articles.value = List<ArticleModel>.from(allArticles);
+      return;
+    }
+
+    final filtered = allArticles.where((a) {
+      final title = a.title.toLowerCase();
+      final subtitle = a.subtitle.toLowerCase();
+      final excerpt = a.excerpt.toLowerCase();
+      return title.contains(q) || subtitle.contains(q) || excerpt.contains(q);
+    }).toList();
+
+    articles.value = filtered;
+  }
+
+  /// Client-side filter by status (e.g., 'published','draft','archived')
+  void filterByStatus(String status) {
+    if (status == 'all') {
+      articles.value = List<ArticleModel>.from(allArticles);
+      return;
+    }
+
+    final filtered = allArticles.where((a) {
+      final s = a.status.toLowerCase();
+      return s == status.toLowerCase();
+    }).toList();
+
+    articles.value = filtered;
+  }
 
   @override
   void onInit() {
@@ -20,6 +57,8 @@ class ArticleController extends GetxController {
       isLoading.value = true;
       final result = await _service.getArticles(category: category);
       articles.value = result;
+      // store unfiltered copy
+      allArticles = List<ArticleModel>.from(result);
     } catch (e) {
       print(e);
     } finally {

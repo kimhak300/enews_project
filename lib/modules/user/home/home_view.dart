@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:newshub/modules/user/home/home_controller.dart';
+import 'package:newshub/modules/user/search/search_view.dart';
+import 'package:newshub/modules/user/search/search_controller.dart' as user_search;
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -45,6 +47,7 @@ class HomeView extends GetView<HomeController> {
             slivers: [
               // Modern App Bar
               SliverAppBar(
+                
                 floating: true,
                 snap: true,
                 elevation: 0,
@@ -64,16 +67,36 @@ class HomeView extends GetView<HomeController> {
                     ],
                   ),
                 ),
+                
                 actions: [
                   IconButton(
                     icon: Icon(Icons.search, color: Theme.of(context).appBarTheme.foregroundColor ?? Theme.of(context).colorScheme.onPrimary, size: 24.sp),
-                    onPressed: () {},
+                    onPressed: () {
+                      // Ensure SearchController is registered before opening SearchView
+                      if (!Get.isRegistered<user_search.SearchController>()) {
+                        Get.put(user_search.SearchController());
+                      }
+                      Get.to(() => const SearchView());
+
+                    },
+                    
                   ),
                   IconButton(
                     icon: Icon(Icons.notifications_outlined, color: Theme.of(context).appBarTheme.foregroundColor ?? Theme.of(context).colorScheme.onPrimary, size: 24.sp),
                     onPressed: () {},
                   ),
                 ],
+              ),
+              // Inline search container that navigates to full SearchView
+              SliverToBoxAdapter(
+                child: Container(
+                  padding: EdgeInsets.all(16.w),
+                  color: Theme.of(context).colorScheme.surface,
+                  child: Column(
+                    children: [
+                    ],
+                  ),
+                ),
               ),
 
               // Trending / Categories Section
@@ -216,6 +239,27 @@ class HomeView extends GetView<HomeController> {
         ),
       ),
     );
+  }
+
+  Widget _buildFilterChip(BuildContext context, String label, String status) {
+    return Obx(() {
+      final isSelected = controller.selectedStatus.value == status;
+      final theme = Theme.of(context);
+      return ChoiceChip(
+        label: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? theme.colorScheme.onPrimary : (theme.textTheme.bodyMedium?.color ?? Colors.black),
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        selected: isSelected,
+        onSelected: (_) => controller.filterByStatus(status),
+        selectedColor: theme.colorScheme.primary,
+        backgroundColor: theme.cardColor,
+      );
+    });
   }
 
   Widget _buildFeaturedArticle(BuildContext context, article) {

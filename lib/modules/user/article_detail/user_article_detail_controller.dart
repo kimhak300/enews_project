@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../../api/service/article_interaction_service.dart';
 import '../../../data/models/article_model.dart';
+import 'package:newshub/app/utils/image_utils.dart';
 
 class CommentModel {
   final int id;
@@ -461,9 +462,7 @@ Read more at: NewsHub
                         final comment = comments[index];
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundImage: comment.authorAvatar != null
-                                ? NetworkImage(comment.authorAvatar!)
-                                : null,
+                            backgroundImage: resolveImageProvider(comment.authorAvatar),
                             child: comment.authorAvatar == null
                                 ? Text(comment.authorName.isNotEmpty 
                                     ? comment.authorName[0].toUpperCase() 

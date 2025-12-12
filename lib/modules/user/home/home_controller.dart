@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newshub/app/services/api_service.dart';
 import 'package:newshub/data/models/article_model.dart';
@@ -22,11 +23,22 @@ class HomeController extends GetxController {
   // Categories
   final RxList<CategoryModel> categories = <CategoryModel>[].obs;
   final selectedCategory = Rxn<CategoryModel>();
+  // Search & status filter
+  final TextEditingController searchController = TextEditingController();
+  final searchQuery = ''.obs;
+  final selectedStatus = 'all'.obs;
+  final showSearchBar = false.obs;
 
   @override
   void onInit() {
     super.onInit();
     fetchInitialData();
+  }
+
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
   }
 
   Future<void> fetchInitialData() async {
@@ -136,16 +148,49 @@ class HomeController extends GetxController {
   }
 
   List<ArticleModel> get filteredArticles {
-    if (selectedCategory.value == null) return articles;
-    final sel = selectedCategory.value!;
-    final selName = sel.name.toLowerCase();
-    return articles.where((article) {
-      if (article.categories == null) return false;
-      return article.categories!.any((c) {
-        final sameId = c.id == sel.id && sel.id != 0;
-        final sameName = c.name.toLowerCase() == selName;
-        return sameId || sameName;
-      });
-    }).toList();
+    // Start from all articles
+    List<ArticleModel> list = articles.toList();
+
+    // Category filter
+    if (selectedCategory.value != null) {
+      final sel = selectedCategory.value!;
+      final selName = sel.name.toLowerCase();
+      list = list.where((article) {
+        if (article.categories == null) return false;
+        return article.categories!.any((c) {
+          final sameId = c.id == sel.id && sel.id != 0;
+          final sameName = c.name.toLowerCase() == selName;
+          return sameId || sameName;
+        });
+      }).toList();
+    }
+
+    // Status filter
+    if (selectedStatus.value.isNotEmpty && selectedStatus.value != 'all') {
+      final status = selectedStatus.value.toLowerCase();
+      list = list.where((a) => (a.status ?? '').toLowerCase() == status).toList();
+    }
+
+    // Search query
+    if (searchQuery.value.isNotEmpty) {
+      final q = searchQuery.value.toLowerCase();
+      list = list.where((a) {
+        final title = a.title.toLowerCase();
+        final content = (a.content ?? a.excerpt ?? '').toString().toLowerCase();
+        return title.contains(q) || content.contains(q);
+      }).toList();
+    }
+
+    return list;
+  }
+
+  // Update search query
+  void searchArticles(String query) {
+    searchQuery.value = query;
+  }
+
+  // Update status filter
+  void filterByStatus(String status) {
+    selectedStatus.value = status;
   }
 }

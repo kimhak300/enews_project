@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:newshub/modules/organization/org_team/org_team_controller.dart';
+import 'package:newshub/app/utils/image_utils.dart';
 
 class OrgTeamView extends GetView<OrgTeamController> {
   const OrgTeamView({super.key});
@@ -165,9 +166,7 @@ class OrgTeamView extends GetView<OrgTeamController> {
               CircleAvatar(
                 radius: 30.r,
                 backgroundColor: Colors.blue[100],
-                backgroundImage: member['avatar'] != null
-                    ? NetworkImage(member['avatar'])
-                    : null,
+                backgroundImage: resolveImageProvider(member['avatar'] as String?),
                 child: member['avatar'] == null
                     ? Text(
                         (member['display_name'] ?? 'U')[0].toUpperCase(),

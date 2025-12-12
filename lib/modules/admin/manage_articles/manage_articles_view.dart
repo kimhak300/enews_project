@@ -16,15 +16,13 @@ class ManageArticlesView extends StatefulWidget {
 class _ManageArticlesViewState extends State<ManageArticlesView> {
   late final ArticleController controller;
   late final CategoryController categoryController;
+  String _selectedStatus = 'all';
 
   @override
   void initState() {
     super.initState();
     controller = Get.put(ArticleController());
     categoryController = Get.put(CategoryController());
-
-    // Defer fetching until after the first frame to avoid triggering
-    // setState/Obx during the build phase.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       categoryController.fetchCategories();
       controller.fetchArticles();
@@ -48,7 +46,7 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         icon: const Icon(Icons.add),
-        label:  Text("add_article".tr),
+        label: Text("add_article".tr),
         onPressed: () {
           showModalBottomSheet(
             context: context,
@@ -63,41 +61,106 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
         }
 
         if (controller.articles.isEmpty) {
-          return Center(child: Text('No articles found.', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7))));
+          return Center(
+              child: Text(
+            'No articles found.',
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+          ));
         }
 
         return Padding(
           padding: EdgeInsets.all(AppSpacing.paddingXS),
-          child: RefreshIndicator(
-            onRefresh: () async {
-              await controller.fetchArticles();
-            },
-            child: ListView.builder(
-              itemCount: controller.articles.length,
-              itemBuilder: (context, index) {
-                final article = controller.articles[index];
-                return ArticleCardWidget(
-                  title: article.title,
-                  subtitle: article.subtitle,
-                  categories: article.categories,
-                  images: article.media,
-                  articleData: article.toJson(), // full data for detail screen
-                );
-              },
-            ),
+          child: Column(
+            children: [
+              // Search + status
+              Container(
+                padding: const EdgeInsets.all(16),
+                color: theme.colorScheme.surface,
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: controller.searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search articles...',
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                              color: theme.colorScheme.onSurface.withOpacity(0.12)),
+                        ),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      onChanged: controller.searchArticles,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        _buildFilterChip(context, 'All', 'all'),
+                        const SizedBox(width: 8),
+                        _buildFilterChip(context, 'Published', 'published'),
+                        const SizedBox(width: 8),
+                        _buildFilterChip(context, 'Draft', 'draft'),
+                        const SizedBox(width: 8),
+                        _buildFilterChip(context, 'Archived', 'archived'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    controller.searchController.clear();
+                    await controller.fetchArticles();
+                  },
+                  child: ListView.builder(
+                    itemCount: controller.articles.length,
+                    itemBuilder: (context, index) {
+                      final article = controller.articles[index];
+                      return ArticleCardWidget(
+                        title: article.title,
+                        subtitle: article.subtitle,
+                        categories: article.categories,
+                        images: article.media,
+                        articleData: article.toJson(),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       }),
     );
   }
 
+  Widget _buildFilterChip(BuildContext context, String label, String status) {
+    final theme = Theme.of(context);
+    final selected = _selectedStatus == status;
+    return ChoiceChip(
+      label: Text(label),
+      selected: selected,
+      onSelected: (v) {
+        setState(() {
+          _selectedStatus = v ? status : 'all';
+          controller.searchController.clear();
+          controller.filterByStatus(_selectedStatus);
+        });
+      },
+      selectedColor: theme.colorScheme.primary.withOpacity(0.12),
+    );
+  }
+
   void _showFilterDialog(BuildContext context) {
     String? selectedCategory;
-
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
-            builder: (context, setState) => AlertDialog(
+        builder: (context, setState) => AlertDialog(
           title: const Text('Filter by Category'),
           content: Obx(() {
             if (categoryController.isLoading.value) {
@@ -106,18 +169,15 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
                 child: Center(child: CircularProgressIndicator()),
               );
             }
-
             return DropdownButtonFormField<String>(
               decoration: const InputDecoration(
                 labelText: 'Select Category',
               ),
               items: categoryController.categories
-                  .map(
-                    (cat) => DropdownMenuItem(
-                  value: cat.name,
-                  child: Text(cat.name),
-                ),
-              )
+                  .map((cat) => DropdownMenuItem(
+                        value: cat.name,
+                        child: Text(cat.name),
+                      ))
                   .toList(),
               value: selectedCategory,
               onChanged: (v) => setState(() => selectedCategory = v),
@@ -127,14 +187,14 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-                    controller.fetchArticles(); // Clear filter
+                controller.fetchArticles();
               },
               child: const Text('Clear'),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                    controller.fetchArticles(category: selectedCategory); // Pass category
+                controller.fetchArticles(category: selectedCategory);
               },
               child: const Text('Apply'),
             ),
@@ -144,3 +204,4 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
     );
   }
 }
+

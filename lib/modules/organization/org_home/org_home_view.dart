@@ -214,15 +214,7 @@ class OrgHomeView extends GetView<OrgHomeController> {
     final theme = Theme.of(context);
     return Row(
       children: [
-        Expanded(
-          child: _buildActionButton(
-            title: 'create_article'.tr,
-            icon: Icons.add_circle_outline,
-            color: theme.colorScheme.primary,
-            onTap: () => Get.toNamed('/org-manage-article'),
-            context: context,
-          ),
-        ),
+
         const SizedBox(width: 16),
         Expanded(
           child: _buildActionButton(

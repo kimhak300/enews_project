@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:newshub/app/constants/app_spacing.dart';
-import 'package:newshub/modules/admin/manage_articles/widgets/article_card_widget.dart';
+import 'package:newshub/modules/organization/org_manage_article/org_article_widget.dart';
 import 'package:newshub/modules/organization/org_manage_article/org_manage_article_controller.dart';
+import 'package:newshub/app/utils/image_utils.dart';
 
 class OrgManageArticleView extends GetView<OrgManageArticleController> {
   const OrgManageArticleView({super.key});
@@ -16,12 +17,6 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Manage Articles'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: controller.navigateToCreateArticle,
-          ),
-        ],
       ),
       body: Obx(() {
         if (controller.isLoading.value && controller.articles.isEmpty) {
@@ -62,7 +57,9 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                       prefixIcon: const Icon(Icons.search),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.r),
-                        borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12)),
+                        borderSide: BorderSide(
+                            color:
+                                theme.colorScheme.onSurface.withOpacity(0.12)),
                       ),
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 16.w,
@@ -80,6 +77,8 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                       _buildFilterChip(context, 'Published', 'published'),
                       SizedBox(width: 8.w),
                       _buildFilterChip(context, 'Draft', 'draft'),
+                      SizedBox(width: 8.w),
+                      _buildFilterChip(context, 'Archived', 'archived'),
                     ],
                   ),
                 ],
@@ -93,17 +92,32 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.article_outlined, size: 64.sp, color: Colors.grey),
+                          Icon(Icons.article_outlined,
+                              size: 64.sp, color: Colors.grey),
                           SizedBox(height: 16.h),
                           Text(
                             'No articles found',
-                            style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
+                            style: TextStyle(
+                                fontSize: 16.sp, color: Colors.grey[600]),
                           ),
                           SizedBox(height: 8.h),
-                          ElevatedButton.icon(
-                            onPressed: controller.navigateToCreateArticle,
-                            icon: const Icon(Icons.add),
-                            label: const Text('Create Article'),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Create Article',
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.95),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: controller.navigateToCreateArticle,
+                                icon: Icon(Icons.add,
+                                    color: theme.colorScheme.onSurface),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -115,10 +129,12 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                         itemCount: controller.filteredArticles.length,
                         itemBuilder: (context, index) {
                           final article = controller.filteredArticles[index];
-                          return ArticleCardWidget(
+                          return OrgArticleWidget(
                             title: article.title,
                             subtitle: article.subtitle ?? '',
-                            categories: (article.categories ?? []).map((c) => c.name).toList(),
+                            categories: (article.categories ?? [])
+                                .map((c) => c.name)
+                                .toList(),
                             images: article.media,
                             articleData: article.toJson(),
                           );
@@ -180,16 +196,31 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceVariant,
                   borderRadius: BorderRadius.circular(8.r),
-                  image: article['cover_image'] != null
-                      ? DecorationImage(
-                          image: NetworkImage(article['cover_image']),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
                 ),
-                child: article['cover_image'] == null
-                    ? Icon(Icons.article, size: 32.sp, color: theme.colorScheme.onSurface.withOpacity(0.7))
-                    : null,
+                child: Builder(
+                  builder: (_) {
+                    final img =
+                        resolveImageProvider(article['cover_image'] as String?);
+                    if (img != null) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(8.r),
+                        child: Image(
+                          image: img,
+                          width: 80.w,
+                          height: 80.w,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Icon(Icons.article,
+                              size: 32.sp,
+                              color:
+                                  theme.colorScheme.onSurface.withOpacity(0.7)),
+                        ),
+                      );
+                    }
+                    return Icon(Icons.article,
+                        size: 32.sp,
+                        color: theme.colorScheme.onSurface.withOpacity(0.7));
+                  },
+                ),
               ),
               SizedBox(width: 12.w),
 
@@ -200,8 +231,12 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                   children: [
                     Text(
                       article['title'] ?? 'Untitled',
-                      style: theme.textTheme.titleMedium?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.w600) ??
-                          TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                              fontSize: 16.sp, fontWeight: FontWeight.w600) ??
+                          TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.onSurface),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -225,20 +260,33 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                             article['status'] ?? 'draft',
                             style: theme.textTheme.bodySmall?.copyWith(
                                   fontSize: 11.sp,
-                                  color: article['status'] == 'published' ? theme.colorScheme.primary : theme.colorScheme.secondary,
+                                  color: article['status'] == 'published'
+                                      ? theme.colorScheme.primary
+                                      : theme.colorScheme.secondary,
                                   fontWeight: FontWeight.w600,
                                 ) ??
-                                TextStyle(fontSize: 11.sp, fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface),
+                                TextStyle(
+                                    fontSize: 11.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: theme.colorScheme.onSurface),
                           ),
                         ),
                         SizedBox(width: 8.w),
                         // Views Count
-                        Icon(Icons.visibility, size: 14.sp, color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                        Icon(Icons.visibility,
+                            size: 14.sp,
+                            color:
+                                theme.colorScheme.onSurface.withOpacity(0.7)),
                         SizedBox(width: 4.w),
                         Text(
                           '${article['views_count'] ?? 0}',
-                          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7)) ??
-                              TextStyle(fontSize: 12.sp, color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.7)) ??
+                              TextStyle(
+                                  fontSize: 12.sp,
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.7)),
                         ),
                       ],
                     ),
@@ -260,7 +308,8 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                     value: 'edit',
                     child: Row(
                       children: [
-                        Icon(Icons.edit, size: 20, color: theme.colorScheme.onSurface),
+                        Icon(Icons.edit,
+                            size: 20, color: theme.colorScheme.onSurface),
                         SizedBox(width: 8),
                         Text('Edit', style: theme.textTheme.bodyMedium),
                       ],
@@ -270,9 +319,11 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                     value: 'delete',
                     child: Row(
                       children: [
-                        Icon(Icons.delete, size: 20, color: theme.colorScheme.error),
+                        Icon(Icons.delete,
+                            size: 20, color: theme.colorScheme.error),
                         SizedBox(width: 8),
-                        Text('Delete', style: TextStyle(color: theme.colorScheme.error)),
+                        Text('Delete',
+                            style: TextStyle(color: theme.colorScheme.error)),
                       ],
                     ),
                   ),
@@ -298,7 +349,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
           ElevatedButton(
             onPressed: () async {
               Get.back();
-              
+
               try {
                 await controller.deleteArticle(article['id']);
                 Get.snackbar(

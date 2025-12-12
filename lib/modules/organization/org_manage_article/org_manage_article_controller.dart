@@ -5,7 +5,8 @@ import 'package:newshub/app/services/api_service.dart';
 import 'package:newshub/app/services/storage_service.dart';
 import 'package:newshub/data/models/article_model.dart';
 import 'package:newshub/api/controller/category_controller.dart' as api_cat;
-import 'package:newshub/modules/admin/manage_articles/widgets/create_article_bottomsheet.dart';
+import 'package:newshub/api/controller/article_controller.dart';
+import 'package:newshub/modules/organization/org_manage_article/create_org_article_bottomsheet.dart';
 
 class OrgManageArticleController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
@@ -30,6 +31,14 @@ class OrgManageArticleController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
+    // Ensure ArticleController is available for create/update bottom sheets
+    if (!Get.isRegistered<ArticleController>()) {
+      try {
+        Get.put(ArticleController());
+      } catch (_) {}
+    }
+
     fetchArticles();
   }
 
@@ -200,7 +209,7 @@ class OrgManageArticleController extends GetxController {
     showModalBottomSheet(
       context: Get.context!,
       isScrollControlled: true,
-      builder: (_) => const CreateArticleBottomsheet(),
+      builder: (_) => const CreateOrgArticleBottomsheet(),
     ).then((_) => fetchArticles(refresh: true));
   }
 
