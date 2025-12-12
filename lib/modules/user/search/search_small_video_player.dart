@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter/services.dart';
+import 'dart:io';
+import 'package:newshub/core/utils/video_helper.dart';
 
 /// Small inline video player for search result article cards
 /// Displays a small video thumbnail (default 96x96) that plays/pauses on tap
@@ -34,19 +37,37 @@ class _SearchSmallVideoPlayerState extends State<SearchSmallVideoPlayer> {
   }
 
   void _initializeVideo() async {
-    final url = widget.url.trim();
-    if (url.isEmpty) {
+    final raw = widget.url.trim();
+    if (raw.isEmpty) {
+      if (mounted) setState(() => _hasError = true);
+      return;
+    }
+
+    final normalized = normalizeVideoSource(raw);
+    if (normalized.isEmpty) {
       if (mounted) setState(() => _hasError = true);
       return;
     }
 
     try {
-      _controller = VideoPlayerController.networkUrl(Uri.parse(url));
+      if (isFileUri(normalized)) {
+        // file:// URIs -> use file controller
+        final path = normalized.replaceFirst(RegExp(r'^file:\/\/\/?'), '');
+        final file = File(path);
+        if (!file.existsSync()) throw Exception('File not found: $path');
+        _controller = VideoPlayerController.file(file);
+      } else {
+        // network URL
+        _controller = VideoPlayerController.networkUrl(Uri.parse(normalized));
+      }
+
       await _controller!.initialize();
       _controller!.setLooping(true);
       _controller!.setVolume(0);
       if (mounted) setState(() => _initialized = true);
-    } catch (e) {
+    } on PlatformException {
+      if (mounted) setState(() => _hasError = true);
+    } catch (_) {
       if (mounted) setState(() => _hasError = true);
     }
   }

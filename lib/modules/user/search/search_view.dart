@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:newshub/app/config/api_constants.dart';
 import 'package:newshub/modules/user/search/search_controller.dart' as user_search;
 import 'package:newshub/modules/user/search/search_small_video_player.dart';
+import 'package:newshub/modules/user/video_detail_view.dart';
 
 class SearchView extends StatelessWidget {
   const SearchView({super.key});
@@ -319,7 +320,27 @@ class SearchView extends StatelessWidget {
       elevation: 0,
       child: InkWell(
         onTap: () {
-          // Navigate to article detail
+          // If video article -> open video detail, else open article detail
+          final isVideo = (article.type ?? '') == 'video';
+          final mediaList = article.media as List?;
+          String? videoUrl;
+          if (mediaList != null && mediaList.isNotEmpty) {
+            final first = mediaList.first;
+            if (first is String) videoUrl = first;
+            else if (first is Map) videoUrl = (first['url'] ?? first['video'] ?? first['src'] ?? first['path'])?.toString();
+          }
+
+          if (isVideo && (videoUrl != null && videoUrl.isNotEmpty)) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => UserVideoDetailView(videoUrl: videoUrl!, title: article.title)),
+            );
+            return;
+          }
+
+          // Otherwise open user article detail (pass raw json map)
+          final Map<String, dynamic> args = article is Map ? Map<String, dynamic>.from(article) : (article.toJson());
+          Get.toNamed('/article-detail', arguments: args);
         },
         borderRadius: BorderRadius.circular(12.r),
         child: Padding(

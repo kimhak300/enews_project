@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:newshub/modules/user/home/home_controller.dart';
 import 'package:newshub/modules/user/search/search_view.dart';
 import 'package:newshub/modules/user/search/search_controller.dart' as user_search;
+import 'package:newshub/modules/user/video_detail_view.dart';
+import 'package:newshub/core/utils/video_helper.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -265,8 +267,30 @@ class HomeView extends GetView<HomeController> {
   Widget _buildFeaturedArticle(BuildContext context, article) {
     return GestureDetector(
       onTap: () {
-        // Navigate to article detail
-        Get.toNamed('/article-detail', arguments: article.toJson());
+        // If this is a video article and has a video URL, open video view
+        final isVideo = (article.type ?? '') == 'video';
+        String? videoUrl;
+        if (article.media != null && article.media!.isNotEmpty) {
+          final first = article.media!.first;
+          if (first is String) videoUrl = first;
+        } else if (article.coverImage != null && article.coverImage!.isNotEmpty) {
+          videoUrl = article.coverImage;
+        }
+
+        if (isVideo && videoUrl != null && videoUrl.isNotEmpty) {
+          final normalized = normalizeVideoSource(videoUrl);
+          if (normalized.isNotEmpty) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => UserVideoDetailView(videoUrl: normalized, title: article.title)),
+            );
+            return;
+          }
+        }
+
+        // Default: open article detail via named route so binding runs
+        final args = article.toJson();
+        Get.toNamed('/article-detail', arguments: args);
       },
       child: Container(
         height: 280.h,
@@ -452,7 +476,20 @@ class HomeView extends GetView<HomeController> {
       elevation: 2,
       child: InkWell(
         onTap: () {
-          // Navigate to article detail
+          // If this is a video and has media, open video detail; otherwise article detail
+          try {
+            if (article.type == 'video' && article.media != null && article.media!.isNotEmpty) {
+              final raw = article.media!.first as String;
+              final normalized = normalizeVideoSource(raw);
+              if (normalized.isNotEmpty) {
+                Get.to(() => UserVideoDetailView(videoUrl: normalized, title: article.title));
+                return;
+              }
+            }
+          } catch (_) {
+            // Fall back to article detail on any error
+          }
+
           Get.toNamed('/article-detail', arguments: article.toJson());
         },
         child: Row(

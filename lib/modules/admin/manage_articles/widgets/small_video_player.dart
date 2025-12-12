@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter/services.dart';
+import 'package:newshub/app/config/app_config.dart';
 
 /// Small inline video player for article cards
 /// Displays a 70x70 video thumbnail that plays on tap
@@ -20,7 +24,7 @@ class SmallVideoPlayer extends StatefulWidget {
 }
 
 class _SmallVideoPlayerState extends State<SmallVideoPlayer> {
-  late VideoPlayerController _controller;
+  VideoPlayerController? _controller;
   bool _initialized = false;
   bool _hasError = false;
 
@@ -30,42 +34,71 @@ class _SmallVideoPlayerState extends State<SmallVideoPlayer> {
     _initializeVideo();
   }
 
-  void _initializeVideo() {
-    print('🎥 SmallVideoPlayer: Initializing video from URL: ${widget.url}');
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url));
-    _controller.initialize().then((_) {
-      print('✅ SmallVideoPlayer: Video initialized successfully');
-      if (mounted) {
-        setState(() {
-          _initialized = true;
-        });
+  void _initializeVideo() async {
+    final raw = widget.url.trim();
+    debugPrint('🎥 SmallVideoPlayer: Initializing video from URL: $raw');
+
+    if (raw.isEmpty) {
+      if (mounted) setState(() => _hasError = true);
+      return;
+    }
+
+    try {
+      // Determine source type and normalize
+      if (raw.startsWith('file://')) {
+        final path = raw.replaceFirst(RegExp(r'^file:\/\/\/?'), '');
+        final file = File(path);
+        if (!file.existsSync()) throw Exception('File not found: $path');
+        _controller = VideoPlayerController.file(file);
+      } else if (raw.startsWith('http://') || raw.startsWith('https://')) {
+        _controller = VideoPlayerController.networkUrl(Uri.parse(raw));
+      } else if (raw.startsWith('/storage/') || raw.startsWith('storage/')) {
+        // likely a relative storage path from the backend; convert to full URL
+        final full = AppConfig.getImageUrl(raw);
+        _controller = VideoPlayerController.networkUrl(Uri.parse(full));
+      } else if (!raw.contains('://')) {
+        // treat as relative path (no scheme) and construct full URL
+        final full = AppConfig.getImageUrl(raw);
+        _controller = VideoPlayerController.networkUrl(Uri.parse(full));
+      } else {
+        // fallback to treating as network URL
+        _controller = VideoPlayerController.networkUrl(Uri.parse(raw));
       }
-    }).catchError((error) {
-      print('❌ SmallVideoPlayer: Error initializing video: $error');
-      if (mounted) {
-        setState(() {
-          _hasError = true;
-        });
-      }
-    });
-    _controller.setLooping(true);
-    _controller.setVolume(0); // Muted by default
+
+      await _controller!.initialize();
+      _controller!.setLooping(true);
+      _controller!.setVolume(0);
+
+      if (mounted) setState(() => _initialized = true);
+      debugPrint('✅ SmallVideoPlayer: Video initialized successfully');
+    } on PlatformException catch (e) {
+      debugPrint('❌ SmallVideoPlayer: PlatformException initializing video: $e');
+      if (mounted) setState(() => _hasError = true);
+    } catch (e) {
+      debugPrint('❌ SmallVideoPlayer: Error initializing video: $e');
+      if (mounted) setState(() => _hasError = true);
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    try {
+      _controller?.dispose();
+    } catch (_) {}
     super.dispose();
   }
 
   void _onTap() {
     if (!_initialized || _hasError) return;
-    
-    if (_controller.value.isPlaying) {
-      _controller.pause();
+
+    final c = _controller;
+    if (c == null) return;
+
+    if (c.value.isPlaying) {
+      c.pause();
     } else {
-      _controller.setVolume(1); // Unmute when playing
-      _controller.play();
+      c.setVolume(1); // Unmute when playing
+      c.play();
     }
     setState(() {});
   }
@@ -132,9 +165,9 @@ class _SmallVideoPlayerState extends State<SmallVideoPlayer> {
               child: FittedBox(
                 fit: BoxFit.cover,
                 child: SizedBox(
-                  width: _controller.value.size.width,
-                  height: _controller.value.size.height,
-                  child: VideoPlayer(_controller),
+                  width: _controller!.value.size.width,
+                  height: _controller!.value.size.height,
+                  child: VideoPlayer(_controller!),
                 ),
               ),
             ),
@@ -147,7 +180,7 @@ class _SmallVideoPlayerState extends State<SmallVideoPlayer> {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                _controller!.value.isPlaying ? Icons.pause : Icons.play_arrow,
                 color: Colors.white,
                 size: 18,
               ),

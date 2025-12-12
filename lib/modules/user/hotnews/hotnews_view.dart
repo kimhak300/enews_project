@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:newshub/app/config/api_constants.dart';
+import 'package:newshub/core/utils/video_helper.dart';
+import 'package:newshub/modules/user/video_detail_view.dart';
 import 'package:newshub/modules/user/hotnews/hotnews_controller.dart';
 import 'package:newshub/data/models/article_model.dart';
 
@@ -119,6 +121,18 @@ class HotNewsView extends GetView<HotNewsController> {
       elevation: 2,
       child: InkWell(
         onTap: () {
+          // If this is a video and has media, open video detail; otherwise open article detail
+          try {
+            if (news.type == 'video' && news.media != null && news.media!.isNotEmpty) {
+              final String raw = news.media!.first;
+              final normalized = normalizeVideoSource(raw);
+              if (normalized.isNotEmpty) {
+                Get.to(() => UserVideoDetailView(videoUrl: normalized, title: news.title));
+                return;
+              }
+            }
+          } catch (_) {}
+
           // Navigate to news detail
           Get.toNamed('/article-detail', arguments: news.toJson());
         },
