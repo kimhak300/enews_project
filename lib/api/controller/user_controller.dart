@@ -56,10 +56,24 @@ class UserController extends GetxController {
         avatarBase64: avatarBase64,
       );
 
-      Get.back();
+      // Only close dialog if navigation is possible
+      if (Get.isDialogOpen == true || Get.isBottomSheetOpen == true) {
+        Get.back();
+      }
+      
+      Get.snackbar(
+        'Success',
+        'User created successfully',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       fetchUsers();
     } catch (e) {
-      print(e);
+      print("Error in createUser: $e");
+      Get.snackbar(
+        'Error',
+        e.toString().replaceAll('Exception: ', ''),
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isLoading.value = false;
     }
@@ -86,7 +100,11 @@ class UserController extends GetxController {
         avatarBase64: avatarBase64,
       );
 
-      Get.back();
+      // Only close dialog if navigation is possible
+      if (Get.isDialogOpen == true || Get.isBottomSheetOpen == true) {
+        Get.back();
+      }
+      
       Get.snackbar(
         'Success',
         'User updated successfully',

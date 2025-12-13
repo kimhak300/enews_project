@@ -61,7 +61,19 @@ class UserService {
           if (errorJson['message'] != null) {
             errorMessage = errorJson['message'];
           } else if (errorJson['errors'] != null) {
-            errorMessage = errorJson['errors'].toString();
+            // Handle Laravel validation errors
+            final errors = errorJson['errors'];
+            if (errors is Map) {
+              // Get first error message
+              final firstError = errors.values.first;
+              if (firstError is List && firstError.isNotEmpty) {
+                errorMessage = firstError.first;
+              } else {
+                errorMessage = firstError.toString();
+              }
+            } else {
+              errorMessage = errors.toString();
+            }
           }
         } catch (e) {
           errorMessage = "Failed to create user: ${response.body}";
@@ -107,7 +119,19 @@ class UserService {
           if (errorJson['message'] != null) {
             errorMessage = errorJson['message'];
           } else if (errorJson['errors'] != null) {
-            errorMessage = errorJson['errors'].toString();
+            // Handle Laravel validation errors
+            final errors = errorJson['errors'];
+            if (errors is Map) {
+              // Get first error message
+              final firstError = errors.values.first;
+              if (firstError is List && firstError.isNotEmpty) {
+                errorMessage = firstError.first;
+              } else {
+                errorMessage = firstError.toString();
+              }
+            } else {
+              errorMessage = errors.toString();
+            }
           }
         } catch (e) {
           errorMessage = "Failed to update user: ${response.body}";
