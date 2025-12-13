@@ -20,8 +20,10 @@ class OrgHomeView extends GetView<OrgHomeController> {
     return Scaffold(
       appBar: AppBar(
         title: Text('organization_dashboard'.tr),
-        backgroundColor: theme.appBarTheme.backgroundColor ?? theme.colorScheme.primary,
-        foregroundColor: theme.appBarTheme.foregroundColor ?? theme.colorScheme.onPrimary,
+        backgroundColor:
+            theme.appBarTheme.backgroundColor ?? theme.colorScheme.primary,
+        foregroundColor:
+            theme.appBarTheme.foregroundColor ?? theme.colorScheme.onPrimary,
         actions: [
           IconButton(
             icon: Icon(Icons.refresh, color: theme.iconTheme.color),
@@ -48,7 +50,9 @@ class OrgHomeView extends GetView<OrgHomeController> {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return Center(child: CircularProgressIndicator(color: theme.colorScheme.primary));
+          return Center(
+              child:
+                  CircularProgressIndicator(color: theme.colorScheme.primary));
         }
 
         if (controller.errorMessage.value.isNotEmpty) {
@@ -56,12 +60,15 @@ class OrgHomeView extends GetView<OrgHomeController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline, size: 64, color: theme.colorScheme.onSurface.withOpacity(0.4)),
+                Icon(Icons.error_outline,
+                    size: 64,
+                    color: theme.colorScheme.onSurface.withOpacity(0.4)),
                 const SizedBox(height: 16),
                 Text(
                   controller.errorMessage.value,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                  style: TextStyle(
+                      color: theme.colorScheme.onSurface.withOpacity(0.7)),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
@@ -145,10 +152,10 @@ class OrgHomeView extends GetView<OrgHomeController> {
           context: context,
         ),
         _buildStatCard(
-          title: 'drafts'.tr,
-          value: controller.draftArticles.value.toString(),
-          icon: Icons.drafts,
-          color: theme.colorScheme.primaryContainer,
+          title: 'Organizer Followers'.tr,
+          value: controller.organizerFollowers.value.toString(),
+          icon: Icons.people_outline,
+          color: Colors.grey,
           context: context,
         ),
         _buildStatCard(
@@ -176,7 +183,8 @@ class OrgHomeView extends GetView<OrgHomeController> {
       decoration: BoxDecoration(
         color: color.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.06)),
+        border:
+            Border.all(color: theme.colorScheme.onSurface.withOpacity(0.06)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,8 +194,13 @@ class OrgHomeView extends GetView<OrgHomeController> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(value, style: theme.textTheme.titleLarge?.copyWith(fontSize: 24, fontWeight: FontWeight.bold, color: color)),
-              Text(title, style: theme.textTheme.bodySmall?.copyWith(fontSize: 12, color: theme.colorScheme.onSurface.withOpacity(0.7))),
+              Text(value,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                      fontSize: 24, fontWeight: FontWeight.bold, color: color)),
+              Text(title,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                      fontSize: 12,
+                      color: theme.colorScheme.onSurface.withOpacity(0.7))),
             ],
           ),
         ],
@@ -214,7 +227,6 @@ class OrgHomeView extends GetView<OrgHomeController> {
     final theme = Theme.of(context);
     return Row(
       children: [
-
         const SizedBox(width: 16),
         Expanded(
           child: _buildActionButton(
@@ -276,7 +288,9 @@ class OrgHomeView extends GetView<OrgHomeController> {
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Center(child: Text('no_recent_articles'.tr, style: Theme.of(context).textTheme.bodyMedium)),
+        child: Center(
+            child: Text('no_recent_articles'.tr,
+                style: Theme.of(context).textTheme.bodyMedium)),
       );
     }
 
@@ -313,7 +327,8 @@ class OrgHomeView extends GetView<OrgHomeController> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.06)),
+        border:
+            Border.all(color: theme.colorScheme.onSurface.withOpacity(0.06)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -343,13 +358,21 @@ class OrgHomeView extends GetView<OrgHomeController> {
                     article.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, height: 1.3, color: theme.colorScheme.onSurface.withOpacity(0.95)),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        height: 1.3,
+                        color: theme.colorScheme.onSurface.withOpacity(0.95)),
                   ),
                   const SizedBox(height: 8),
                   // Date and Status
                   Row(
                     children: [
-                      Text(_formatArticleDate(article.publishedAt ?? article.createdAt), style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.85))),
+                      Text(
+                          _formatArticleDate(
+                              article.publishedAt ?? article.createdAt),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface
+                                  .withOpacity(0.85))),
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -357,7 +380,8 @@ class OrgHomeView extends GetView<OrgHomeController> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(article.status ?? 'draft').withOpacity(0.1),
+                          color: _getStatusColor(article.status ?? 'draft')
+                              .withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -387,8 +411,10 @@ class OrgHomeView extends GetView<OrgHomeController> {
 
     // Check if it's a video file and show small video player
     final lowerData = imageData.toLowerCase();
-    if (lowerData.endsWith('.mp4') || lowerData.endsWith('.mov') || 
-        lowerData.endsWith('.avi') || lowerData.endsWith('.webm')) {
+    if (lowerData.endsWith('.mp4') ||
+        lowerData.endsWith('.mov') ||
+        lowerData.endsWith('.avi') ||
+        lowerData.endsWith('.webm')) {
       // Construct full URL for video
       String videoUrl = imageData;
       if (!videoUrl.startsWith('http://') && !videoUrl.startsWith('https://')) {
@@ -417,7 +443,7 @@ class OrgHomeView extends GetView<OrgHomeController> {
         return _buildPlaceholderImage(context);
       }
     }
-    
+
     // Check if it's a URL
     if (imageData.startsWith('http')) {
       return Image.network(
@@ -457,12 +483,22 @@ class OrgHomeView extends GetView<OrgHomeController> {
 
   String _formatArticleDate(DateTime? date) {
     if (date == null) return '';
-    
+
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
-    
+
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 

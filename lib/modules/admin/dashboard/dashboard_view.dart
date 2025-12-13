@@ -21,8 +21,10 @@ class DashboardView extends GetView<DashboardController> {
     return Scaffold(
       appBar: AppBar(
         title: Text('admin_dashboard'.tr),
-        backgroundColor: theme.appBarTheme.backgroundColor ?? theme.colorScheme.primary,
-        foregroundColor: theme.appBarTheme.foregroundColor ?? theme.colorScheme.onPrimary,
+        backgroundColor:
+            theme.appBarTheme.backgroundColor ?? theme.colorScheme.primary,
+        foregroundColor:
+            theme.appBarTheme.foregroundColor ?? theme.colorScheme.onPrimary,
         actions: [
           IconButton(
             icon: Icon(Icons.refresh, color: theme.iconTheme.color),
@@ -50,7 +52,9 @@ class DashboardView extends GetView<DashboardController> {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return Center(child: CircularProgressIndicator(color: theme.colorScheme.primary));
+          return Center(
+              child:
+                  CircularProgressIndicator(color: theme.colorScheme.primary));
         }
 
         if (controller.errorMessage.value.isNotEmpty) {
@@ -58,12 +62,15 @@ class DashboardView extends GetView<DashboardController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline, size: 64, color: theme.colorScheme.onSurface.withOpacity(0.4)),
+                Icon(Icons.error_outline,
+                    size: 64,
+                    color: theme.colorScheme.onSurface.withOpacity(0.4)),
                 const SizedBox(height: 16),
                 Text(
                   controller.errorMessage.value,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                  style: TextStyle(
+                      color: theme.colorScheme.onSurface.withOpacity(0.7)),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
@@ -137,9 +144,23 @@ class DashboardView extends GetView<DashboardController> {
           context: context,
         ),
         _buildStatCard(
-          title: 'tags'.tr,
-          value: controller.totalTags.value.toString(),
-          icon: Icons.tag,
+          title: 'Admin Followers',
+          value: controller.adminFollowers.value.toString(),
+          icon: Icons.verified_user,
+          color: Colors.blue,
+          context: context,
+        ),
+        _buildStatCard(
+          title: 'Organizer Followers',
+          value: controller.organizerFollowers.value.toString(),
+          icon: Icons.people_outline,
+          color: Colors.grey,
+          context: context,
+        ),
+        _buildStatCard(
+          title: 'Total Follows',
+          value: controller.totalFollows.value.toString(),
+          icon: Icons.follow_the_signs_sharp,
           color: theme.colorScheme.secondaryContainer,
           context: context,
         ),
@@ -161,7 +182,8 @@ class DashboardView extends GetView<DashboardController> {
       decoration: BoxDecoration(
         color: color.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.06)),
+        border:
+            Border.all(color: theme.colorScheme.onSurface.withOpacity(0.06)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,14 +193,20 @@ class DashboardView extends GetView<DashboardController> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(value, style: theme.textTheme.titleLarge?.copyWith(fontSize: 24, fontWeight: FontWeight.bold, color: color)),
-              Text(title, style: theme.textTheme.bodySmall?.copyWith(fontSize: 12, color: theme.colorScheme.onSurface.withOpacity(0.7))),
+              Text(value,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                      fontSize: 24, fontWeight: FontWeight.bold, color: color)),
+              Text(title,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                      fontSize: 12,
+                      color: theme.colorScheme.onSurface.withOpacity(0.7))),
             ],
           ),
         ],
       ),
     );
   }
+
   Widget _buildSectionTitle(BuildContext context, String title) {
     final theme = Theme.of(context);
     return Padding(
@@ -203,11 +231,12 @@ class DashboardView extends GetView<DashboardController> {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
-          child: Text('no_recent_users'.tr, style: Theme.of(context).textTheme.bodyMedium),
+          child: Text('no_recent_users'.tr,
+              style: Theme.of(context).textTheme.bodyMedium),
         ),
       );
     }
-    
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -224,7 +253,10 @@ class DashboardView extends GetView<DashboardController> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: controller.recentUsers.length,
-        separatorBuilder: (_, __) => Divider(height: 1, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.12), thickness: 1),
+        separatorBuilder: (_, __) => Divider(
+            height: 1,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
+            thickness: 1),
         itemBuilder: (context, index) {
           final user = controller.recentUsers[index];
           final avatarUrl = user.avatar != null && user.avatar!.isNotEmpty
@@ -235,20 +267,37 @@ class DashboardView extends GetView<DashboardController> {
 
           return ListTile(
             leading: CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.08),
-              backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+              backgroundColor:
+                  Theme.of(context).colorScheme.primary.withOpacity(0.08),
+              backgroundImage:
+                  avatarUrl != null ? NetworkImage(avatarUrl) : null,
               child: avatarUrl == null
                   ? Text(
                       user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
-                      style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary),
                     )
                   : null,
             ),
-            title: Text(user.name, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.95))),
-            subtitle: Text(user.email, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.80))),
+            title: Text(user.name,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.95))),
+            subtitle: Text(user.email,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.80))),
             trailing: Text(
               _formatDateTime(user.createdAt),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85)),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withOpacity(0.85)),
             ),
           );
         },
@@ -264,7 +313,9 @@ class DashboardView extends GetView<DashboardController> {
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Center(child: Text('no_recent_articles'.tr, style: Theme.of(context).textTheme.bodyMedium)),
+        child: Center(
+            child: Text('no_recent_articles'.tr,
+                style: Theme.of(context).textTheme.bodyMedium)),
       );
     }
 
@@ -301,7 +352,8 @@ class DashboardView extends GetView<DashboardController> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.06)),
+        border:
+            Border.all(color: theme.colorScheme.onSurface.withOpacity(0.06)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,11 +365,11 @@ class DashboardView extends GetView<DashboardController> {
               bottomLeft: Radius.circular(12),
             ),
             child: Container(
-                width: 100,
-                height: 100,
-                color: theme.colorScheme.surfaceVariant,
-                child: _buildCoverImage(context, article.coverImage),
-              ),
+              width: 100,
+              height: 100,
+              color: theme.colorScheme.surfaceVariant,
+              child: _buildCoverImage(context, article.coverImage),
+            ),
           ),
           // Content
           Expanded(
@@ -331,13 +383,21 @@ class DashboardView extends GetView<DashboardController> {
                     article.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, height: 1.3, color: theme.colorScheme.onSurface.withOpacity(0.95)),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        height: 1.3,
+                        color: theme.colorScheme.onSurface.withOpacity(0.95)),
                   ),
                   const SizedBox(height: 8),
                   // Date and Status
                   Row(
                     children: [
-                      Text(_formatArticleDate(article.publishedAt ?? article.createdAt), style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.85))),
+                      Text(
+                          _formatArticleDate(
+                              article.publishedAt ?? article.createdAt),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface
+                                  .withOpacity(0.85))),
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -345,7 +405,8 @@ class DashboardView extends GetView<DashboardController> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(article.status ?? 'draft').withOpacity(0.1),
+                          color: _getStatusColor(article.status ?? 'draft')
+                              .withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -375,8 +436,10 @@ class DashboardView extends GetView<DashboardController> {
 
     // Check if it's a video file and show small video player
     final lowerData = imageData.toLowerCase();
-    if (lowerData.endsWith('.mp4') || lowerData.endsWith('.mov') || 
-        lowerData.endsWith('.avi') || lowerData.endsWith('.webm')) {
+    if (lowerData.endsWith('.mp4') ||
+        lowerData.endsWith('.mov') ||
+        lowerData.endsWith('.avi') ||
+        lowerData.endsWith('.webm')) {
       // Construct full URL for video
       String videoUrl = imageData;
       if (!videoUrl.startsWith('http://') && !videoUrl.startsWith('https://')) {
@@ -405,7 +468,7 @@ class DashboardView extends GetView<DashboardController> {
         return _buildPlaceholderImage(context);
       }
     }
-    
+
     // Check if it's a URL
     if (imageData.startsWith('http')) {
       return Image.network(
@@ -437,7 +500,8 @@ class DashboardView extends GetView<DashboardController> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceVariant,
-        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.08)),
+        border:
+            Border.all(color: theme.colorScheme.onSurface.withOpacity(0.08)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(
@@ -462,12 +526,22 @@ class DashboardView extends GetView<DashboardController> {
 
   String _formatArticleDate(DateTime? date) {
     if (date == null) return '';
-    
+
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
-    
+
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 

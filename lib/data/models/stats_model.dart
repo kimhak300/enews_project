@@ -2,7 +2,9 @@ class DashboardStatsModel {
   final int totalUsers;
   final int totalArticles;
   final int totalCategories;
-  final int totalTags;
+  final int totalFollows;
+  final int adminFollowers;
+  final int organizerFollowers;
   final int totalComments;
   final int totalReactions;
   final int publishedArticles;
@@ -15,7 +17,9 @@ class DashboardStatsModel {
     required this.totalUsers,
     required this.totalArticles,
     required this.totalCategories,
-    required this.totalTags,
+    required this.totalFollows,
+    this.adminFollowers = 0,
+    this.organizerFollowers = 0,
     required this.totalComments,
     required this.totalReactions,
     required this.publishedArticles,
@@ -30,7 +34,9 @@ class DashboardStatsModel {
       totalUsers: json['total_users'] ?? 0,
       totalArticles: json['total_articles'] ?? 0,
       totalCategories: json['total_categories'] ?? 0,
-      totalTags: json['total_tags'] ?? 0,
+      totalFollows: json['total_follows'] ?? 0,
+      adminFollowers: json['admin_followers'] ?? 0,
+      organizerFollowers: json['organizer_followers'] ?? 0,
       totalComments: json['total_comments'] ?? 0,
       totalReactions: json['total_reactions'] ?? 0,
       publishedArticles: json['published_articles'] ?? 0,
@@ -72,7 +78,9 @@ class RecentArticle {
   factory RecentArticle.fromJson(Map<String, dynamic> json) {
     // Extract cover image from media array
     String? cover;
-    if (json['media'] != null && json['media'] is List && (json['media'] as List).isNotEmpty) {
+    if (json['media'] != null &&
+        json['media'] is List &&
+        (json['media'] as List).isNotEmpty) {
       final media = json['media'][0];
       if (media is String) {
         cover = media;

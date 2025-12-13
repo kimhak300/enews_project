@@ -16,7 +16,9 @@ class DashboardController extends GetxController {
   final totalUsers = 0.obs;
   final totalArticles = 0.obs;
   final totalCategories = 0.obs;
-  final totalTags = 0.obs;
+  final totalFollows = 0.obs;
+  final adminFollowers = 0.obs;
+  final organizerFollowers = 0.obs;
 
   // Recent data lists
   final RxList<RecentUser> recentUsers = <RecentUser>[].obs;
@@ -43,7 +45,9 @@ class DashboardController extends GetxController {
         totalUsers.value = stats.value?.totalUsers ?? 0;
         totalArticles.value = stats.value?.totalArticles ?? 0;
         totalCategories.value = stats.value?.totalCategories ?? 0;
-        totalTags.value = stats.value?.totalTags ?? 0;
+        totalFollows.value = stats.value?.totalFollows ?? 0;
+        adminFollowers.value = stats.value?.adminFollowers ?? 0;
+        organizerFollowers.value = stats.value?.organizerFollowers ?? 0;
 
         recentUsers.assignAll(stats.value?.recentUsers ?? []);
         recentArticles.assignAll(stats.value?.recentArticles ?? []);

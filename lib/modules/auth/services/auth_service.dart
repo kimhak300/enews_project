@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:newshub/app/constants/app_constant.dart';
 import 'package:newshub/app/services/api_service.dart';
 import 'package:newshub/app/services/storage_service.dart';
@@ -34,9 +35,13 @@ class AuthService {
     }
 
     final auth = AuthResponseModel.fromJson(
-      (response.data as Map<String, dynamic>?) ?? <String, dynamic>{});
+        (response.data as Map<String, dynamic>?) ?? <String, dynamic>{});
 
     await _persistSession(auth);
+
+    // Fetch fresh user data from server after login
+    await refreshUserData();
+
     return AuthResult.success(auth);
   }
 
@@ -80,6 +85,121 @@ class AuthService {
   Future<bool> hasToken() async {
     final token = _storage.read<String>(AppConstants.TOKEN_KEY);
     return token != null && token.isNotEmpty;
+  }
+
+  Future<void> refreshUserData() async {
+    try {
+      final response = await _api.getCurrentUser();
+      if (response.isSuccess && response.data['user'] != null) {
+        final user = UserModel.fromJson(response.data['user']);
+        await _storage.write(
+          AppConstants.USER_INFO_KEY,
+          jsonEncode(user.toJson()),
+        );
+      }
+    } catch (e) {
+      print('Error refreshing user data: $e');
+    }
+  }
+
+  Future<bool> updateProfile({
+    String? displayName,
+    String? email,
+    String? avatarPath,
+  }) async {
+    try {
+      String? avatarBase64;
+
+      // Convert image file to base64 if provided
+      if (avatarPath != null && avatarPath.isNotEmpty) {
+        try {
+          final file = File(avatarPath);
+          if (await file.exists()) {
+            final bytes = await file.readAsBytes();
+            final extension = avatarPath.split('.').last.toLowerCase();
+            String mimeType = 'image/jpeg';
+
+            if (extension == 'png') {
+              mimeType = 'image/png';
+            } else if (extension == 'gif') {
+              mimeType = 'image/gif';
+            } else if (extension == 'webp') {
+              mimeType = 'image/webp';
+            } else if (extension == 'jpg' || extension == 'jpeg') {
+              mimeType = 'image/jpeg';
+            }
+
+            avatarBase64 = 'data:$mimeType;base64,${base64Encode(bytes)}';
+            print('Avatar converted to base64, size: ${avatarBase64.length}');
+          } else {
+            print('Avatar file does not exist: $avatarPath');
+          }
+        } catch (e) {
+          print('Error converting image to base64: $e');
+          // Continue without avatar if conversion fails
+        }
+      }
+
+      print('Calling updateProfile API...');
+      print('displayName: $displayName');
+      print('email: $email');
+      print('hasAvatar: ${avatarBase64 != null}');
+
+      final response = await _api.updateProfile(
+        displayName: displayName,
+        email: email,
+        avatarBase64: avatarBase64,
+      );
+
+      print('API Response isSuccess: ${response.isSuccess}');
+      print('API Response data type: ${response.data.runtimeType}');
+      print('API Response data: ${response.data}');
+      print('API Response error: ${response.error}');
+
+      if (response.isSuccess) {
+        // The response.data might be the whole response object
+        // Check both response.data['user'] and response.data directly
+        dynamic userData;
+
+        if (response.data is Map) {
+          userData = response.data['user'] ?? response.data;
+          print('userData from Map: $userData');
+        } else {
+          userData = response.data;
+          print('userData direct: $userData');
+        }
+
+        if (userData != null && userData is Map) {
+          try {
+            final user = UserModel.fromJson(userData as Map<String, dynamic>);
+            await _storage.write(
+              AppConstants.USER_INFO_KEY,
+              jsonEncode(user.toJson()),
+            );
+            print('Profile updated successfully!');
+            return true;
+          } catch (e) {
+            print('Error parsing user data: $e');
+            print('userData content: $userData');
+            // Still refresh from server
+            await refreshUserData();
+            return true;
+          }
+        } else {
+          // Even if user data is not returned, the update might have succeeded
+          print(
+              'Update succeeded but no/invalid user data, refreshing from server');
+          // Refresh user data from server
+          await refreshUserData();
+          return true;
+        }
+      }
+      print('Update failed: ${response.error}');
+      return false;
+    } catch (e) {
+      print('Error updating profile: $e');
+      return false;
+    }
   }
 
   Future<void> _persistSession(AuthResponseModel auth) async {

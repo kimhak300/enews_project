@@ -292,8 +292,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
 
           // Follow button
           Obx(() => InkWell(
-                onTap: () => controller.isFollowing.value =
-                    !controller.isFollowing.value,
+                onTap: () => controller.toggleFollow(),
                 child: Container(
                   width: 32.w,
                   height: 32.w,

@@ -9,7 +9,6 @@ import 'dart:io';
 import 'package:newshub/modules/user/profile/profile_controller.dart';
 import 'package:newshub/app/controllers/theme_controller.dart';
 import 'package:newshub/app/controllers/language_controller.dart';
-import 'package:newshub/app/services/storage_service.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -18,7 +17,7 @@ class ProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeController = Get.find<ThemeController>();
     final languageController = Get.find<LanguageController>();
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text('profile'.tr),
@@ -55,24 +54,29 @@ class ProfileView extends StatelessWidget {
                     } else if (avatarPath != null && avatarPath.isNotEmpty) {
                       if (avatarPath.startsWith('data:image')) {
                         try {
-                          final bytes = base64Decode(avatarPath.split(',').last);
+                          final bytes =
+                              base64Decode(avatarPath.split(',').last);
                           avatarProvider = MemoryImage(bytes);
                         } catch (_) {
                           avatarProvider = null;
                         }
                       } else {
                         String candidate = avatarPath;
-                        if (candidate.startsWith('file://')) candidate = candidate.replaceFirst('file://', '');
+                        if (candidate.startsWith('file://'))
+                          candidate = candidate.replaceFirst('file://', '');
                         try {
                           final file = File(candidate);
-                          if (file.existsSync()) avatarProvider = FileImage(file);
+                          if (file.existsSync())
+                            avatarProvider = FileImage(file);
                         } catch (_) {
                           avatarProvider = null;
                         }
                         if (avatarProvider == null) {
                           String url = candidate;
-                          if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                            url = '${AppConstants.STORAGE_BASE_URL}${candidate.startsWith('/') ? candidate : '/$candidate'}';
+                          if (!url.startsWith('http://') &&
+                              !url.startsWith('https://')) {
+                            url =
+                                '${AppConstants.STORAGE_BASE_URL}${candidate.startsWith('/') ? candidate : '/$candidate'}';
                           }
                           avatarProvider = NetworkImage(url);
                         }
@@ -117,7 +121,8 @@ class ProfileView extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(20),
@@ -137,9 +142,9 @@ class ProfileView extends StatelessWidget {
                 },
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Settings Section
             // Settings Section
             _buildSectionTitle('settings'.tr),
@@ -147,76 +152,123 @@ class ProfileView extends StatelessWidget {
               icon: Icons.person_outline,
               title: 'edit_profile'.tr,
               onTap: () async {
-                final authService = AuthService();
+                final authService = Get.find<AuthService>();
                 final user = await authService.getSavedUser();
                 final role = user?.primaryRole ?? 'user';
                 if (role.toLowerCase() != 'user') {
-                  Get.snackbar('error'.tr, 'only_regular_users_can_edit_profile'.tr, snackPosition: SnackPosition.BOTTOM);
+                  Get.snackbar(
+                      'error'.tr, 'only_regular_users_can_edit_profile'.tr,
+                      snackPosition: SnackPosition.BOTTOM);
                   return;
                 }
 
                 final profileCtrl = Get.find<ProfileController>();
                 final nameCtrl = TextEditingController(text: user?.name ?? '');
-                final emailCtrl = TextEditingController(text: user?.email ?? '');
+                final emailCtrl =
+                    TextEditingController(text: user?.email ?? '');
 
                 await Get.dialog(AlertDialog(
-                    title: Text('edit_profile'.tr),
+                  title: Text('edit_profile'.tr),
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                        // Avatar picker button (uses ProfileController)
+                      // Avatar picker button (uses ProfileController)
                       OutlinedButton.icon(
                         onPressed: () => profileCtrl.showImageSourceDialog(),
                         icon: const Icon(Icons.photo_camera),
                         label: Text('choose_avatar'.tr),
                       ),
                       const SizedBox(height: 8),
-                      TextField(controller: nameCtrl, decoration: InputDecoration(labelText: 'name'.tr)),
-                      TextField(controller: emailCtrl, decoration: InputDecoration(labelText: 'email'.tr)),
+                      TextField(
+                          controller: nameCtrl,
+                          decoration: InputDecoration(labelText: 'name'.tr)),
+                      TextField(
+                          controller: emailCtrl,
+                          decoration: InputDecoration(labelText: 'email'.tr)),
                     ],
                   ),
                   actions: [
-                    TextButton(onPressed: () => Get.back(), child: Text('cancel'.tr)),
+                    TextButton(
+                        onPressed: () => Get.back(), child: Text('cancel'.tr)),
                     ElevatedButton(
                       onPressed: () async {
-                        // Persist changes to storage and avatar path if picked
-                        final storage = StorageService.to;
-                        final raw = storage.read<String>(AppConstants.USER_INFO_KEY);
-                        if (raw != null) {
-                          try {
-                            final Map<String, dynamic> map = jsonDecode(raw) as Map<String, dynamic>;
-                            map['display_name'] = nameCtrl.text;
-                            map['full_name'] = nameCtrl.text;
-                            map['name'] = nameCtrl.text;
-                            map['email'] = emailCtrl.text;
+                        try {
+                          print('=== SAVE BUTTON CLICKED ===');
+                          print('Name: ${nameCtrl.text}');
+                          print('Email: ${emailCtrl.text}');
+                          print(
+                              'Avatar path: ${profileCtrl.profileImage.value?.path}');
 
-                            // If user picked an image, save its local path
-                            final picked = profileCtrl.profileImage.value;
-                            if (picked != null) {
-                              // store as local file path
-                              map['avatar_url'] = picked.path;
-                            }
+                          // Show loading
+                          Get.dialog(
+                            const Center(child: CircularProgressIndicator()),
+                            barrierDismissible: false,
+                          );
 
-                            await storage.write(AppConstants.USER_INFO_KEY, jsonEncode(map));
+                          // Save to backend API first - use Get.find instead of creating new instance
+                          final authService = Get.find<AuthService>();
 
+                          // Only send changed values
+                          final currentUser = await authService.getSavedUser();
+                          final success = await authService.updateProfile(
+                            displayName: nameCtrl.text != currentUser?.name
+                                ? nameCtrl.text
+                                : null,
+                            email: emailCtrl.text != currentUser?.email
+                                ? emailCtrl.text
+                                : null,
+                            avatarPath: profileCtrl.profileImage.value?.path,
+                          );
+
+                          print('=== UPDATE RESULT: $success ===');
+
+                          // Close loading dialog
+                          Get.back();
+
+                          if (success) {
                             // Update reactive controller so profile view refreshes in-place
                             final profile = Get.find<ProfileController>();
                             profile.userName.value = nameCtrl.text;
                             profile.userEmail.value = emailCtrl.text;
+                            final picked = profileCtrl.profileImage.value;
                             if (picked != null) {
                               profile.avatarPath.value = picked.path;
                             }
 
                             Get.back();
-                            Get.snackbar('success'.tr, 'profile_updated'.tr, snackPosition: SnackPosition.BOTTOM);
-                          } catch (e) {
-                            Get.snackbar('error'.tr, 'failed_to_save_profile'.tr);
+                            Get.snackbar(
+                              'success'.tr,
+                              'profile_updated'.tr,
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: Colors.green,
+                              colorText: Colors.white,
+                            );
+                          } else {
+                            Get.snackbar(
+                              'error'.tr,
+                              'failed_to_save_profile'.tr,
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
+                            );
                           }
-                        } else {
-                          Get.snackbar('Error', 'No user session found');
+                        } catch (e) {
+                          // Close loading if still open
+                          if (Get.isDialogOpen == true) {
+                            Get.back();
+                          }
+
+                          Get.snackbar(
+                            'error'.tr,
+                            'Error: ${e.toString()}',
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                            duration: const Duration(seconds: 5),
+                          );
                         }
                       },
-                      child:  Text('save'.tr),
+                      child: Text('save'.tr),
                     ),
                   ],
                 ));
@@ -226,30 +278,29 @@ class ProfileView extends StatelessWidget {
               icon: Icons.dark_mode_outlined,
               title: 'theme'.tr,
               subtitle: Obx(() => Text(
-                themeController.themeMode.value == ThemeMode.dark 
-                    ? 'dark_mode'.tr 
-                    : 'light_mode'.tr
-              )),
+                  themeController.themeMode.value == ThemeMode.dark
+                      ? 'dark_mode'.tr
+                      : 'light_mode'.tr)),
               trailing: Obx(() => Switch(
-                value: themeController.themeMode.value == ThemeMode.dark,
-                onChanged: (value) {
-                  themeController.toggleTheme();
-                },
-                activeColor: AppTheme.primaryColor,
-              )),
+                    value: themeController.themeMode.value == ThemeMode.dark,
+                    onChanged: (value) {
+                      themeController.toggleTheme();
+                    },
+                    activeColor: AppTheme.primaryColor,
+                  )),
               onTap: () {},
             ),
             _buildMenuItem(
               icon: Icons.language_outlined,
               title: 'language'.tr,
-              subtitle: Obx(() => Text(
-                languageController.isKhmer.value ? 'khmer'.tr : 'english'.tr
-              )),
+              subtitle: Obx(() => Text(languageController.isKhmer.value
+                  ? 'khmer'.tr
+                  : 'english'.tr)),
               onTap: () => _showLanguageDialog(languageController),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Account Section
             _buildSectionTitle('account'.tr),
             _buildMenuItem(
@@ -263,19 +314,21 @@ class ProfileView extends StatelessWidget {
               icon: Icons.notifications_outlined,
               title: 'notifications'.tr,
               onTap: () {
-                Get.snackbar('Coming Soon', 'Notifications feature coming soon');
+                Get.snackbar(
+                    'Coming Soon', 'Notifications feature coming soon');
               },
             ),
             _buildMenuItem(
               icon: Icons.lock_outline,
               title: 'privacy_settings'.tr,
               onTap: () {
-                Get.snackbar('coming_soon'.tr, 'privacy_settings_coming_soon'.tr);
+                Get.snackbar(
+                    'coming_soon'.tr, 'privacy_settings_coming_soon'.tr);
               },
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // About Section
             _buildSectionTitle('about'.tr),
             _buildMenuItem(
@@ -290,9 +343,9 @@ class ProfileView extends StatelessWidget {
                 Get.snackbar('coming_soon'.tr, 'help_support_coming_soon'.tr);
               },
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Logout Button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -319,14 +372,14 @@ class ProfileView extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 32),
           ],
         ),
       ),
     );
   }
-  
+
   Widget _buildSectionTitle(String title) {
     return Container(
       width: double.infinity,
@@ -342,7 +395,7 @@ class ProfileView extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildMenuItem({
     required IconData icon,
     required String title,
@@ -364,7 +417,7 @@ class ProfileView extends StatelessWidget {
       onTap: onTap,
     );
   }
-  
+
   void _showLanguageDialog(LanguageController languageController) {
     Get.dialog(
       AlertDialog(
@@ -373,25 +426,25 @@ class ProfileView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Obx(() => ListTile(
-              title: const Text('English'),
-              leading: languageController.isKhmer.value 
-                  ? null 
-                  : const Icon(Icons.check, color: Colors.green),
-              onTap: () {
-                languageController.changeLanguage(false);
-                Get.back();
-              },
-            )),
+                  title: const Text('English'),
+                  leading: languageController.isKhmer.value
+                      ? null
+                      : const Icon(Icons.check, color: Colors.green),
+                  onTap: () {
+                    languageController.changeLanguage(false);
+                    Get.back();
+                  },
+                )),
             Obx(() => ListTile(
-              title: const Text('ភាសាខ្មែរ (Khmer)'),
-              leading: languageController.isKhmer.value 
-                  ? const Icon(Icons.check, color: Colors.green) 
-                  : null,
-              onTap: () {
-                languageController.changeLanguage(true);
-                Get.back();
-              },
-            )),
+                  title: const Text('ភាសាខ្មែរ (Khmer)'),
+                  leading: languageController.isKhmer.value
+                      ? const Icon(Icons.check, color: Colors.green)
+                      : null,
+                  onTap: () {
+                    languageController.changeLanguage(true);
+                    Get.back();
+                  },
+                )),
           ],
         ),
         actions: [
@@ -403,7 +456,7 @@ class ProfileView extends StatelessWidget {
       ),
     );
   }
-  
+
   void _showAboutDialog(BuildContext context) {
     showAboutDialog(
       context: context,
@@ -416,7 +469,7 @@ class ProfileView extends StatelessWidget {
       ],
     );
   }
-  
+
   void _logout(BuildContext context) {
     Get.dialog(
       AlertDialog(
@@ -430,7 +483,7 @@ class ProfileView extends StatelessWidget {
           ElevatedButton(
             onPressed: () async {
               Get.back(); // Close dialog
-              
+
               // Show loading
               Get.dialog(
                 const Center(
@@ -438,17 +491,17 @@ class ProfileView extends StatelessWidget {
                 ),
                 barrierDismissible: false,
               );
-              
+
               // Logout
-              final authService = AuthService();
+              final authService = Get.find<AuthService>();
               await authService.logout();
-              
+
               // Close loading
               Get.back();
-              
+
               // Navigate to login
               Get.offAllNamed(Routes.LOGIN);
-              
+
               // Show success message
               Get.snackbar(
                 'logged_out'.tr,

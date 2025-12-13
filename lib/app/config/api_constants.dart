@@ -8,6 +8,7 @@ class ApiConstants {
   static const String register = '/register';
   static const String logout = '/logout';
   static const String me = '/me';
+  static const String updateProfile = '/profile';
 
   // ============ User Endpoints ============
   static const String users = '/users';
@@ -16,11 +17,13 @@ class ApiConstants {
   static String userUnfollow(int userId) => '/users/$userId/unfollow';
   static String userFollowers(int userId) => '/users/$userId/followers';
   static String userFollowing(int userId) => '/users/$userId/following';
+  static String checkFollowStatus(int userId) => '/users/$userId/check-follow';
 
   // ============ Article Endpoints ============
   static const String articles = '/articles';
   static String articleById(int id) => '/articles/$id';
-  static String articleCategories(int articleId) => '/articles/$articleId/categories';
+  static String articleCategories(int articleId) =>
+      '/articles/$articleId/categories';
   static String articleTags(int articleId) => '/articles/$articleId/tags';
 
   // ============ Category Endpoints ============

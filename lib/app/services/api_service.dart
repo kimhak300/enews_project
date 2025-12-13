@@ -89,7 +89,8 @@ class ApiService extends GetxService {
       // Token expired or invalid - logout
       _storage.remove(AppConstants.TOKEN_KEY);
       _storage.remove(AppConstants.USER_INFO_KEY);
-      return ApiResponse.error('Session expired. Please login again.', code: 401);
+      return ApiResponse.error('Session expired. Please login again.',
+          code: 401);
     } else if (response.statusCode == 403) {
       final message = body['message'] ?? 'Access denied.';
       return ApiResponse.error(message, code: 403);
@@ -152,15 +153,29 @@ class ApiService extends GetxService {
     return get(ApiConstants.me, auth: true);
   }
 
+  Future<ApiResponse> updateProfile({
+    String? displayName,
+    String? email,
+    String? avatarBase64,
+  }) async {
+    final Map<String, dynamic> body = {};
+    if (displayName != null) body['display_name'] = displayName;
+    if (email != null) body['email'] = email;
+    if (avatarBase64 != null) body['avatar_base64'] = avatarBase64;
+
+    return put(ApiConstants.updateProfile, body: body, auth: true);
+  }
+
   // ============ User Methods ============
 
-  Future<ApiResponse> getUsers({int page = 1, int perPage = 15, String? role, String? search}) async {
+  Future<ApiResponse> getUsers(
+      {int page = 1, int perPage = 15, String? role, String? search}) async {
     final params = <String>[];
     params.add('page=$page');
     params.add('per_page=$perPage');
     if (role != null) params.add('role=$role');
     if (search != null && search.isNotEmpty) params.add('search=$search');
-    
+
     final query = params.join('&');
     return get('${ApiConstants.users}?$query', auth: false);
   }
@@ -182,7 +197,8 @@ class ApiService extends GetxService {
   }
 
   Future<ApiResponse> assignRole(int userId, int roleId) async {
-    return post('/users/$userId/assign-role', body: {'role_id': roleId}, auth: true);
+    return post('/users/$userId/assign-role',
+        body: {'role_id': roleId}, auth: true);
   }
 
   Future<ApiResponse> removeRole(int userId, int roleId) async {
@@ -191,12 +207,13 @@ class ApiService extends GetxService {
 
   // ============ Article Methods ============
 
-  Future<ApiResponse> getArticles({int page = 1, int perPage = 15, String? type}) async {
+  Future<ApiResponse> getArticles(
+      {int page = 1, int perPage = 15, String? type}) async {
     final params = <String>[];
     params.add('page=$page');
     params.add('per_page=$perPage');
     if (type != null && type.isNotEmpty) params.add('type=$type');
-    
+
     final query = params.join('&');
     return get('${ApiConstants.articles}?$query');
   }
@@ -246,7 +263,8 @@ class ApiService extends GetxService {
   }
 
   Future<ApiResponse> addBookmark(int articleId) async {
-    return post(ApiConstants.bookmark, body: {'article_id': articleId}, auth: true);
+    return post(ApiConstants.bookmark,
+        body: {'article_id': articleId}, auth: true);
   }
 
   Future<ApiResponse> removeBookmark(int articleId) async {
@@ -295,6 +313,10 @@ class ApiService extends GetxService {
 
   Future<ApiResponse> getFollowing(int userId) async {
     return get(ApiConstants.userFollowing(userId), auth: true);
+  }
+
+  Future<ApiResponse> checkFollowStatus(int userId) async {
+    return get(ApiConstants.checkFollowStatus(userId), auth: true);
   }
 }
 

@@ -15,7 +15,8 @@ class OrgHomeController extends GetxController {
   // Quick stats for cards
   final totalArticles = 0.obs;
   final publishedArticles = 0.obs;
-  final draftArticles = 0.obs;
+  final totalFollows = 0.obs;
+  final organizerFollowers = 0.obs;
   final totalViews = 0.obs;
 
   // Recent data lists
@@ -41,7 +42,8 @@ class OrgHomeController extends GetxController {
         // Update individual values for easier access
         totalArticles.value = stats.value?.totalArticles ?? 0;
         publishedArticles.value = stats.value?.publishedArticles ?? 0;
-        draftArticles.value = stats.value?.draftArticles ?? 0;
+        totalFollows.value = stats.value?.totalFollows ?? 0;
+        organizerFollowers.value = stats.value?.organizerFollowers ?? 0;
         totalViews.value = 0; // Will be updated when API provides this
 
         recentArticles.assignAll(stats.value?.recentArticles ?? []);

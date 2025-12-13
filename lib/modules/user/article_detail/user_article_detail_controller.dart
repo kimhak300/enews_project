@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../../api/service/article_interaction_service.dart';
+import '../../../api/service/follow_service.dart';
 import '../../../data/models/article_model.dart';
 import 'package:newshub/app/utils/image_utils.dart';
 
@@ -32,10 +33,12 @@ class CommentModel {
 }
 
 class UserArticleDetailController extends GetxController {
-  final ArticleInteractionService _interactionService = ArticleInteractionService();
+  final ArticleInteractionService _interactionService =
+      ArticleInteractionService();
+  final FollowService _followService = FollowService();
 
   late ArticleModel article;
-  
+
   // Observable states
   final isLiked = false.obs;
   final isBookmarked = false.obs;
@@ -44,7 +47,7 @@ class UserArticleDetailController extends GetxController {
   final commentCount = 0.obs;
   final shareCount = 0.obs;
   final isLoading = false.obs;
-  
+
   // Comments
   final RxList<CommentModel> comments = <CommentModel>[].obs;
   final commentController = TextEditingController();
@@ -52,22 +55,22 @@ class UserArticleDetailController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    
+
     // Get article from arguments
     final args = Get.arguments as Map<String, dynamic>?;
     if (args != null) {
       article = ArticleModel.fromJson(args);
-      
+
       // Initialize counts from article data
       likeCount.value = article.likeCount ?? 0;
       commentCount.value = article.commentCount ?? 0;
       shareCount.value = 0;
-      
+
       // Load all data - these will update the UI as they complete
       _initializeArticleData();
     }
   }
-  
+
   /// Initialize article data from backend
   Future<void> _initializeArticleData() async {
     // Run these in parallel for better performance
@@ -75,6 +78,7 @@ class UserArticleDetailController extends GetxController {
       reloadArticleStats(),
       checkLikeStatus(),
       checkBookmarkStatus(),
+      checkFollowStatus(),
       loadComments(),
     ]);
   }
@@ -88,7 +92,8 @@ class UserArticleDetailController extends GetxController {
   /// Check if article is bookmarked
   Future<void> checkBookmarkStatus() async {
     try {
-      isBookmarked.value = await _interactionService.checkIfBookmarked(article.id);
+      isBookmarked.value =
+          await _interactionService.checkIfBookmarked(article.id);
     } catch (e) {
       print('Error checking bookmark status: $e');
     }
@@ -103,6 +108,92 @@ class UserArticleDetailController extends GetxController {
     } catch (e) {
       print('Error checking like status: $e');
       isLiked.value = false;
+    }
+  }
+
+  /// Check if current user is following the article author
+  Future<void> checkFollowStatus() async {
+    try {
+      final authorId = article.authorId;
+      if (authorId != null) {
+        isFollowing.value = await _followService.checkIfFollowing(authorId);
+      }
+    } catch (e) {
+      print('Error checking follow status: $e');
+      isFollowing.value = false;
+    }
+  }
+
+  /// Toggle follow/unfollow article author
+  /// ✅ This updates the UserFollow table → Admin analytics will count it by role
+  Future<void> toggleFollow() async {
+    try {
+      final authorId = article.authorId;
+      if (authorId == null) {
+        Get.snackbar(
+          'Error',
+          'Cannot follow: Author not found',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+
+      if (isFollowing.value) {
+        // Unfollow
+        final success = await _followService.unfollowUser(authorId);
+        if (success) {
+          isFollowing.value = false;
+          Get.snackbar(
+            'Success',
+            'Unfollowed ${article.author?.displayName ?? "author"}',
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            duration: const Duration(seconds: 2),
+          );
+        } else {
+          Get.snackbar(
+            'Error',
+            'Failed to unfollow',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        }
+      } else {
+        // Follow
+        final success = await _followService.followUser(authorId);
+        if (success) {
+          isFollowing.value = true;
+          Get.snackbar(
+            'Success',
+            'Following ${article.author?.displayName ?? "author"}! 🎉',
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            duration: const Duration(seconds: 2),
+          );
+        } else {
+          Get.snackbar(
+            'Error',
+            'Failed to follow',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        }
+      }
+    } catch (e) {
+      print('Error toggling follow: $e');
+      Get.snackbar(
+        'Error',
+        'Something went wrong',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 
@@ -269,15 +360,15 @@ ${article.content ?? ''}
 
 Read more at: NewsHub
       ''';
-      
+
       await Clipboard.setData(ClipboardData(text: shareText));
-      
+
       // Track share in backend (adds to shares table → counted in admin analytics)
       await _interactionService.trackShare(article.id, platform: 'copy_link');
-      
+
       // Reload actual count from backend
       await reloadArticleStats();
-      
+
       Get.snackbar(
         'Shared',
         'Article content copied to clipboard! 🔗',
@@ -321,9 +412,8 @@ Read more at: NewsHub
       if (result['success']) {
         final data = result['data'];
         final commentsList = (data['data'] as List?) ?? [];
-        comments.value = commentsList
-            .map((json) => CommentModel.fromJson(json))
-            .toList();
+        comments.value =
+            commentsList.map((json) => CommentModel.fromJson(json)).toList();
         commentCount.value = comments.length;
       }
     } catch (e) {
@@ -349,14 +439,14 @@ Read more at: NewsHub
     try {
       isLoading.value = true;
       final result = await _interactionService.postComment(article.id, content);
-      
+
       if (result['success']) {
         // Clear input
         commentController.clear();
-        
+
         // Reload comments
         await loadComments();
-        
+
         Get.snackbar(
           'Success',
           'Comment posted! 💬',
@@ -420,7 +510,7 @@ Read more at: NewsHub
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            
+
             // Title
             Row(
               children: [
@@ -435,16 +525,16 @@ Read more at: NewsHub
                 ),
                 const Spacer(),
                 Obx(() => Text(
-                  '${commentCount.value}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
-                )),
+                      '${commentCount.value}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
+                    )),
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Comments list
             Obx(() => comments.isEmpty
                 ? const Padding(
@@ -463,10 +553,11 @@ Read more at: NewsHub
                         final comment = comments[index];
                         return ListTile(
                           leading: CircleAvatar(
-                            backgroundImage: resolveImageProvider(comment.authorAvatar),
+                            backgroundImage:
+                                resolveImageProvider(comment.authorAvatar),
                             child: comment.authorAvatar == null
-                                ? Text(comment.authorName.isNotEmpty 
-                                    ? comment.authorName[0].toUpperCase() 
+                                ? Text(comment.authorName.isNotEmpty
+                                    ? comment.authorName[0].toUpperCase()
                                     : '?')
                                 : null,
                           ),
@@ -479,9 +570,9 @@ Read more at: NewsHub
                       },
                     ),
                   )),
-            
+
             const SizedBox(height: 16),
-            
+
             // Comment input
             Row(
               children: [
@@ -503,16 +594,16 @@ Read more at: NewsHub
                 ),
                 const SizedBox(width: 8),
                 Obx(() => IconButton(
-                  onPressed: isLoading.value ? null : postComment,
-                  icon: isLoading.value
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.send),
-                  color: Colors.blue,
-                )),
+                      onPressed: isLoading.value ? null : postComment,
+                      icon: isLoading.value
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.send),
+                      color: Colors.blue,
+                    )),
               ],
             ),
           ],
