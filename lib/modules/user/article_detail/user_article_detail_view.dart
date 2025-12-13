@@ -12,7 +12,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> article = Get.arguments ?? {};
-    
+
     final String title = article['title'] ?? 'Article';
     final String? subtitle = article['subtitle'];
     final String? content = article['content'] ?? article['content_html'];
@@ -24,7 +24,11 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(type == 'video' ? 'Video' : type == 'news_feed' ? 'Hot News' : 'Article'),
+        title: Text(type == 'video'
+            ? 'Video'
+            : type == 'news_feed'
+                ? 'Hot News'
+                : 'Article'),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -39,7 +43,11 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                 _buildImageSection(media),
               SizedBox(height: 16.h),
             ],
-            
+
+            // Profile Header Section
+            _buildProfileHeader(article),
+            SizedBox(height: 16.h),
+
             // Content Section
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -52,9 +60,11 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                       spacing: 8.w,
                       runSpacing: 8.h,
                       children: categories.map((cat) {
-                        final catName = cat is String ? cat : cat['name'] ?? 'Category';
+                        final catName =
+                            cat is String ? cat : cat['name'] ?? 'Category';
                         return Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12.w, vertical: 6.h),
                           decoration: BoxDecoration(
                             color: Colors.blue.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8.r),
@@ -72,7 +82,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                     ),
                     SizedBox(height: 16.h),
                   ],
-                  
+
                   // Title
                   Text(
                     title,
@@ -82,7 +92,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                       height: 1.3,
                     ),
                   ),
-                  
+
                   // Subtitle
                   if (subtitle != null && subtitle.isNotEmpty) ...[
                     SizedBox(height: 8.h),
@@ -95,9 +105,9 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                       ),
                     ),
                   ],
-                  
+
                   SizedBox(height: 16.h),
-                  
+
                   // Excerpt
                   if (excerpt != null && excerpt.isNotEmpty) ...[
                     Text(
@@ -111,7 +121,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                     ),
                     SizedBox(height: 16.h),
                   ],
-                  
+
                   // Content
                   if (content != null && content.isNotEmpty) ...[
                     Text(
@@ -123,17 +133,17 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                       ),
                     ),
                   ],
-                  
+
                   SizedBox(height: 24.h),
-                  
+
                   // Action Buttons Row
                   _buildActionButtons(),
-                  
+
                   SizedBox(height: 24.h),
-                  
+
                   // Comments Section
                   _buildCommentsSection(),
-                  
+
                   SizedBox(height: 32.h),
                 ],
               ),
@@ -144,52 +154,369 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
     );
   }
 
-  Widget _buildActionButtons() {
-    return Obx(() => Container(
-      padding: EdgeInsets.symmetric(vertical: 12.h),
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: Colors.grey[300]!, width: 1),
-          bottom: BorderSide(color: Colors.grey[300]!, width: 1),
-        ),
-      ),
+  Widget _buildProfileHeader(Map<String, dynamic> article) {
+    final theme = Theme.of(Get.context!);
+    final author = article['author'];
+
+    // Extract author name with multiple fallbacks
+    String authorName = 'Unknown Author';
+    if (author != null) {
+      authorName = author['display_name']?.toString() ??
+          author['full_name']?.toString() ??
+          author['name']?.toString() ??
+          'Unknown Author';
+    }
+
+    // Extract avatar URL with multiple fallbacks
+    final authorAvatar = author?['avatar_url'] ?? author?['avatar'];
+
+    // Extract publish date
+    final publishedAt = article['published_at'] ?? article['created_at'];
+
+    // Extract role - check roles array first, then role field
+    String authorRole = 'user';
+    if (author != null) {
+      // Check if roles is a list with role objects
+      if (author['roles'] is List && (author['roles'] as List).isNotEmpty) {
+        final rolesList = author['roles'] as List;
+        final firstRole = rolesList.first;
+        if (firstRole is Map) {
+          authorRole =
+              firstRole['role_name']?.toString().toLowerCase() ?? 'user';
+        } else if (firstRole is String) {
+          authorRole = firstRole.toLowerCase();
+        }
+      } else if (author['role'] != null &&
+          author['role'].toString().isNotEmpty) {
+        authorRole = author['role'].toString().toLowerCase();
+      }
+    }
+
+    // Fix avatar URL - build full URL if needed
+    String? avatarUrl;
+    if (authorAvatar != null && authorAvatar.toString().isNotEmpty) {
+      avatarUrl = authorAvatar.toString();
+      if (!avatarUrl.startsWith('http://') &&
+          !avatarUrl.startsWith('https://') &&
+          !avatarUrl.startsWith('data:')) {
+        avatarUrl =
+            '${ApiConstants.mediaBaseUrl}${avatarUrl.startsWith('/') ? avatarUrl : '/$avatarUrl'}';
+      }
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          // Like Button
-          _buildActionButton(
-            icon: controller.isLiked.value ? Icons.favorite : Icons.favorite_border,
-            label: controller.likeCount.value.toString(),
-            color: controller.isLiked.value ? Colors.red : Colors.grey,
-            onTap: () => controller.toggleLike(),
+          // Avatar with fallback to initials
+          CircleAvatar(
+            radius: 20.r,
+            backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+            backgroundImage: (avatarUrl != null && avatarUrl.isNotEmpty)
+                ? NetworkImage(avatarUrl)
+                : null,
+            child: (avatarUrl == null || avatarUrl.isEmpty)
+                ? Text(
+                    authorName.isNotEmpty ? authorName[0].toUpperCase() : 'U',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                    ),
+                  )
+                : null,
           ),
-          
-          // Comment Button
-          _buildActionButton(
-            icon: Icons.comment_outlined,
-            label: controller.commentCount.value.toString(),
-            color: Colors.grey,
-            onTap: () => _showCommentDialog(),
+          SizedBox(width: 12.w),
+
+          // Author name and role badge
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        authorName,
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w600,
+                          color: theme.textTheme.bodyLarge?.color ??
+                              Colors.black87,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    SizedBox(width: 6.w),
+                    // Role badge - always show for all roles
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                      decoration: BoxDecoration(
+                        color: _getRoleBadgeColor(authorRole),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Text(
+                        _getRoleLabel(authorRole),
+                        style: TextStyle(
+                          fontSize: 8.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 4.h),
+                Row(
+                  children: [
+                    Icon(Icons.access_time,
+                        size: 12.sp,
+                        color: theme.textTheme.bodySmall?.color ??
+                            Colors.grey[600]),
+                    SizedBox(width: 4.w),
+                    Text(
+                      _formatPublishDate(publishedAt),
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: theme.textTheme.bodySmall?.color ??
+                            Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          
-          // Share Button
-          _buildActionButton(
-            icon: Icons.share_outlined,
-            label: controller.shareCount.value.toString(),
-            color: Colors.grey,
-            onTap: () => controller.shareArticle(),
-          ),
-          
-          // Bookmark Button
-          _buildActionButton(
-            icon: controller.isBookmarked.value ? Icons.bookmark : Icons.bookmark_border,
-            label: controller.isBookmarked.value ? 'Saved' : 'Save',
-            color: controller.isBookmarked.value ? Colors.amber : Colors.grey,
-            onTap: () => controller.toggleBookmark(),
+
+          // Follow button
+          Obx(() => InkWell(
+                onTap: () => controller.isFollowing.value =
+                    !controller.isFollowing.value,
+                child: Container(
+                  width: 32.w,
+                  height: 32.w,
+                  decoration: BoxDecoration(
+                    color: controller.isFollowing.value
+                        ? Colors.grey[300]
+                        : Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    controller.isFollowing.value ? Icons.check : Icons.add,
+                    color: Colors.white,
+                    size: 18.sp,
+                  ),
+                ),
+              )),
+
+          SizedBox(width: 8.w),
+
+          // More options button
+          InkWell(
+            onTap: () => _showMoreOptions(),
+            child: Container(
+              width: 32.w,
+              height: 32.w,
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.more_horiz,
+                color: Colors.black87,
+                size: 20.sp,
+              ),
+            ),
           ),
         ],
       ),
-    ));
+    );
+  }
+
+  String _formatViewCount(int count) {
+    if (count >= 1000000) {
+      return '${(count / 1000000).toStringAsFixed(1)}M';
+    } else if (count >= 1000) {
+      return '${(count / 1000).toStringAsFixed(1)}K';
+    }
+    return count.toString();
+  }
+
+  String _formatPublishDate(dynamic date) {
+    if (date == null) return 'Recently';
+
+    try {
+      DateTime publishedDate;
+      if (date is String) {
+        // Try to parse the string, if it fails return Recently
+        final parsed = DateTime.tryParse(date);
+        if (parsed == null) return 'Recently';
+        publishedDate = parsed;
+      } else if (date is DateTime) {
+        publishedDate = date;
+      } else {
+        return 'Recently';
+      }
+
+      final now = DateTime.now();
+      final difference = now.difference(publishedDate);
+
+      if (difference.inSeconds < 60) {
+        return 'Just now';
+      } else if (difference.inMinutes < 60) {
+        return '${difference.inMinutes}m ago';
+      } else if (difference.inHours < 24) {
+        return '${difference.inHours}h ago';
+      } else if (difference.inDays == 1) {
+        return '1d ago';
+      } else if (difference.inDays < 7) {
+        return '${difference.inDays}d ago';
+      } else if (difference.inDays < 30) {
+        final weeks = (difference.inDays / 7).floor();
+        return '${weeks}w ago';
+      } else if (difference.inDays < 365) {
+        final months = (difference.inDays / 30).floor();
+        return '${months}mo ago';
+      } else {
+        final years = (difference.inDays / 365).floor();
+        return '${years}y ago';
+      }
+    } catch (e) {
+      print('Error parsing date: $e');
+      return 'Recently';
+    }
+  }
+
+  void _showMoreOptions() {
+    Get.bottomSheet(
+      Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: 12.h),
+            Container(
+              width: 40.w,
+              height: 4.h,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2.r),
+              ),
+            ),
+            SizedBox(height: 20.h),
+            _buildOptionItem(
+              icon: Icons.report_outlined,
+              title: 'Report',
+              onTap: () {
+                Get.back();
+                Get.snackbar('Report', 'Report feature coming soon');
+              },
+            ),
+            _buildOptionItem(
+              icon: Icons.block_outlined,
+              title: 'Block this user',
+              onTap: () {
+                Get.back();
+                Get.snackbar('Block', 'Block feature coming soon');
+              },
+            ),
+            _buildOptionItem(
+              icon: Icons.info_outline,
+              title: 'About this article',
+              onTap: () {
+                Get.back();
+                Get.snackbar('Info', 'Article info coming soon');
+              },
+            ),
+            SizedBox(height: 20.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOptionItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+        child: Row(
+          children: [
+            Icon(icon, size: 24.sp, color: Colors.black87),
+            SizedBox(width: 16.w),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16.sp,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Obx(() => Container(
+          padding: EdgeInsets.symmetric(vertical: 12.h),
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(color: Colors.grey[300]!, width: 1),
+              bottom: BorderSide(color: Colors.grey[300]!, width: 1),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              // Like Button
+              _buildActionButton(
+                icon: controller.isLiked.value
+                    ? Icons.favorite
+                    : Icons.favorite_border,
+                label: controller.likeCount.value.toString(),
+                color: controller.isLiked.value ? Colors.red : Colors.grey,
+                onTap: () => controller.toggleLike(),
+              ),
+
+              // Comment Button
+              _buildActionButton(
+                icon: Icons.comment_outlined,
+                label: controller.commentCount.value.toString(),
+                color: Colors.grey,
+                onTap: () => _showCommentDialog(),
+              ),
+
+              // Share Button
+              _buildActionButton(
+                icon: Icons.share_outlined,
+                label: controller.shareCount.value.toString(),
+                color: Colors.grey,
+                onTap: () => controller.shareArticle(),
+              ),
+
+              // Bookmark Button
+              _buildActionButton(
+                icon: controller.isBookmarked.value
+                    ? Icons.bookmark
+                    : Icons.bookmark_border,
+                label: controller.isBookmarked.value ? 'Saved' : 'Save',
+                color:
+                    controller.isBookmarked.value ? Colors.amber : Colors.grey,
+                onTap: () => controller.toggleBookmark(),
+              ),
+            ],
+          ),
+        ));
   }
 
   Widget _buildActionButton({
@@ -226,7 +553,8 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
             padding: EdgeInsets.symmetric(vertical: 20.h),
             child: Column(
               children: [
-                Icon(Icons.comment_outlined, size: 48.sp, color: Colors.grey[400]),
+                Icon(Icons.comment_outlined,
+                    size: 48.sp, color: Colors.grey[400]),
                 SizedBox(height: 8.h),
                 Text(
                   'No comments yet',
@@ -285,11 +613,13 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
     String? avatarUrl;
     if (comment.authorAvatar != null && comment.authorAvatar!.isNotEmpty) {
       avatarUrl = comment.authorAvatar!;
-      if (!avatarUrl.startsWith('http://') && !avatarUrl.startsWith('https://')) {
-        avatarUrl = '${ApiConstants.mediaBaseUrl}${avatarUrl.startsWith('/') ? avatarUrl : '/$avatarUrl'}';
+      if (!avatarUrl.startsWith('http://') &&
+          !avatarUrl.startsWith('https://')) {
+        avatarUrl =
+            '${ApiConstants.mediaBaseUrl}${avatarUrl.startsWith('/') ? avatarUrl : '/$avatarUrl'}';
       }
     }
-    
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -303,7 +633,8 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                     width: 40.w,
                     height: 40.w,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Icon(Icons.person, size: 20.sp, color: Colors.blue),
+                    errorBuilder: (_, __, ___) =>
+                        Icon(Icons.person, size: 20.sp, color: Colors.blue),
                   ),
                 )
               : Icon(Icons.person, size: 20.sp, color: Colors.blue),
@@ -343,7 +674,8 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
   void _showCommentDialog() {
     Get.dialog(
       Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
         child: Padding(
           padding: EdgeInsets.all(16.w),
           child: Column(
@@ -426,7 +758,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
       (m) => m.isNotEmpty && m != 'null' && _isVideo(m),
       orElse: () => '',
     );
-    
+
     // If no valid video URL found, show placeholder
     if (videoUrl.isEmpty || videoUrl == 'null') {
       return Container(
@@ -434,11 +766,12 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
         height: 250.h,
         color: Colors.grey[300],
         child: Center(
-          child: Icon(Icons.error_outline, size: 48.sp, color: Colors.grey[500]),
+          child:
+              Icon(Icons.error_outline, size: 48.sp, color: Colors.grey[500]),
         ),
       );
     }
-    
+
     return Container(
       width: double.infinity,
       height: 250.h,
@@ -454,11 +787,11 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
 
   Widget _buildImageSection(List<String> media) {
     // Filter out videos, null/empty values, keep only valid images
-    final images = media.where((m) => 
-      m.isNotEmpty && m != 'null' && !_isVideo(m)
-    ).toList();
+    final images = media
+        .where((m) => m.isNotEmpty && m != 'null' && !_isVideo(m))
+        .toList();
     if (images.isEmpty) return const SizedBox.shrink();
-    
+
     return Container(
       width: double.infinity,
       height: 250.h,
@@ -476,7 +809,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
     if (imageData.isEmpty || imageData == 'null') {
       return _errorPlaceholder();
     }
-    
+
     if (imageData.startsWith('data:image')) {
       // Base64 image
       try {
@@ -495,9 +828,10 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
       // URL image - convert relative paths to full URLs
       String imageUrl = imageData;
       if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
-        imageUrl = '${ApiConstants.mediaBaseUrl}${imageUrl.startsWith('/') ? imageUrl : '/$imageUrl'}';
+        imageUrl =
+            '${ApiConstants.mediaBaseUrl}${imageUrl.startsWith('/') ? imageUrl : '/$imageUrl'}';
       }
-      
+
       return Image.network(
         imageUrl,
         fit: BoxFit.cover,
@@ -519,8 +853,36 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
 
   bool _isVideo(String media) {
     final lower = media.toLowerCase();
-    return lower.endsWith('.mp4') || lower.endsWith('.mov') || 
-           lower.endsWith('.avi') || lower.endsWith('.webm') ||
-           lower.contains('/video/');
+    return lower.endsWith('.mp4') ||
+        lower.endsWith('.mov') ||
+        lower.endsWith('.avi') ||
+        lower.endsWith('.webm') ||
+        lower.contains('/video/');
+  }
+
+  // Get role display label
+  String _getRoleLabel(String role) {
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return 'OFFICIAL ACCOUNT';
+      case 'organizer':
+      case 'organization':
+        return 'NEWS ORGANIZER';
+      default:
+        return 'USER';
+    }
+  }
+
+  // Get role badge color
+  Color _getRoleBadgeColor(String role) {
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return Colors.blue;
+      case 'organizer':
+      case 'organization':
+        return Colors.grey;
+      default:
+        return Colors.red;
+    }
   }
 }

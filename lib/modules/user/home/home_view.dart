@@ -530,7 +530,7 @@ class HomeView extends GetView<HomeController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Author profile header
+
             if (article.author != null)
               Padding(
                 padding: EdgeInsets.all(12.w),

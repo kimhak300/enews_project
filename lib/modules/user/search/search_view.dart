@@ -86,18 +86,16 @@ class SearchView extends StatelessWidget {
                               border: Border.all(color: theme.dividerColor),
                             ),
                             child: Row(
-                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(Icons.filter_list, size: 18.sp),
                                 SizedBox(width: 6.w),
-                                Flexible(
-                                       child: Text(
-                                         controller.selectedCategory.value ?? 'all'.tr,
-                                         style: TextStyle(fontSize: 13.sp),
-                                         overflow: TextOverflow.ellipsis,
-                                       ),
+                                Expanded(
+                                  child: Text(
+                                    controller.selectedCategory.value ?? 'all'.tr,
+                                    style: TextStyle(fontSize: 13.sp),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                                SizedBox(width: 4.w),
                                 Icon(Icons.arrow_drop_down, size: 18.sp),
                               ],
                             ),

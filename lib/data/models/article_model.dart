@@ -58,9 +58,10 @@ class ArticleModel {
       status: json['status'],
       isFeatured: json['is_featured'] == 1 || json['is_featured'] == true,
       authorId: json['author_id'],
-      author: json['author'] != null ? UserModel.fromJson(json['author']) : null,
-        categories: _parseCategories(json['categories']),
-        tags: _parseTags(json['tags']),
+      author:
+          json['author'] != null ? UserModel.fromJson(json['author']) : null,
+      categories: _parseCategories(json['categories']),
+      tags: _parseTags(json['tags']),
       viewCount: json['view_count'],
       likeCount: json['like_count'],
       commentCount: json['comment_count'],
@@ -89,8 +90,15 @@ class ArticleModel {
       'status': status,
       'is_featured': isFeatured,
       'author_id': authorId,
+      'author': author?.toJson(),
       'categories': categories?.map((c) => c.toJson()).toList(),
       'tags': tags?.map((t) => t.toJson()).toList(),
+      'view_count': viewCount,
+      'like_count': likeCount,
+      'comment_count': commentCount,
+      'published_at': publishedAt?.toIso8601String(),
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
     };
   }
 

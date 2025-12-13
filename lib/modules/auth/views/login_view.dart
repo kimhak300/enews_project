@@ -27,15 +27,15 @@ class _LoginViewState extends State<LoginView> {
               children: [
                 Text(
                   'login'.tr,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineLarge
-                      ?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onBackground),
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onBackground),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   'sign_in_to_continue'.tr,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onBackground.withOpacity(0.8)),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onBackground.withOpacity(0.8)),
                 ),
                 const SizedBox(height: 32),
 
@@ -47,13 +47,27 @@ class _LoginViewState extends State<LoginView> {
                   style: TextStyle(color: theme.colorScheme.onBackground),
                   decoration: InputDecoration(
                     labelText: 'email'.tr,
-                    labelStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
-                    hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6)),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.primary)),
+                    labelStyle: TextStyle(
+                        color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                    hintStyle: TextStyle(
+                        color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                            color:
+                                theme.colorScheme.onSurface.withOpacity(0.12))),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                            color:
+                                theme.colorScheme.onSurface.withOpacity(0.12))),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            BorderSide(color: theme.colorScheme.primary)),
                     filled: true,
-                    fillColor: theme.inputDecorationTheme.fillColor ?? theme.colorScheme.surface,
+                    fillColor: theme.inputDecorationTheme.fillColor ??
+                        theme.colorScheme.surface,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -66,35 +80,60 @@ class _LoginViewState extends State<LoginView> {
                   style: TextStyle(color: theme.colorScheme.onBackground),
                   decoration: InputDecoration(
                     labelText: 'password'.tr,
-                    labelStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
-                    hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6)),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.primary)),
+                    labelStyle: TextStyle(
+                        color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                    hintStyle: TextStyle(
+                        color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                            color:
+                                theme.colorScheme.onSurface.withOpacity(0.12))),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                            color:
+                                theme.colorScheme.onSurface.withOpacity(0.12))),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            BorderSide(color: theme.colorScheme.primary)),
                     filled: true,
-                    fillColor: theme.inputDecorationTheme.fillColor ?? theme.colorScheme.surface,
+                    fillColor: theme.inputDecorationTheme.fillColor ??
+                        theme.colorScheme.surface,
                   ),
                 ),
                 const SizedBox(height: 24),
 
                 // Login Button
                 Obx(() => SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: controller.isLoading.value ? null : controller.login,
-                    child: controller.isLoading.value
-                          ? CircularProgressIndicator(color: theme.colorScheme.onPrimary)
-                          : Text(
-                        'login'.tr,
-                        style: text.titleMedium?.copyWith(color: theme.colorScheme.onPrimary, fontWeight: FontWeight.bold),
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                        onPressed: controller.isLoading.value
+                            ? null
+                            : controller.login,
+                        child: controller.isLoading.value
+                            ? SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: theme.colorScheme.onPrimary,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                            : Text(
+                                'login'.tr,
+                                style: text.titleMedium?.copyWith(
+                                    color: theme.colorScheme.onPrimary,
+                                    fontWeight: FontWeight.bold),
+                              ),
                       ),
-                  ),
-                )),
+                    )),
                 // const SizedBox(height: 16),
                 // Row(
                 //   children: [

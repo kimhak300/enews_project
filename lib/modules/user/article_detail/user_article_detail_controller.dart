@@ -39,6 +39,7 @@ class UserArticleDetailController extends GetxController {
   // Observable states
   final isLiked = false.obs;
   final isBookmarked = false.obs;
+  final isFollowing = false.obs;
   final likeCount = 0.obs;
   final commentCount = 0.obs;
   final shareCount = 0.obs;

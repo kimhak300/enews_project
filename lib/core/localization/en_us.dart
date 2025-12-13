@@ -204,7 +204,7 @@ const Map<String, String> enUs = {
   'sort_latest': 'Latest',
   'sort_popular': 'Popular',
   'sort_oldest': 'Oldest',
-  'articles_found': '{count} article(s) found',
+  'articles_found': 'articles found',
 
   // Article
   'read_more': 'Read More',
