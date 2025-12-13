@@ -136,9 +136,96 @@ class HotNewsView extends GetView<HotNewsController> {
           // Navigate to news detail
           Get.toNamed('/article-detail', arguments: news.toJson());
         },
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Author profile header
+            if (news.author != null)
+              Padding(
+                padding: EdgeInsets.all(12.w),
+                child: Row(
+                  children: [
+                    // Avatar
+                    CircleAvatar(
+                      radius: 16.r,
+                      backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      backgroundImage: (news.author!.avatarUrl != null && news.author!.avatarUrl!.isNotEmpty)
+                          ? NetworkImage(news.author!.avatarUrl!)
+                          : null,
+                      child: (news.author!.avatarUrl == null || news.author!.avatarUrl!.isEmpty)
+                          ? Text(
+                              news.author!.name.isNotEmpty ? news.author!.name[0].toUpperCase() : 'U',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            )
+                          : null,
+                    ),
+                    SizedBox(width: 8.w),
+                    // Author name and role
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  news.author!.name,
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              SizedBox(width: 6.w),
+                              // Role badge
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                                decoration: BoxDecoration(
+                                  color: _getRoleBadgeColor(news.author!.primaryRole),
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                child: Text(
+                                  _getRoleLabel(news.author!.primaryRole),
+                                  style: TextStyle(
+                                    fontSize: 8.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 2.h),
+                          Row(
+                            children: [
+                              Icon(Icons.access_time, size: 11.sp, color: Theme.of(context).textTheme.bodySmall?.color),
+                              SizedBox(width: 4.w),
+                              Text(
+                                _formatDate(news.createdAt),
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  color: Theme.of(context).textTheme.bodySmall?.color,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            // News content with image and text
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             // Thumbnail
             Stack(
               children: [
@@ -211,26 +298,14 @@ class HotNewsView extends GetView<HotNewsController> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    SizedBox(height: 8.h),
-                    Row(
-                      children: [
-                        Icon(Icons.access_time, size: 14.sp, color: Colors.grey),
-                        SizedBox(width: 4.w),
-                        Text(
-                          _formatDate(news.createdAt),
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),
             ),
           ],
         ),
+      ],
+    ),
       ),
     );
   }
@@ -278,5 +353,31 @@ class HotNewsView extends GetView<HotNewsController> {
     if (difference.inHours < 24) return '${difference.inHours} hours ago';
     if (difference.inDays < 7) return '${difference.inDays} days ago';
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  // Get role display label
+  String _getRoleLabel(String role) {
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return 'OFFICIAL ACCOUNT';
+      case 'organizer':
+      case 'organization':
+        return 'NEWS ORGANIZER';
+      default:
+        return 'USER';
+    }
+  }
+
+  // Get role badge color
+  Color _getRoleBadgeColor(String role) {
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return Colors.blue;
+      case 'organizer':
+      case 'organization':
+        return Colors.grey;
+      default:
+        return Colors.red;
+    }
   }
 }

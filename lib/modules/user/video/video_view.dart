@@ -151,6 +151,89 @@ class VideoView extends GetView<VideoController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Author profile header
+            if (video.author != null)
+              Padding(
+                padding: EdgeInsets.all(12.w),
+                child: Row(
+                  children: [
+                    // Avatar
+                    CircleAvatar(
+                      radius: 16.r,
+                      backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      backgroundImage: (video.author!.avatarUrl != null && video.author!.avatarUrl!.isNotEmpty)
+                          ? NetworkImage(video.author!.avatarUrl!)
+                          : null,
+                      child: (video.author!.avatarUrl == null || video.author!.avatarUrl!.isEmpty)
+                          ? Text(
+                              video.author!.name.isNotEmpty ? video.author!.name[0].toUpperCase() : 'U',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            )
+                          : null,
+                    ),
+                    SizedBox(width: 8.w),
+                    // Author name and role
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  video.author!.name,
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              SizedBox(width: 6.w),
+                              // Role badge
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                                decoration: BoxDecoration(
+                                  color: _getRoleBadgeColor(video.author!.primaryRole),
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                child: Text(
+                                  _getRoleLabel(video.author!.primaryRole),
+                                  style: TextStyle(
+                                    fontSize: 8.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 2.h),
+                          Row(
+                            children: [
+                              Icon(Icons.access_time, size: 11.sp, color: Theme.of(context).textTheme.bodySmall?.color),
+                              SizedBox(width: 4.w),
+                              Text(
+                                _formatDate(video.createdAt),
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  color: Theme.of(context).textTheme.bodySmall?.color,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             // Video Thumbnail with SmallVideoPlayer
             Stack(
               children: [
@@ -256,64 +339,6 @@ class VideoView extends GetView<VideoController> {
                     ),
                   ],
                   SizedBox(height: 8.h),
-                  Row(
-                    children: [
-                      // Author info with role
-                      if (video.author != null) ...[
-                        CircleAvatar(
-                          radius: 10.sp,
-                          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                          child: Text(
-                            video.author!.name.isNotEmpty ? video.author!.name[0].toUpperCase() : 'A',
-                            style: TextStyle(
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 6.w),
-                        Expanded(
-                          child: Text(
-                            video.author!.name,
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              color: Theme.of(context).textTheme.bodySmall?.color,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        // Role badge
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                          decoration: BoxDecoration(
-                            color: _getRoleColor(video.author?.primaryRole ?? 'user').withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: Text(
-                            (video.author?.primaryRole ?? 'user').toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 9.sp,
-                              fontWeight: FontWeight.bold,
-                              color: _getRoleColor(video.author?.primaryRole ?? 'user'),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
-                      ],
-                      Icon(Icons.access_time, size: 14.sp, color: Theme.of(context).textTheme.bodySmall?.color),
-                      SizedBox(width: 4.w),
-                      Text(
-                        _formatDate(video.createdAt),
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          color: Theme.of(context).textTheme.bodySmall?.color,
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
@@ -406,15 +431,29 @@ class VideoView extends GetView<VideoController> {
            lower.endsWith('.flv');
   }
 
-  Color _getRoleColor(String role) {
+  // Get role display label
+  String _getRoleLabel(String role) {
     switch (role.toLowerCase()) {
       case 'admin':
-        return Colors.red;
+        return 'OFFICIAL ACCOUNT';
       case 'organizer':
       case 'organization':
-        return Colors.blue;
+        return 'NEWS ORGANIZER';
       default:
+        return 'USER';
+    }
+  }
+
+  // Get role badge color
+  Color _getRoleBadgeColor(String role) {
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return Colors.blue;
+      case 'organizer':
+      case 'organization':
         return Colors.grey;
+      default:
+        return Colors.red;
     }
   }
 }

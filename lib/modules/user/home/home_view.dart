@@ -359,20 +359,55 @@ class HomeView extends GetView<HomeController> {
                     Row(
                       children: [
                         if (article.author != null) ...[
+                          // Avatar
                           CircleAvatar(
-                            radius: 12.r,
+                            radius: 14.r,
                             backgroundColor: Colors.white,
-                            child: Icon(Icons.person, size: 14.sp, color: Colors.blue),
+                            backgroundImage: (article.author!.avatarUrl != null && article.author!.avatarUrl!.isNotEmpty)
+                                ? NetworkImage(article.author!.avatarUrl!)
+                                : null,
+                            child: (article.author!.avatarUrl == null || article.author!.avatarUrl!.isEmpty)
+                                ? Text(
+                                    article.author!.name.isNotEmpty ? article.author!.name[0].toUpperCase() : 'U',
+                                    style: TextStyle(
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  )
+                                : null,
                           ),
                           SizedBox(width: 8.w),
+                          // Author name
                           Text(
-                            article.author!.displayName,
-                            style: TextStyle(color: Colors.white, fontSize: 12.sp),
+                            article.author!.name,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                          SizedBox(width: 8.w),
-                          const Text('•', style: TextStyle(color: Colors.white70)),
+                          SizedBox(width: 6.w),
+                          // Role badge
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                            decoration: BoxDecoration(
+                              color: _getRoleBadgeColor(article.author!.primaryRole),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Text(
+                              _getRoleLabel(article.author!.primaryRole),
+                              style: TextStyle(
+                                fontSize: 9.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                           SizedBox(width: 8.w),
                         ],
+                        Icon(Icons.access_time, size: 12.sp, color: Colors.white70),
+                        SizedBox(width: 4.w),
                         Text(
                           _formatDate(
                             (article.publishedAt ?? article.createdAt ?? article.updatedAt) as DateTime?,
@@ -492,57 +527,146 @@ class HomeView extends GetView<HomeController> {
 
           Get.toNamed('/article-detail', arguments: article.toJson());
         },
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Thumbnail
-            Stack(
-              children: [
-                Container(
-                  height: 120.h,
-                  width: 120.w,
-                  color: Theme.of(context).colorScheme.surface,
-                  child: coverImage != null
-                      ? _buildImage(coverImage)
-                      : Icon(
-                          _getArticleIcon(article.type),
-                          size: 36.sp,
-                          color: Theme.of(context).disabledColor,
-                        ),
-                ),
-                // Type badge (Video/Article badge)
-                if (article.type == 'video')
-                  Positioned(
-                    top: 8.h,
-                    left: 8.w,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.error,
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+            // Author profile header
+            if (article.author != null)
+              Padding(
+                padding: EdgeInsets.all(12.w),
+                child: Row(
+                  children: [
+                    // Avatar
+                    CircleAvatar(
+                      radius: 16.r,
+                      backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+                      backgroundImage: (article.author!.avatarUrl != null && article.author!.avatarUrl!.isNotEmpty)
+                          ? NetworkImage(article.author!.avatarUrl!)
+                          : null,
+                      child: (article.author!.avatarUrl == null || article.author!.avatarUrl!.isEmpty)
+                          ? Text(
+                              article.author!.name.isNotEmpty ? article.author!.name[0].toUpperCase() : 'U',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.primary,
+                              ),
+                            )
+                          : null,
+                    ),
+                    SizedBox(width: 8.w),
+                    // Author name and role
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.play_circle, color: Theme.of(context).colorScheme.onError, size: 12.sp),
-                          SizedBox(width: 4.w),
-                          Text(
-                            'video'.tr.toUpperCase(),
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onError,
-                              fontSize: 9.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  article.author!.name,
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: theme.textTheme.bodyLarge?.color,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              SizedBox(width: 6.w),
+                              // Role badge
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                                decoration: BoxDecoration(
+                                  color: _getRoleBadgeColor(article.author!.primaryRole),
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                child: Text(
+                                  _getRoleLabel(article.author!.primaryRole),
+                                  style: TextStyle(
+                                    fontSize: 8.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 2.h),
+                          Row(
+                            children: [
+                              Icon(Icons.access_time, size: 11.sp, color: theme.textTheme.bodySmall?.color),
+                              SizedBox(width: 4.w),
+                              Text(
+                                _formatDate(
+                                  (article.publishedAt ?? article.createdAt ?? article.updatedAt) as DateTime?,
+                                ),
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  color: theme.textTheme.bodySmall?.color,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                  ),
-              ],
-            ),
-            // Content
-            Expanded(
-              child: Padding(
+                  ],
+                ),
+              ),
+            // Article content with image and text
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Thumbnail
+                Stack(
+                  children: [
+                    Container(
+                      height: 120.h,
+                      width: 120.w,
+                      color: Theme.of(context).colorScheme.surface,
+                      child: coverImage != null
+                          ? _buildImage(coverImage)
+                          : Icon(
+                              _getArticleIcon(article.type),
+                              size: 36.sp,
+                              color: Theme.of(context).disabledColor,
+                            ),
+                    ),
+                    // Type badge (Video/Article badge)
+                    if (article.type == 'video')
+                      Positioned(
+                        top: 8.h,
+                        left: 8.w,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.error,
+                            borderRadius: BorderRadius.circular(4.r),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.play_circle, color: Theme.of(context).colorScheme.onError, size: 12.sp),
+                              SizedBox(width: 4.w),
+                              Text(
+                                'video'.tr.toUpperCase(),
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onError,
+                                  fontSize: 9.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                // Content
+                Expanded(
+                  child: Padding(
                 padding: EdgeInsets.all(12.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -596,15 +720,6 @@ class HomeView extends GetView<HomeController> {
                     // Meta info
                     Row(
                       children: [
-                        Icon(Icons.schedule, size: 12.sp, color: theme.colorScheme.onSurface.withOpacity(0.7)),
-                        SizedBox(width: 4.w),
-                        Text(
-                          _formatDate(
-                            (article.publishedAt ?? article.createdAt ?? article.updatedAt) as DateTime?,
-                          ),
-                          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7), fontSize: 11.sp),
-                        ),
-                        SizedBox(width: 8.w),
                         Icon(Icons.remove_red_eye_outlined, size: 12.sp, color: theme.colorScheme.onSurface.withOpacity(0.7)),
                         SizedBox(width: 4.w),
                         Text(
@@ -619,6 +734,8 @@ class HomeView extends GetView<HomeController> {
             ),
           ],
         ),
+      ],
+    ),
       ),
     );
   }
@@ -632,6 +749,32 @@ class HomeView extends GetView<HomeController> {
       case 'article':
       default:
         return Icons.article_outlined;
+    }
+  }
+
+  // Get role display label
+  String _getRoleLabel(String role) {
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return 'OFFICIAL ACCOUNT';
+      case 'organizer':
+      case 'organization':
+        return 'NEWS ORGANIZER';
+      default:
+        return 'USER';
+    }
+  }
+
+  // Get role badge color
+  Color _getRoleBadgeColor(String role) {
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return Colors.blue;
+      case 'organizer':
+      case 'organization':
+        return Colors.grey;
+      default:
+        return Colors.red;
     }
   }
 }
