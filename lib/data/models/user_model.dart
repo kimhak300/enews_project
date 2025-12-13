@@ -59,6 +59,25 @@ class UserModel {
   String get name => displayName ?? fullName ?? email.split('@').first;
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    // Parse roles - handle both List and String cases
+    List<RoleModel>? rolesList;
+    if (json['roles'] != null) {
+      if (json['roles'] is List) {
+        try {
+          rolesList = (json['roles'] as List)
+              .where((r) => r is Map<String, dynamic>) // Only process Map items
+              .map((r) => RoleModel.fromJson(r as Map<String, dynamic>))
+              .toList();
+        } catch (e) {
+          print("Error parsing roles: $e");
+          rolesList = null;
+        }
+      } else if (json['roles'] is String) {
+        // If roles is a string, ignore it (use the 'role' field instead)
+        rolesList = null;
+      }
+    }
+    
     return UserModel(
       id: json['id'] ?? 0,
       email: json['email'] ?? '',
@@ -68,10 +87,8 @@ class UserModel {
       slug: json['slug'],
       status: json['status'],
       avatarUrl: json['avatar_url'] ?? json['avatar'],
-        role: json['role'],
-      roles: json['roles'] != null
-          ? (json['roles'] as List).map((r) => RoleModel.fromJson(r)).toList()
-          : null,
+      role: json['role'],
+      roles: rolesList,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'])
           : null,
