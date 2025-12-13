@@ -14,7 +14,6 @@ class ManageUsersView extends GetView<ManageUsersController> {
     return Scaffold(
       appBar: AppBar(
         title:  Text('manage_users'.tr),
-        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

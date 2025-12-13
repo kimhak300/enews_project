@@ -18,7 +18,6 @@ class ManageCategoriesView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('manage_categories'.tr, style: textTheme.titleLarge?.copyWith(color: theme.colorScheme.onPrimary)),
-        automaticallyImplyLeading: false,
       ),
       floatingActionButton: FloatingActionButton.extended(
         icon: const Icon(Icons.add),

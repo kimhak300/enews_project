@@ -1,10 +1,13 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newshub/app/constants/app_constant.dart';
 import 'package:newshub/app/constants/app_widget_size.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:newshub/api/controller/user_controller.dart';
+import 'package:newshub/app/services/storage_service.dart';
+import 'package:newshub/data/models/user_model.dart';
 
 class UserCardWidget extends StatelessWidget {
   final int userId;
@@ -24,9 +27,25 @@ class UserCardWidget extends StatelessWidget {
     this.onDelete,
   });
 
+  bool _canEditUsers() {
+    final storage = StorageService.to;
+    final userJson = storage.read<String>(AppConstants.USER_INFO_KEY);
+    if (userJson == null) return false;
+    
+    try {
+      final currentUser = UserModel.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+      final currentRole = currentUser.primaryRole.toLowerCase();
+      // Only allow editing if current user is NOT admin or organizer
+      return currentRole != 'admin' && currentRole != 'organizer';
+    } catch (e) {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final canEdit = _canEditUsers();
 
     return Card(
       color: theme.colorScheme.surface,
@@ -88,48 +107,50 @@ class UserCardWidget extends StatelessWidget {
               ),
             ),
 
-            /// Edit Button
-            Container(
-              height: 40,
-              width: 40,
-              margin: const EdgeInsets.only(right: 8),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: theme.colorScheme.secondary.withOpacity(0.12),
+            /// Edit Button - Only show if current user can edit AND target is not admin/organizer
+            if (canEdit && role.toLowerCase() != 'admin' && role.toLowerCase() != 'organizer')
+              Container(
+                height: 40,
+                width: 40,
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: theme.colorScheme.secondary.withOpacity(0.12),
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.edit, color: theme.colorScheme.secondary, size: AppWidgetSize.iconSmall),
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                      ),
+                      builder: (_) => UpdateUserBottomSheet(
+                        userId: userId,
+                        displayName: displayName,
+                        email: email,
+                        role: role,
+                      ),
+                    );
+                  },
+                ),
               ),
-              child: IconButton(
-                icon: Icon(Icons.edit, color: theme.colorScheme.secondary, size: AppWidgetSize.iconSmall),
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                    ),
-                    builder: (_) => UpdateUserBottomSheet(
-                      userId: userId,
-                      displayName: displayName,
-                      email: email,
-                      role: role,
-                    ),
-                  );
-                },
-              ),
-            ),
 
-            /// Delete Button
-            Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: theme.colorScheme.error.withOpacity(0.12),
+            /// Delete Button - Only show if current user can edit AND target is not admin/organizer
+            if (canEdit && role.toLowerCase() != 'admin' && role.toLowerCase() != 'organizer')
+              Container(
+                height: 40,
+                width: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: theme.colorScheme.error.withOpacity(0.12),
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.delete, color: theme.colorScheme.error, size: AppWidgetSize.iconSmall),
+                  onPressed: onDelete,
+                ),
               ),
-              child: IconButton(
-                icon: Icon(Icons.delete, color: theme.colorScheme.error, size: AppWidgetSize.iconSmall),
-                onPressed: onDelete,
-              ),
-            ),
           ],
         ),
       ),
@@ -221,10 +242,37 @@ class _UpdateUserBottomSheetState extends State<UpdateUserBottomSheet> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Prevent updating admin or organizer users
+    if (widget.role.toLowerCase() == 'admin' || widget.role.toLowerCase() == 'organizer') {
+      Get.back();
+      Get.snackbar(
+        'Not Allowed',
+        'Cannot update Admin or Organizer accounts. Only regular users can be modified.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.colorScheme.error.withOpacity(0.1),
+        colorText: Get.theme.colorScheme.error,
+        duration: const Duration(seconds: 3),
+      );
+      return;
+    }
+
+    // Validate email format
+    final email = _emailController.text.trim();
+    if (!GetUtils.isEmail(email)) {
+      Get.snackbar(
+        'Invalid Email',
+        'Please enter a valid email address.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.colorScheme.error.withOpacity(0.1),
+        colorText: Get.theme.colorScheme.error,
+      );
+      return;
+    }
+
     await _userController.updateUser(
       id: widget.userId,
       displayName: _displayNameController.text.trim(),
-      email: _emailController.text.trim(),
+      email: email,
       role: _selectedRole,
       isActive: _isActive,
       avatarFile: _imageFile,
@@ -363,8 +411,18 @@ class _UpdateUserBottomSheetState extends State<UpdateUserBottomSheet> {
                     enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.12))),
                   ),
                   enabled: false,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'please_enter_email'.tr;
+                    }
+                    if (!GetUtils.isEmail(value.trim())) {
+                      return 'please_enter_valid_email'.tr;
+                    }
+                    return null;
+                  },
                 );
               }),
+
               const SizedBox(height: 16),
 
               // Role Dropdown

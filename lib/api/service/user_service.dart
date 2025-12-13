@@ -64,12 +64,29 @@ class UserService {
             // Handle Laravel validation errors
             final errors = errorJson['errors'];
             if (errors is Map) {
-              // Get first error message
-              final firstError = errors.values.first;
-              if (firstError is List && firstError.isNotEmpty) {
-                errorMessage = firstError.first;
+              // Check specifically for email already taken error
+              if (errors['email'] != null) {
+                final emailErrors = errors['email'];
+                if (emailErrors is List && emailErrors.isNotEmpty) {
+                  String emailError = emailErrors.first;
+                  if (emailError.toLowerCase().contains('already') || 
+                      emailError.toLowerCase().contains('taken') ||
+                      emailError.toLowerCase().contains('exists')) {
+                    errorMessage = "This email address has already been taken. Please use a different email.";
+                  } else {
+                    errorMessage = emailError;
+                  }
+                } else {
+                  errorMessage = emailErrors.toString();
+                }
               } else {
-                errorMessage = firstError.toString();
+                // Get first error message from other fields
+                final firstError = errors.values.first;
+                if (firstError is List && firstError.isNotEmpty) {
+                  errorMessage = firstError.first;
+                } else {
+                  errorMessage = firstError.toString();
+                }
               }
             } else {
               errorMessage = errors.toString();

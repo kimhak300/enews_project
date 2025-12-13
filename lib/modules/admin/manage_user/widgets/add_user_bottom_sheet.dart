@@ -18,6 +18,9 @@ class _AddUserBottomSheetState extends State<AddUserBottomSheet> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final displayNameController = TextEditingController();
+  
+  // Error states
+  String? emailError;
   final bioController = TextEditingController();
 
   bool isActive = true;
@@ -62,21 +65,41 @@ class _AddUserBottomSheetState extends State<AddUserBottomSheet> {
   }
 
   void _saveUser() async {
+    // Clear previous errors
+    setState(() => emailError = null);
+    
     if (!_formKey.currentState!.validate()) return;
     if (selectedRole == null) {
       Get.snackbar('role_required'.tr, 'please_select_role'.tr);
       return;
     }
 
-    await userController.createUser(
-      displayName: displayNameController.text,
-      email: emailController.text,
-      password: passwordController.text,
-      role: selectedRole!.toLowerCase(),
-      isActive: isActive,
-      avatarFile: imageFile,
-    );
-    if (mounted) Navigator.of(context).pop();
+    try {
+      await userController.createUser(
+        displayName: displayNameController.text,
+        email: emailController.text,
+        password: passwordController.text,
+        role: selectedRole!.toLowerCase(),
+        isActive: isActive,
+        avatarFile: imageFile,
+      );
+      if (mounted) Navigator.of(context).pop();
+    } catch (e) {
+      // Check if it's an email duplicate error
+      String errorMsg = e.toString().replaceAll('Exception: ', '');
+      if (errorMsg.toLowerCase().contains('email') && 
+          (errorMsg.toLowerCase().contains('taken') || 
+           errorMsg.toLowerCase().contains('exists') ||
+           errorMsg.toLowerCase().contains('already'))) {
+        setState(() {
+          emailError = errorMsg;
+          _formKey.currentState!.validate(); // Trigger validation to show error
+        });
+      } else {
+        // For other errors, show snackbar
+        Get.snackbar('Error', errorMsg, snackPosition: SnackPosition.TOP);
+      }
+    }
   }
 
   @override
@@ -141,7 +164,18 @@ class _AddUserBottomSheetState extends State<AddUserBottomSheet> {
               // Email
               TextFormField(
                 controller: emailController,
-                validator: (v) => (v == null || v.isEmpty) ? 'email_required'.tr : null,
+                validator: (v) {
+                  if (emailError != null) return emailError; // Show API error
+                  if (v == null || v.isEmpty) return 'email_required'.tr;
+                  if (!GetUtils.isEmail(v.trim())) return 'please_enter_valid_email'.tr;
+                  return null;
+                },
+                onChanged: (v) {
+                  // Clear email error when user types
+                  if (emailError != null) {
+                    setState(() => emailError = null);
+                  }
+                },
                 decoration: _input('email'.tr, theme).copyWith(
                   prefixIcon: Icon(Icons.email, color: theme.colorScheme.onSurface.withOpacity(0.6)),
                 ),
@@ -154,7 +188,11 @@ class _AddUserBottomSheetState extends State<AddUserBottomSheet> {
               TextFormField(
                 controller: passwordController,
                 obscureText: true,
-                validator: (v) => (v == null || v.isEmpty) ? 'password_required'.tr : null,
+                validator: (v) {
+                  if (v == null || v.isEmpty) return 'password_required'.tr;
+                  if (v.length < 6) return 'Password must be at least 6 characters';
+                  return null;
+                },
                 decoration: _input('password'.tr, theme).copyWith(
                   prefixIcon: Icon(Icons.lock, color: theme.colorScheme.onSurface.withOpacity(0.6)),
                 ),

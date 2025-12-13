@@ -69,11 +69,8 @@ class UserController extends GetxController {
       fetchUsers();
     } catch (e) {
       print("Error in createUser: $e");
-      Get.snackbar(
-        'Error',
-        e.toString().replaceAll('Exception: ', ''),
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      // Re-throw the error so the UI can handle it
+      rethrow;
     } finally {
       isLoading.value = false;
     }
