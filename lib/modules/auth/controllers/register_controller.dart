@@ -23,19 +23,19 @@ class RegisterController extends GetxController {
 
     if (email.isEmpty || password.isEmpty || displayName.isEmpty) {
       Get.snackbar('Error', 'Name, email and password are required',
-          snackPosition: SnackPosition.BOTTOM);
+          snackPosition: SnackPosition.TOP);
       return;
     }
 
     if (password.length < 6) {
       Get.snackbar('Error', 'Password must be at least 6 characters',
-          snackPosition: SnackPosition.BOTTOM);
+          snackPosition: SnackPosition.TOP);
       return;
     }
 
     if (password != confirmPassword) {
       Get.snackbar('Error', 'Passwords do not match',
-          snackPosition: SnackPosition.BOTTOM);
+          snackPosition: SnackPosition.TOP);
       return;
     }
 
@@ -53,13 +53,13 @@ class RegisterController extends GetxController {
 
     if (!result.success) {
       Get.snackbar('Error', result.error ?? 'Registration failed',
-          snackPosition: SnackPosition.BOTTOM);
+          snackPosition: SnackPosition.TOP);
       return;
     }
 
     // Show success and navigate to login
     Get.snackbar('Success', 'Registration successful! Please login to continue.',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         duration: const Duration(seconds: 3));
     
     // Clear form fields

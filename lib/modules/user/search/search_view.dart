@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:newshub/app/config/api_constants.dart';
-import 'package:newshub/modules/user/search/search_controller.dart' as user_search;
+import 'package:newshub/modules/user/search/search_controller.dart'
+    as user_search;
 import 'package:newshub/modules/user/search/search_small_video_player.dart';
 import 'package:newshub/modules/user/video/video_detail_view.dart';
 
@@ -34,7 +35,8 @@ class SearchView extends StatelessWidget {
                 Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.arrow_back_ios, size: 20.sp, color: theme.iconTheme.color),
+                      icon: Icon(Icons.arrow_back_ios,
+                          size: 20.sp, color: theme.iconTheme.color),
                       onPressed: () => Get.back(),
                     ),
                     Expanded(
@@ -42,14 +44,15 @@ class SearchView extends StatelessWidget {
                         controller: controller.searchTextController,
                         onChanged: controller.search,
                         decoration: InputDecoration(
-                              hintText: 'search_news'.tr,
+                          hintText: 'search_news'.tr,
                           prefixIcon: const Icon(Icons.search),
-                          suffixIcon: Obx(() => controller.searchQuery.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: controller.clearSearch,
-                                )
-                              : const SizedBox()),
+                          suffixIcon:
+                              Obx(() => controller.searchQuery.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear),
+                                      onPressed: controller.clearSearch,
+                                    )
+                                  : const SizedBox()),
                           filled: true,
                           fillColor: theme.colorScheme.surfaceVariant,
                           border: OutlineInputBorder(
@@ -91,25 +94,33 @@ class SearchView extends StatelessWidget {
                                 SizedBox(width: 6.w),
                                 Expanded(
                                   child: Text(
-                                    controller.selectedCategory.value ?? 'all'.tr,
-                                    style: TextStyle(fontSize: 13.sp),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                        controller.selectedCategory.value ??
+                                            'all'.tr,
+                                        style: TextStyle(fontSize: 13.sp),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                 ),
                                 Icon(Icons.arrow_drop_down, size: 18.sp),
                               ],
                             ),
                           ),
                           itemBuilder: (context) => [
-                                 PopupMenuItem<String?>(
-                                   value: null,
-                                   child: Text('all'.tr,
-                                       style: TextStyle(fontSize: 13.sp)),
-                                 ),
+                            PopupMenuItem<String?>(
+                              value: null,
+                          padding: EdgeInsets.only(top: 16.h),
+                          child: OutlinedButton(
+                            onPressed: () {
+                              controller.clearSearch();
+                              controller.setCategory(null);
+                            },
+                            child: Text('all'.tr),
+                          ),
+                            ),
                             ...categories.map(
                               (cat) => PopupMenuItem<String?>(
                                 value: cat,
-                                child: Text(cat, style: TextStyle(fontSize: 13.sp)),
+                                child: Text(cat,
+                                    style: TextStyle(fontSize: 13.sp)),
                               ),
                             ),
                           ],
@@ -136,32 +147,36 @@ class SearchView extends StatelessWidget {
                               children: [
                                 Icon(Icons.sort, size: 18.sp),
                                 SizedBox(width: 6.w),
-                                      Text(
-                                       controller.selectedSort.value == 'latest'
-                                           ? 'sort_latest'.tr
-                                           : controller.selectedSort.value == 'popular'
-                                               ? 'sort_popular'.tr
-                                               : 'sort_oldest'.tr,
-                                       style: TextStyle(fontSize: 13.sp),
-                                     ),
+                                Text(
+                                  controller.selectedSort.value == 'latest'
+                                      ? 'sort_latest'.tr
+                                      : controller.selectedSort.value ==
+                                              'popular'
+                                          ? 'sort_popular'.tr
+                                          : 'sort_oldest'.tr,
+                                  style: TextStyle(fontSize: 13.sp),
+                                ),
                                 SizedBox(width: 4.w),
                                 Icon(Icons.arrow_drop_down, size: 18.sp),
                               ],
                             ),
                           ),
                           itemBuilder: (context) => [
-                                 PopupMenuItem(
-                                   value: 'latest',
-                                   child: Text('sort_latest'.tr, style: TextStyle(fontSize: 13.sp)),
-                                 ),
-                                 PopupMenuItem(
-                                   value: 'popular',
-                                   child: Text('sort_popular'.tr, style: TextStyle(fontSize: 13.sp)),
-                                 ),
-                                 PopupMenuItem(
-                                   value: 'oldest',
-                                   child: Text('sort_oldest'.tr, style: TextStyle(fontSize: 13.sp)),
-                                 ),
+                            PopupMenuItem(
+                              value: 'latest',
+                              child: Text('sort_latest'.tr,
+                                  style: TextStyle(fontSize: 13.sp)),
+                            ),
+                            PopupMenuItem(
+                              value: 'popular',
+                              child: Text('sort_popular'.tr,
+                                  style: TextStyle(fontSize: 13.sp)),
+                            ),
+                            PopupMenuItem(
+                              value: 'oldest',
+                              child: Text('sort_oldest'.tr,
+                                  style: TextStyle(fontSize: 13.sp)),
+                            ),
                           ],
                         )),
                   ],
@@ -182,15 +197,17 @@ class SearchView extends StatelessWidget {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                      Icon(Icons.error_outline, size: 64.sp, color: theme.colorScheme.error),
+                    children: [
+                      Icon(Icons.error_outline,
+                          size: 64.sp, color: theme.colorScheme.error),
                       SizedBox(height: 16.h),
-                      Text(controller.errorMessage.value, style: theme.textTheme.bodyMedium),
+                      Text(controller.errorMessage.value,
+                          style: theme.textTheme.bodyMedium),
                       SizedBox(height: 16.h),
-                           ElevatedButton(
-                             onPressed: controller.refresh,
-                             child: Text('retry'.tr),
-                           ),
+                      ElevatedButton(
+                        onPressed: controller.refresh,
+                        child: Text('retry'.tr),
+                      ),
                     ],
                   ),
                 );
@@ -200,14 +217,17 @@ class SearchView extends StatelessWidget {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                      Icon(Icons.search_off, size: 64.sp, color: theme.disabledColor),
+                    children: [
+                      Icon(Icons.search_off,
+                          size: 64.sp, color: theme.disabledColor),
                       SizedBox(height: 16.h),
-                          Obx(() => Text(
+                      Obx(() => Text(
                             controller.searchQuery.isNotEmpty
-                                ? 'no_articles_for'.trParams({'query': controller.searchQuery.value})
+                                ? 'no_articles_for'.trParams(
+                                    {'query': controller.searchQuery.value})
                                 : 'no_articles'.tr,
-                            style: theme.textTheme.bodyMedium?.copyWith(fontSize: 16.sp),
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(fontSize: 16.sp),
                             textAlign: TextAlign.center,
                           )),
                       if (controller.searchQuery.isNotEmpty ||
@@ -215,11 +235,11 @@ class SearchView extends StatelessWidget {
                         Padding(
                           padding: EdgeInsets.only(top: 16.h),
                           child: ElevatedButton(
-                                onPressed: () {
-                                  controller.clearSearch();
-                                  controller.setCategory(null);
-                                },
-                                child: Text('clear_filters'.tr),
+                            onPressed: () {
+                              controller.clearSearch();
+                              controller.setCategory(null);
+                            },
+                            child: Text('clear_filters'.tr),
                           ),
                         ),
                     ],
@@ -235,10 +255,13 @@ class SearchView extends StatelessWidget {
                     // Results Count
                     Padding(
                       padding: EdgeInsets.all(16.w),
-                          child: Text(
-                            'articles_found'.trParams({'count': controller.filteredArticles.length.toString()}),
-                            style: theme.textTheme.bodySmall?.copyWith(fontSize: 14.sp, fontWeight: FontWeight.w500),
-                          ),
+                      child: Text(
+                        'articles_found'.trParams({
+                          'count': controller.filteredArticles.length.toString()
+                        }),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: 14.sp, fontWeight: FontWeight.w500),
+                      ),
                     ),
                     // Articles List
                     Expanded(
@@ -269,11 +292,15 @@ class SearchView extends StatelessWidget {
     String? videoUrl;
     String? posterUrl;
 
-    if (article.coverImage != null && article.coverImage is String && (article.coverImage as String).isNotEmpty) {
+    if (article.coverImage != null &&
+        article.coverImage is String &&
+        (article.coverImage as String).isNotEmpty) {
       coverImage = article.coverImage as String;
     }
 
-    if (article.media != null && article.media is List && (article.media as List).isNotEmpty) {
+    if (article.media != null &&
+        article.media is List &&
+        (article.media as List).isNotEmpty) {
       final first = (article.media as List).first;
       if (first is String) {
         // Could be an image or a direct video URL
@@ -285,8 +312,12 @@ class SearchView extends StatelessWidget {
       } else if (first is Map) {
         // Try common keys that might contain URLs
         final m = first;
-        final candidateVideo = (m['url'] ?? m['video'] ?? m['src'] ?? m['link'] ?? m['path'])?.toString();
-        final candidatePoster = (m['poster'] ?? m['thumbnail'] ?? m['thumb'] ?? m['cover'])?.toString();
+        final candidateVideo =
+            (m['url'] ?? m['video'] ?? m['src'] ?? m['link'] ?? m['path'])
+                ?.toString();
+        final candidatePoster =
+            (m['poster'] ?? m['thumbnail'] ?? m['thumb'] ?? m['cover'])
+                ?.toString();
         if (candidateVideo != null && candidateVideo.isNotEmpty) {
           if (article.type == 'video') {
             videoUrl ??= candidateVideo;
@@ -304,7 +335,8 @@ class SearchView extends StatelessWidget {
     // fall back to coverImage if it's probably a video URL string.
     if (article.type == 'video' && videoUrl == null && coverImage != null) {
       videoUrl = coverImage;
-      coverImage = null; // coverImage holds poster/thumbnail; clear to avoid double-using
+      coverImage =
+          null; // coverImage holds poster/thumbnail; clear to avoid double-using
     }
 
     return Card(
@@ -319,20 +351,30 @@ class SearchView extends StatelessWidget {
           String? videoUrl;
           if (mediaList != null && mediaList.isNotEmpty) {
             final first = mediaList.first;
-            if (first is String) videoUrl = first;
-            else if (first is Map) videoUrl = (first['url'] ?? first['video'] ?? first['src'] ?? first['path'])?.toString();
+            if (first is String)
+              videoUrl = first;
+            else if (first is Map)
+              videoUrl = (first['url'] ??
+                      first['video'] ??
+                      first['src'] ??
+                      first['path'])
+                  ?.toString();
           }
 
           if (isVideo && (videoUrl != null && videoUrl.isNotEmpty)) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => UserVideoDetailView(videoUrl: videoUrl!, title: article.title)),
+              MaterialPageRoute(
+                  builder: (_) => UserVideoDetailView(
+                      videoUrl: videoUrl!, title: article.title)),
             );
             return;
           }
 
           // Otherwise open user article detail (pass raw json map)
-          final Map<String, dynamic> args = article is Map ? Map<String, dynamic>.from(article) : (article.toJson());
+          final Map<String, dynamic> args = article is Map
+              ? Map<String, dynamic>.from(article)
+              : (article.toJson());
           Get.toNamed('/article-detail', arguments: args);
         },
         borderRadius: BorderRadius.circular(12.r),
@@ -349,25 +391,26 @@ class SearchView extends StatelessWidget {
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(12.r),
                 ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12.r),
-                    child: (article.type == 'video' && (videoUrl != null || coverImage != null))
-                        ? SearchSmallVideoPlayer(
-                            url: videoUrl ?? coverImage ?? '',
-                            poster: posterUrl ?? coverImage,
-                            width: 96,
-                            height: 96,
-                          )
-                        : (coverImage != null
-                            ? _buildArticleImage(coverImage, height: 96.h)
-                            : Center(
-                                child: Icon(
-                                  Icons.article_outlined,
-                                  size: 36.sp,
-                                  color: theme.disabledColor,
-                                ),
-                              )),
-                  ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12.r),
+                  child: (article.type == 'video' &&
+                          (videoUrl != null || coverImage != null))
+                      ? SearchSmallVideoPlayer(
+                          url: videoUrl ?? coverImage ?? '',
+                          poster: posterUrl ?? coverImage,
+                          width: 96,
+                          height: 96,
+                        )
+                      : (coverImage != null
+                          ? _buildArticleImage(coverImage, height: 96.h)
+                          : Center(
+                              child: Icon(
+                                Icons.article_outlined,
+                                size: 36.sp,
+                                color: theme.disabledColor,
+                              ),
+                            )),
+                ),
               ),
               SizedBox(width: 12.w),
               // Content
@@ -375,7 +418,8 @@ class SearchView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (article.categories != null && (article.categories as List).isNotEmpty)
+                    if (article.categories != null &&
+                        (article.categories as List).isNotEmpty)
                       Builder(builder: (context) {
                         final List cats = (article.categories as List);
                         final dynamic firstCat = cats.first;
@@ -400,7 +444,8 @@ class SearchView extends StatelessWidget {
                         }
 
                         return Container(
-                          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 8.w, vertical: 4.h),
                           margin: EdgeInsets.only(bottom: 6.h),
                           decoration: BoxDecoration(
                             color: theme.colorScheme.primary.withOpacity(0.08),
@@ -408,13 +453,19 @@ class SearchView extends StatelessWidget {
                           ),
                           child: Text(
                             catName,
-                            style: TextStyle(color: theme.colorScheme.primary, fontSize: 11.sp, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                                color: theme.colorScheme.primary,
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w600),
                           ),
                         );
                       }),
                     Text(
                       article.title ?? '',
-                      style: theme.textTheme.titleMedium?.copyWith(fontSize: 15.sp, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withOpacity(0.95)),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onSurface.withOpacity(0.95)),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -423,25 +474,42 @@ class SearchView extends StatelessWidget {
                         padding: EdgeInsets.only(top: 6.h, bottom: 6.h),
                         child: Text(
                           article.excerpt ?? '',
-                          style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13.sp, color: theme.colorScheme.onSurface.withOpacity(0.72)),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                              fontSize: 13.sp,
+                              color: theme.colorScheme.onSurface
+                                  .withOpacity(0.72)),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     Row(
                       children: [
-                        Icon(Icons.schedule, size: 12.sp, color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                        Icon(Icons.schedule,
+                            size: 12.sp,
+                            color:
+                                theme.colorScheme.onSurface.withOpacity(0.7)),
                         SizedBox(width: 4.w),
                         Text(
-                          _formatDate((article.publishedAt ?? article.createdAt ?? article.updatedAt) as DateTime?),
-                          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7), fontSize: 11.sp),
+                          _formatDate((article.publishedAt ??
+                              article.createdAt ??
+                              article.updatedAt) as DateTime?),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                              color:
+                                  theme.colorScheme.onSurface.withOpacity(0.7),
+                              fontSize: 11.sp),
                         ),
                         SizedBox(width: 8.w),
-                        Icon(Icons.remove_red_eye_outlined, size: 12.sp, color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                        Icon(Icons.remove_red_eye_outlined,
+                            size: 12.sp,
+                            color:
+                                theme.colorScheme.onSurface.withOpacity(0.7)),
                         SizedBox(width: 4.w),
                         Text(
                           '${article.viewCount ?? 0}',
-                          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7), fontSize: 11.sp),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                              color:
+                                  theme.colorScheme.onSurface.withOpacity(0.7),
+                              fontSize: 11.sp),
                         ),
                       ],
                     ),
@@ -499,7 +567,8 @@ class SearchView extends StatelessWidget {
               width: double.infinity,
               height: height ?? 180.h,
               color: theme.colorScheme.surfaceVariant,
-              child: Icon(Icons.broken_image, size: 64.sp, color: theme.disabledColor),
+              child: Icon(Icons.broken_image,
+                  size: 64.sp, color: theme.disabledColor),
             );
           },
         );
@@ -513,7 +582,7 @@ class SearchView extends StatelessWidget {
         );
       }
     }
-    
+
     // Handle regular URL images
     return Image.network(
       _getImageUrl(imageData),
@@ -526,7 +595,8 @@ class SearchView extends StatelessWidget {
           width: double.infinity,
           height: height ?? 180.h,
           color: theme.colorScheme.surfaceVariant,
-          child: Icon(Icons.broken_image, size: 64.sp, color: theme.disabledColor),
+          child:
+              Icon(Icons.broken_image, size: 64.sp, color: theme.disabledColor),
         );
       },
     );

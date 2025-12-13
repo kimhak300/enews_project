@@ -47,7 +47,8 @@ class SearchController extends GetxController {
           }
         }
 
-        articles.value = data.map((json) => ArticleModel.fromJson(json)).toList();
+        articles.value =
+            data.map((json) => ArticleModel.fromJson(json)).toList();
         applyFilters();
       } else {
         errorMessage.value = response.error ?? 'Failed to load articles';
@@ -71,8 +72,10 @@ class SearchController extends GetxController {
     if (searchQuery.value.isNotEmpty) {
       filtered = filtered.where((article) {
         return article.title.toLowerCase().contains(searchQuery.value) ||
-            (article.excerpt?.toLowerCase().contains(searchQuery.value) ?? false) ||
-            (article.content?.toLowerCase().contains(searchQuery.value) ?? false);
+            (article.excerpt?.toLowerCase().contains(searchQuery.value) ??
+                false) ||
+            (article.content?.toLowerCase().contains(searchQuery.value) ??
+                false);
       }).toList();
     }
 
@@ -81,7 +84,7 @@ class SearchController extends GetxController {
       filtered = filtered.where((article) {
         return article.categories?.any(
               (cat) => cat.name == selectedCategory.value,
-        ) ??
+            ) ??
             false;
       }).toList();
     }
