@@ -58,7 +58,8 @@ class AppDrawerWidget extends StatelessWidget {
       } else {
         // Normalize file://
         String candidate = avatar;
-        if (candidate.startsWith('file://')) candidate = candidate.replaceFirst('file://', '');
+        if (candidate.startsWith('file://'))
+          candidate = candidate.replaceFirst('file://', '');
 
         try {
           final file = File(candidate);
@@ -73,7 +74,8 @@ class AppDrawerWidget extends StatelessWidget {
           // Treat as network/relative path
           String url = candidate;
           if (!url.startsWith('http://') && !url.startsWith('https://')) {
-            url = '${AppConstants.STORAGE_BASE_URL}${candidate.startsWith('/') ? candidate : '/$candidate'}';
+            url =
+                '${AppConstants.STORAGE_BASE_URL}${candidate.startsWith('/') ? candidate : '/$candidate'}';
           }
           avatarProvider = NetworkImage(url);
         }
@@ -223,7 +225,9 @@ class AppDrawerWidget extends StatelessWidget {
 
   String _getThemeText() {
     final themeController = Get.find<ThemeController>();
-    return themeController.themeMode.value == ThemeMode.dark ? 'dark_mode'.tr : 'light_mode'.tr;
+    return themeController.themeMode.value == ThemeMode.dark
+        ? 'dark_mode'.tr
+        : 'light_mode'.tr;
   }
 
   String _getLanguageText() {
@@ -269,6 +273,14 @@ class AppDrawerWidget extends StatelessWidget {
         onTap: () {
           Get.back();
           Get.toNamed(Routes.ADMIN_ANALYTICS);
+        },
+      ),
+      _buildMenuItem(
+        icon: Icons.person,
+        title: 'profile'.tr,
+        onTap: () {
+          Get.back();
+          Get.toNamed(Routes.ADMIN_MANAGER_PROFILE);
         },
       ),
     ];
@@ -340,6 +352,11 @@ class AppDrawerWidget extends StatelessWidget {
           Get.back();
           Get.toNamed(Routes.USER_BOOKMARK);
         },
+      ),
+      _buildMenuItem(
+        icon: Icons.person,
+        title: 'profile'.tr,
+        onTap: () => _navigateToProfile(context),
       ),
     ];
   }
@@ -474,25 +491,25 @@ class AppDrawerWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Obx(() => ListTile(
-              title: Text('english'.tr),
-              leading: languageController.isKhmer.value 
-                  ? null 
-                  : const Icon(Icons.check, color: Colors.green),
-              onTap: () {
-                languageController.changeLanguage(false);
-                Get.back();
-              },
-            )),
+                  title: Text('english'.tr),
+                  leading: languageController.isKhmer.value
+                      ? null
+                      : const Icon(Icons.check, color: Colors.green),
+                  onTap: () {
+                    languageController.changeLanguage(false);
+                    Get.back();
+                  },
+                )),
             Obx(() => ListTile(
-              title: Text('khmer'.tr),
-              leading: languageController.isKhmer.value 
-                  ? const Icon(Icons.check, color: Colors.green) 
-                  : null,
-              onTap: () {
-                languageController.changeLanguage(true);
-                Get.back();
-              },
-            )),
+                  title: Text('khmer'.tr),
+                  leading: languageController.isKhmer.value
+                      ? const Icon(Icons.check, color: Colors.green)
+                      : null,
+                  onTap: () {
+                    languageController.changeLanguage(true);
+                    Get.back();
+                  },
+                )),
           ],
         ),
         actions: [
@@ -539,7 +556,8 @@ class AppDrawerWidget extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: Text('logout'.tr, style: const TextStyle(color: Colors.white)),
+            child:
+                Text('logout'.tr, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),

@@ -13,6 +13,7 @@ abstract class Routes {
   static const ADMIN_MANAGE_CATEGORY = '/ADMIN_MANAGE_CATEGORY';
   static const ADMIN_MANAGE_USER = '/ADMIN_MANAGE_USER';
   static const ADMIN_ANALYTICS = '/ADMIN_ANALYTICS';
+  static const ADMIN_MANAGER_PROFILE = '/ADMIN_MANAGE_PROFILE';
 
   /// USer
   static const USER_BOTTOM_NAV = '/USER_BOTTOM_NAV';
