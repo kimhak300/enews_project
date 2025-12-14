@@ -41,6 +41,7 @@ analyzer:
     await_only_futures: ignore
     curly_braces_in_flow_control_structures: ignore
     prefer_iterable_wheretype: ignore
+    no_leading_underscores_for_local_identifiers: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:

@@ -157,7 +157,7 @@ class OrgManageArticleController extends GetxController {
         backgroundColor: Get.theme.colorScheme.secondary,
         colorText: Get.theme.colorScheme.onSecondary,
         duration: const Duration(seconds: 4),
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP
       );
       return;
     }
@@ -181,7 +181,7 @@ class OrgManageArticleController extends GetxController {
                   'Article deleted successfully',
                   backgroundColor: Get.theme.colorScheme.primary,
                   colorText: Get.theme.colorScheme.onPrimary,
-                  snackPosition: SnackPosition.BOTTOM,
+                  snackPosition: SnackPosition.TOP
                 );
               } catch (e) {
                 Get.snackbar(
@@ -189,7 +189,7 @@ class OrgManageArticleController extends GetxController {
                   'Failed to delete article: ${e.toString()}',
                   backgroundColor: Get.theme.colorScheme.error,
                   colorText: Get.theme.colorScheme.onError,
-                  snackPosition: SnackPosition.BOTTOM,
+                  snackPosition: SnackPosition.TOP
                 );
               }
             },

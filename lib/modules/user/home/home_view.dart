@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -9,6 +7,8 @@ import 'package:newshub/modules/user/search/search_controller.dart'
     as user_search;
 import 'package:newshub/modules/user/video/video_detail_view.dart';
 import 'package:newshub/core/utils/video_helper.dart';
+import 'package:newshub/modules/user/home/widgets/article_card_widget.dart';
+import 'package:newshub/core/utils/article_helpers.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -21,31 +21,29 @@ class HomeView extends GetView<HomeController> {
         if (controller.isLoading.value && controller.articles.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
-
-        if (controller.errorMessage.isNotEmpty && controller.articles.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline, size: 64.sp, color: Colors.red),
-                SizedBox(height: 16.h),
-                Text(
-                  controller.errorMessage.value,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 14.sp,
-                      color: Theme.of(context).textTheme.bodyMedium?.color),
-                ),
-                SizedBox(height: 16.h),
-                ElevatedButton(
-                  onPressed: controller.refresh,
-                  child: Text('retry'.tr),
-                ),
-              ],
-            ),
-          );
-        }
-
+        // if (controller.errorMessage.isNotEmpty && controller.articles.isEmpty) {
+        //   return Center(
+        //     child: Column(
+        //       mainAxisAlignment: MainAxisAlignment.center,
+        //       children: [
+        //         Icon(Icons.error_outline, size: 64.sp, color: Colors.red),
+        //         SizedBox(height: 16.h),
+        //         Text(
+        //           controller.errorMessage.value,
+        //           textAlign: TextAlign.center,
+        //           style: TextStyle(
+        //               fontSize: 14.sp,
+        //               color: Theme.of(context).textTheme.bodyMedium?.color),
+        //         ),
+        //         SizedBox(height: 16.h),
+        //         ElevatedButton(
+        //           onPressed: controller.refresh,
+        //           child: Text('retry'.tr),
+        //         ),
+        //       ],
+        //     ),
+        //   );
+        // }
         return RefreshIndicator(
           onRefresh: controller.refresh,
           child: CustomScrollView(
@@ -99,17 +97,15 @@ class HomeView extends GetView<HomeController> {
                 ],
               ),
               // Inline search container that navigates to full SearchView
-              SliverToBoxAdapter(
-                child: Container(
-                  padding: EdgeInsets.all(16.w),
-                  color: Theme.of(context).colorScheme.surface,
-                  child: Column(
-                    children: [],
-                  ),
-                ),
-              ),
-
-              // Trending / Categories Section
+              // SliverToBoxAdapter(
+              //   child: Container(
+              //     padding: EdgeInsets.all(16.w),
+              //     color: Theme.of(context).colorScheme.surface,
+              //     child: Column(
+              //       children: [],
+              //     ),
+              //   ),
+              // ),
               SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,7 +214,29 @@ class HomeView extends GetView<HomeController> {
                         // Article card
                         final article =
                             controller.filteredArticles[articleIndex];
-                        return _buildArticleCard(context, article);
+                        return ArticleCardWidget(
+                          article: article,
+                          onTap: () {
+                            // If this is a video and has media, open video detail; otherwise article detail
+                            try {
+                              if (article.type == 'video' &&
+                                  article.media != null &&
+                                  article.media!.isNotEmpty) {
+                                final raw = article.media!.first;
+                                final normalized = normalizeVideoSource(raw);
+                                if (normalized.isNotEmpty) {
+                                  Get.to(() => UserVideoDetailView(
+                                      videoUrl: normalized, title: article.title));
+                                  return;
+                                }
+                              }
+                            } catch (_) {
+                              // Fall back to article detail on any error
+                            }
+
+                            Get.toNamed('/article-detail', arguments: article.toJson());
+                          },
+                        );
                       },
                       childCount: controller.filteredArticles.length + 1,
                     ),
@@ -345,7 +363,7 @@ class HomeView extends GetView<HomeController> {
                   color: Theme.of(context).colorScheme.surface,
                   image: null,
                 ),
-                child: _buildImage(
+                child: ArticleHelpers.buildImage(
                   article.coverImage ?? article.media?.first,
                   fit: BoxFit.cover,
                   placeholder: Center(
@@ -431,8 +449,8 @@ class HomeView extends GetView<HomeController> {
                             SizedBox(width: 6.w),
                               // Role badge
                               Builder(builder: (ctx) {
-                                final bg = _getRoleBadgeColor(article.author!.primaryRole, ctx);
-                                final fg = _getRoleBadgeTextColor(article.author!.primaryRole, ctx);
+                                final bg = ArticleHelpers.getRoleBadgeColor(article.author!.primaryRole, ctx);
+                                final fg = ArticleHelpers.getRoleBadgeTextColor(article.author!.primaryRole, ctx);
                                 return Container(
                                   padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                                   decoration: BoxDecoration(
@@ -440,7 +458,7 @@ class HomeView extends GetView<HomeController> {
                                     borderRadius: BorderRadius.circular(8.r),
                                   ),
                                   child: Text(
-                                    _getRoleLabel(article.author!.primaryRole),
+                                    ArticleHelpers.getRoleLabel(article.author!.primaryRole),
                                     style: TextStyle(
                                       fontSize: 9.sp,
                                       fontWeight: FontWeight.bold,
@@ -455,10 +473,10 @@ class HomeView extends GetView<HomeController> {
                               size: 12.sp, color: Theme.of(context).disabledColor),
                           SizedBox(width: 4.w),
                           Text(
-                            _formatDate(
-                              (article.publishedAt ??
+                            ArticleHelpers.formatDate(
+                              article.publishedAt ??
                                   article.createdAt ??
-                                  article.updatedAt) as DateTime?,
+                                  article.updatedAt,
                             ),
                             style: TextStyle(
                               color: Theme.of(context).disabledColor, fontSize: 12.sp),
@@ -476,403 +494,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // Unified image builder supporting URLs and base64 data URIs
-  Widget _buildImage(String? src,
-      {BoxFit fit = BoxFit.cover, Widget? placeholder}) {
-    if (src == null || src.isEmpty) {
-      return placeholder ?? const SizedBox();
-    }
-
-    if (src.startsWith('data:image')) {
-      try {
-        final bytes = base64Decode(src.split(',').last);
-        return Image.memory(bytes,
-            fit: fit,
-            width: double.infinity,
-            height: double.infinity,
-            errorBuilder: (_, __, ___) => placeholder ?? const SizedBox());
-      } catch (_) {
-        return placeholder ?? const SizedBox();
-      }
-    }
-
-    return Image.network(
-      src,
-      fit: fit,
-      width: double.infinity,
-      height: double.infinity,
-      errorBuilder: (_, __, ___) => placeholder ?? const SizedBox(),
-    );
-  }
-
   Color _getCategoryColor(int index) {
-    final colors = [
-      Colors.blue,
-      Colors.green,
-      Colors.orange,
-      Colors.purple,
-      Colors.red,
-      Colors.teal,
-      Colors.indigo,
-      Colors.pink,
-    ];
-    return colors[index % colors.length];
-  }
-
-  String _formatDate(DateTime? date) {
-    if (date == null) return '';
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inDays > 365) {
-      return '${(diff.inDays / 365).floor()}y ago';
-    } else if (diff.inDays > 30) {
-      return '${(diff.inDays / 30).floor()}mo ago';
-    } else if (diff.inDays > 0) {
-      return '${diff.inDays}d ago';
-    } else if (diff.inHours > 0) {
-      return '${diff.inHours}h ago';
-    } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes}m ago';
-    } else {
-      return 'Just now';
-    }
-  }
-
-  String _formatData(int minutes) {
-    // Use localization key `min_read` (e.g. "min read") and format with minutes
-    return '$minutes ${'min_read'.tr}';
-  }
-
-  Widget _buildArticleCard(BuildContext context, article) {
-    final theme = Theme.of(context);
-    // Get cover image from media list or coverImage
-    String? coverImage;
-    if (article.media != null && article.media!.isNotEmpty) {
-      coverImage = article.media!.first;
-    } else if (article.coverImage != null && article.coverImage!.isNotEmpty) {
-      coverImage = article.coverImage;
-    }
-
-    final categories = article.categories ?? [];
-
-    return Card(
-      margin: EdgeInsets.only(bottom: 16.h),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.r),
-      ),
-      clipBehavior: Clip.antiAlias,
-      elevation: 2,
-      child: InkWell(
-        onTap: () {
-          // If this is a video and has media, open video detail; otherwise article detail
-          try {
-            if (article.type == 'video' &&
-                article.media != null &&
-                article.media!.isNotEmpty) {
-              final raw = article.media!.first as String;
-              final normalized = normalizeVideoSource(raw);
-              if (normalized.isNotEmpty) {
-                Get.to(() => UserVideoDetailView(
-                    videoUrl: normalized, title: article.title));
-                return;
-              }
-            }
-          } catch (_) {
-            // Fall back to article detail on any error
-          }
-
-          Get.toNamed('/article-detail', arguments: article.toJson());
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (article.author != null)
-              Padding(
-                padding: EdgeInsets.all(12.w),
-                child: Row(
-                  children: [
-                    // Avatar
-                    CircleAvatar(
-                      radius: 16.r,
-                      backgroundColor:
-                          theme.colorScheme.primary.withOpacity(0.1),
-                      backgroundImage: (article.author!.avatarUrl != null &&
-                              article.author!.avatarUrl!.isNotEmpty)
-                          ? NetworkImage(article.author!.avatarUrl!)
-                          : null,
-                      child: (article.author!.avatarUrl == null ||
-                              article.author!.avatarUrl!.isEmpty)
-                          ? Text(
-                              article.author!.name.isNotEmpty
-                                  ? article.author!.name[0].toUpperCase()
-                                  : 'U',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.primary,
-                              ),
-                            )
-                          : null,
-                    ),
-                    SizedBox(width: 8.w),
-                    // Author name and role
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  article.author!.name,
-                                  style: TextStyle(
-                                    fontSize: 13.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: theme.colorScheme.onSurface,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              SizedBox(width: 6.w),
-                              // Role badge
-                              Builder(builder: (ctx) {
-                                final bg = _getRoleBadgeColor(article.author!.primaryRole, ctx);
-                                final fg = _getRoleBadgeTextColor(article.author!.primaryRole, ctx);
-                                return Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                                  decoration: BoxDecoration(
-                                    color: bg,
-                                    borderRadius: BorderRadius.circular(8.r),
-                                  ),
-                                  child: Text(
-                                    _getRoleLabel(article.author!.primaryRole),
-                                    style: TextStyle(
-                                      fontSize: 8.sp,
-                                      fontWeight: FontWeight.bold,
-                                      color: fg,
-                                    ),
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
-                          SizedBox(height: 2.h),
-                          Row(
-                            children: [
-                              Icon(Icons.access_time,
-                                  size: 11.sp,
-                                  color: theme.textTheme.bodySmall?.color),
-                              SizedBox(width: 4.w),
-                              Text(
-                                _formatDate(
-                                  (article.publishedAt ??
-                                      article.createdAt ??
-                                      article.updatedAt) as DateTime?,
-                                ),
-                                style: TextStyle(
-                                  fontSize: 11.sp,
-                                  color: theme.textTheme.bodySmall?.color,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            // Article content with image and text
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Thumbnail
-                Stack(
-                  children: [
-                    Container(
-                      height: 120.h,
-                      width: 120.w,
-                      color: Theme.of(context).colorScheme.surface,
-                      child: coverImage != null
-                          ? _buildImage(coverImage)
-                          : Icon(
-                              _getArticleIcon(article.type),
-                              size: 36.sp,
-                              color: Theme.of(context).disabledColor,
-                            ),
-                    ),
-                    // Type badge (Video/Article badge)
-                    if (article.type == 'video')
-                      Positioned(
-                        top: 8.h,
-                        left: 8.w,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 6.w, vertical: 3.h),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.error,
-                            borderRadius: BorderRadius.circular(4.r),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.play_circle,
-                                  color: Theme.of(context).colorScheme.onError,
-                                  size: 12.sp),
-                              SizedBox(width: 4.w),
-                              Text(
-                                'video'.tr.toUpperCase(),
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onError,
-                                  fontSize: 9.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                // Content
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.all(12.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Categories
-                        if (categories.isNotEmpty)
-                          Wrap(
-                            spacing: 6.w,
-                            runSpacing: 4.h,
-                            children: categories.take(2).map<Widget>((cat) {
-                              String catName;
-                              if (cat is String) {
-                                catName = cat;
-                              } else if (cat is Map) {
-                                catName = cat['name'] ?? 'Category';
-                              } else {
-                                // Handle CategoryModel object
-                                catName = cat.name ?? 'Category';
-                              }
-                              return Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 8.w, vertical: 3.h),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primary
-                                      .withOpacity(0.08),
-                                  borderRadius: BorderRadius.circular(12.r),
-                                ),
-                                child: Text(
-                                  catName,
-                                  style: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        SizedBox(height: 6.h),
-                        // Title
-                        Text(
-                          article.title,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.bold,
-                            color:
-                                theme.colorScheme.onSurface.withOpacity(0.95),
-                            height: 1.3,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        SizedBox(height: 6.h),
-                        // Meta info
-                        Row(
-                          children: [
-                            Icon(Icons.remove_red_eye_outlined,
-                                size: 12.sp,
-                                color: theme.colorScheme.onSurface
-                                    .withOpacity(0.7)),
-                            SizedBox(width: 4.w),
-                            Text(
-                              '${article.viewCount ?? 0}',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurface
-                                      .withOpacity(0.7),
-                                  fontSize: 11.sp),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  IconData _getArticleIcon(String? type) {
-    switch (type) {
-      case 'video':
-        return Icons.play_circle_outline;
-      case 'news_feed':
-        return Icons.newspaper;
-      case 'article':
-      default:
-        return Icons.article_outlined;
-    }
-  }
-
-  // Get role display label
-  String _getRoleLabel(String role) {
-    switch (role.toLowerCase()) {
-      case 'admin':
-        return 'official_account'.tr.toUpperCase();
-      case 'organizer':
-      case 'organization':
-        return 'news_organizer'.tr.toUpperCase();
-      default:
-        return 'user'.tr.toUpperCase();
-    }
-  }
-
-  // Get role badge color
-  Color _getRoleBadgeColor(String role, BuildContext context) {
-    final theme = Theme.of(context);
-    switch (role.toLowerCase()) {
-      case 'admin':
-        return theme.colorScheme.primary;
-      case 'organizer':
-      case 'organization':
-        return theme.colorScheme.surfaceVariant;
-      default:
-        return theme.colorScheme.error;
-    }
-  }
-
-  Color _getRoleBadgeTextColor(String role, BuildContext context) {
-    final theme = Theme.of(context);
-    switch (role.toLowerCase()) {
-      case 'admin':
-        return theme.colorScheme.onPrimary;
-      case 'organizer':
-      case 'organization':
-        return theme.colorScheme.onSurfaceVariant;
-      default:
-        return theme.colorScheme.onError;
-    }
+    return ArticleHelpers.getCategoryColor(index);
   }
 }

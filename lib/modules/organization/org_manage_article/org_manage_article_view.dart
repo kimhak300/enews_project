@@ -339,7 +339,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                   'article_deleted_successfully'.tr,
                   backgroundColor: Colors.green,
                   colorText: Colors.white,
-                  snackPosition: SnackPosition.BOTTOM,
+                  snackPosition: SnackPosition.TOP
                 );
               } catch (e) {
                 Get.snackbar(
@@ -347,7 +347,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                   'failed_to_delete_article'.tr,
                   backgroundColor: Colors.red,
                   colorText: Colors.white,
-                  snackPosition: SnackPosition.BOTTOM,
+                  snackPosition: SnackPosition.TOP
                 );
               }
             },

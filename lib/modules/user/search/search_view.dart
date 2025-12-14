@@ -8,7 +8,6 @@ import 'package:newshub/app/config/api_constants.dart';
 import 'package:newshub/modules/user/search/search_controller.dart'
     as user_search;
 import 'package:newshub/modules/user/search/search_small_video_player.dart';
-import 'package:newshub/modules/user/video/video_detail_view.dart';
 
 class SearchView extends StatelessWidget {
   const SearchView({super.key});

@@ -248,7 +248,7 @@ class _UpdateUserBottomSheetState extends State<UpdateUserBottomSheet> {
       Get.snackbar(
         'Not Allowed',
         'Cannot update Admin or Organizer accounts. Only regular users can be modified.',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         backgroundColor: Get.theme.colorScheme.error.withOpacity(0.1),
         colorText: Get.theme.colorScheme.error,
         duration: const Duration(seconds: 3),
@@ -262,7 +262,7 @@ class _UpdateUserBottomSheetState extends State<UpdateUserBottomSheet> {
       Get.snackbar(
         'Invalid Email',
         'Please enter a valid email address.',
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         backgroundColor: Get.theme.colorScheme.error.withOpacity(0.1),
         colorText: Get.theme.colorScheme.error,
       );

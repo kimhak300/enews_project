@@ -285,7 +285,7 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
                   'Invalid article ID',
                   backgroundColor: Get.theme.colorScheme.error,
                   colorText: Get.theme.colorScheme.onError,
-                  snackPosition: SnackPosition.BOTTOM,
+                  snackPosition: SnackPosition.TOP,
                 );
                 return;
               }
@@ -308,7 +308,7 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
                     'Article deleted successfully',
                     backgroundColor: Get.theme.colorScheme.primary,
                     colorText: Get.theme.colorScheme.onPrimary,
-                    snackPosition: SnackPosition.BOTTOM,
+                    snackPosition: SnackPosition.TOP,
                   );
                 }
               } catch (e) {
@@ -334,7 +334,7 @@ class _ArticleDetailViewState extends State<ArticleDetailView> {
                   errorMessage,
                   backgroundColor: Get.theme.colorScheme.error,
                   colorText: Get.theme.colorScheme.onError,
-                  snackPosition: SnackPosition.BOTTOM,
+                  snackPosition: SnackPosition.TOP,
                   duration: const Duration(seconds: 5),
                 );
               }

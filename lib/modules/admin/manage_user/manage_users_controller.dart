@@ -136,15 +136,15 @@ class ManageUsersController extends GetxController with GetTickerProviderStateMi
       final response = await _apiService.createUser(userData);
       if (response.isSuccess) {
         Get.snackbar('Success', 'User created successfully',
-            snackPosition: SnackPosition.BOTTOM);
+            snackPosition: SnackPosition.TOP);
         refresh();
       } else {
         Get.snackbar('Error', response.error ?? 'Failed to create user',
-            snackPosition: SnackPosition.BOTTOM);
+            snackPosition: SnackPosition.TOP);
       }
     } catch (e) {
       Get.snackbar('Error', 'An error occurred: $e',
-          snackPosition: SnackPosition.BOTTOM);
+          snackPosition: SnackPosition.TOP);
     }
   }
 
@@ -153,15 +153,15 @@ class ManageUsersController extends GetxController with GetTickerProviderStateMi
       final response = await _apiService.updateUser(userId, userData);
       if (response.isSuccess) {
         Get.snackbar('Success', 'User updated successfully',
-            snackPosition: SnackPosition.BOTTOM);
+            snackPosition: SnackPosition.TOP);
         refresh();
       } else {
         Get.snackbar('Error', response.error ?? 'Failed to update user',
-            snackPosition: SnackPosition.BOTTOM);
+            snackPosition: SnackPosition.TOP);
       }
     } catch (e) {
       Get.snackbar('Error', 'An error occurred: $e',
-          snackPosition: SnackPosition.BOTTOM);
+          snackPosition: SnackPosition.TOP);
     }
   }
 
@@ -170,15 +170,15 @@ class ManageUsersController extends GetxController with GetTickerProviderStateMi
       final response = await _apiService.assignRole(userId, roleId);
       if (response.isSuccess) {
         Get.snackbar('Success', 'Role assigned successfully',
-            snackPosition: SnackPosition.BOTTOM);
+            snackPosition: SnackPosition.TOP);
         refresh();
       } else {
         Get.snackbar('Error', response.error ?? 'Failed to assign role',
-            snackPosition: SnackPosition.BOTTOM);
+            snackPosition: SnackPosition.TOP);
       }
     } catch (e) {
       Get.snackbar('Error', 'An error occurred: $e',
-          snackPosition: SnackPosition.BOTTOM);
+          snackPosition: SnackPosition.TOP);
     }
   }
 
@@ -187,15 +187,15 @@ class ManageUsersController extends GetxController with GetTickerProviderStateMi
       final response = await _apiService.removeRole(userId, roleId);
       if (response.isSuccess) {
         Get.snackbar('Success', 'Role removed successfully',
-            snackPosition: SnackPosition.BOTTOM);
+            snackPosition: SnackPosition.TOP);
         refresh();
       } else {
         Get.snackbar('Error', response.error ?? 'Failed to remove role',
-            snackPosition: SnackPosition.BOTTOM);
+            snackPosition: SnackPosition.TOP);
       }
     } catch (e) {
       Get.snackbar('Error', 'An error occurred: $e',
-          snackPosition: SnackPosition.BOTTOM);
+          snackPosition: SnackPosition.TOP);
     }
   }
 
@@ -235,26 +235,29 @@ class ManageUsersController extends GetxController with GetTickerProviderStateMi
         allUsers.removeWhere((user) => user.id == userId);
         userRoleUsers.removeWhere((user) => user.id == userId);
         organizerUsers.removeWhere((user) => user.id == userId);
+        final _theme = Theme.of(Get.context!);
         Get.snackbar(
           'Success',
           'User deleted successfully',
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
+          backgroundColor: _theme.colorScheme.primary,
+          colorText: _theme.colorScheme.onPrimary,
         );
       } else {
+        final _theme = Theme.of(Get.context!);
         Get.snackbar(
           'Error',
           response.error ?? 'Failed to delete user',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
+          backgroundColor: _theme.colorScheme.error,
+          colorText: _theme.colorScheme.onError,
         );
       }
     } catch (e) {
+      final _theme = Theme.of(Get.context!);
       Get.snackbar(
         'Error',
         'An error occurred: $e',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+        backgroundColor: _theme.colorScheme.error,
+        colorText: _theme.colorScheme.onError,
       );
     }
   }
@@ -269,14 +272,17 @@ class ManageUsersController extends GetxController with GetTickerProviderStateMi
             onPressed: () => Get.back(),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-              deleteUser(user.id);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
-          ),
+          Builder(builder: (ctx) {
+            final _theme = Theme.of(ctx);
+            return ElevatedButton(
+              onPressed: () {
+                Get.back();
+                deleteUser(user.id);
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: _theme.colorScheme.error),
+              child: Text('Delete', style: TextStyle(color: _theme.colorScheme.onError)),
+            );
+          }),
         ],
       ),
     );

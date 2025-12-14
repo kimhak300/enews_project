@@ -223,24 +223,6 @@ class OrgHomeView extends GetView<OrgHomeController> {
     );
   }
 
-  // Widget _buildQuickActions(BuildContext context) {
-  //   final theme = Theme.of(context);
-  //   return Row(
-  //     children: [
-  //       const SizedBox(width: 16),
-  //       Expanded(
-  //         child: _buildActionButton(
-  //           title: 'view_team'.tr,
-  //           icon: Icons.people_outline,
-  //           color: theme.colorScheme.secondary,
-  //           onTap: () => Get.toNamed('/org-team'),
-  //           context: context,
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
   Widget _buildActionButton({
     required String title,
     required IconData icon,

@@ -329,7 +329,7 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
           'Article updated successfully',
           backgroundColor: Get.theme.colorScheme.primary,
           colorText: Get.theme.colorScheme.onPrimary,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
         Navigator.pop(context);
       }
@@ -340,7 +340,7 @@ class _UpdateArticleBottomsheetState extends State<UpdateArticleBottomsheet> {
           'Failed to update article: ${e.toString()}',
           backgroundColor: Get.theme.colorScheme.error,
           colorText: Get.theme.colorScheme.onError,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
         );
       }
     }

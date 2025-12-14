@@ -1,13 +1,11 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:newshub/app/config/app_config.dart';
 import 'package:newshub/modules/user/video/video_controller.dart';
 import 'package:newshub/data/models/article_model.dart';
-import 'package:newshub/app/config/api_constants.dart';
 import 'package:newshub/modules/admin/manage_articles/widgets/small_video_player.dart';
+import 'package:newshub/core/utils/article_helpers.dart';
 
 class VideoView extends GetView<VideoController> {
   const VideoView({super.key});
@@ -161,8 +159,8 @@ class VideoView extends GetView<VideoController> {
                   children: [
                     // Avatar
                     CircleAvatar(
-                      radius: 16.r,
-                      backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      radius: 18.r,
+                      backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
                       backgroundImage: (video.author!.avatarUrl != null && video.author!.avatarUrl!.isNotEmpty)
                           ? NetworkImage(video.author!.avatarUrl!)
                           : null,
@@ -170,14 +168,14 @@ class VideoView extends GetView<VideoController> {
                           ? Text(
                               video.author!.name.isNotEmpty ? video.author!.name[0].toUpperCase() : 'U',
                               style: TextStyle(
-                                fontSize: 14.sp,
+                                fontSize: 16.sp,
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: theme.colorScheme.primary,
                               ),
                             )
                           : null,
                     ),
-                    SizedBox(width: 8.w),
+                    SizedBox(width: 10.w),
                     // Author name and role
                     Expanded(
                       child: Column(
@@ -189,7 +187,7 @@ class VideoView extends GetView<VideoController> {
                                 child: Text(
                                   video.author!.name,
                                   style: TextStyle(
-                                    fontSize: 13.sp,
+                                    fontSize: 14.sp,
                                     fontWeight: FontWeight.w600,
                                     color: theme.colorScheme.onSurface,
                                   ),
@@ -200,18 +198,18 @@ class VideoView extends GetView<VideoController> {
                               SizedBox(width: 6.w),
                                 // Role badge
                                 Builder(builder: (ctx) {
-                                  final bg = _getRoleBadgeColor(video.author!.primaryRole, ctx);
-                                  final fg = _getRoleBadgeTextColor(video.author!.primaryRole, ctx);
+                                  final bg = ArticleHelpers.getRoleBadgeColor(video.author!.primaryRole, ctx);
+                                  final fg = ArticleHelpers.getRoleBadgeTextColor(video.author!.primaryRole, ctx);
                                   return Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                                     decoration: BoxDecoration(
                                       color: bg,
-                                      borderRadius: BorderRadius.circular(8.r),
+                                      borderRadius: BorderRadius.circular(10.r),
                                     ),
                                     child: Text(
-                                      _getRoleLabel(video.author!.primaryRole),
+                                      ArticleHelpers.getRoleLabel(video.author!.primaryRole),
                                       style: TextStyle(
-                                        fontSize: 8.sp,
+                                        fontSize: 9.sp,
                                         fontWeight: FontWeight.bold,
                                         color: fg,
                                       ),
@@ -220,16 +218,16 @@ class VideoView extends GetView<VideoController> {
                                 }),
                             ],
                           ),
-                          SizedBox(height: 2.h),
+                          SizedBox(height: 4.h),
                           Row(
                             children: [
-                              Icon(Icons.access_time, size: 11.sp, color: Theme.of(context).textTheme.bodySmall?.color),
+                              Icon(Icons.access_time, size: 12.sp, color: theme.textTheme.bodySmall?.color),
                               SizedBox(width: 4.w),
                               Text(
-                                _formatDate(video.createdAt),
+                                ArticleHelpers.formatDate(video.publishedAt ?? video.createdAt),
                                 style: TextStyle(
                                   fontSize: 11.sp,
-                                  color: Theme.of(context).textTheme.bodySmall?.color,
+                                  color: theme.textTheme.bodySmall?.color,
                                 ),
                               ),
                             ],
@@ -261,7 +259,7 @@ class VideoView extends GetView<VideoController> {
                             ),
                           ),
                           child: coverImage != null && !_isVideoFile(coverImage)
-                              ? _buildImage(coverImage)
+                              ? ArticleHelpers.buildImage(coverImage)
                               : Center(
                                   child: Icon(
                                     Icons.play_circle_outline,
@@ -277,8 +275,23 @@ class VideoView extends GetView<VideoController> {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.error,
-                      borderRadius: BorderRadius.circular(4.r),
+                      color: theme.colorScheme.error,
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.play_circle, color: Colors.white, size: 14.sp),
+                        SizedBox(width: 4.w),
+                        Text(
+                          'video'.tr.toUpperCase(),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -292,8 +305,10 @@ class VideoView extends GetView<VideoController> {
                   Text(
                     video.title,
                     style: TextStyle(
-                      fontSize: 16.sp,
+                      fontSize: 15.sp,
                       fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onSurface,
+                      height: 1.3,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -304,7 +319,7 @@ class VideoView extends GetView<VideoController> {
                       video.subtitle!,
                       style: TextStyle(
                             fontSize: 13.sp,
-                            color: Theme.of(context).textTheme.bodyMedium?.color,
+                            color: theme.textTheme.bodyMedium?.color,
                           ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -316,15 +331,15 @@ class VideoView extends GetView<VideoController> {
                     children: [
                       Icon(
                         Icons.remove_red_eye_outlined,
-                        size: 12.sp,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                        size: 13.sp,
+                        color: theme.colorScheme.onSurface.withOpacity(0.6),
                       ),
                       SizedBox(width: 4.w),
                       Text(
                         '${video.viewCount ?? 0}',
                         style: TextStyle(
-                          fontSize: 11.sp,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          fontSize: 12.sp,
+                          color: theme.colorScheme.onSurface.withOpacity(0.6),
                         ),
                       ),
                     ],
@@ -338,80 +353,6 @@ class VideoView extends GetView<VideoController> {
     );
   }
 
-  Widget _buildImage(String imageData) {
-    // Check if it's a video file first - don't try to load as image
-    if (_isVideoFile(imageData)) {
-      return Builder(builder: (ctx) {
-        final theme = Theme.of(ctx);
-        return Center(
-          child: Icon(
-            Icons.play_circle_outline,
-            size: 80.sp,
-            color: theme.colorScheme.onPrimary.withOpacity(0.8),
-          ),
-        );
-      });
-    }
-    
-    if (imageData.startsWith('data:image')) {
-      // Base64 image
-      try {
-        final base64String = imageData.split(',').last;
-        final bytes = base64Decode(base64String);
-        return Image.memory(
-          bytes,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-        );
-      } catch (e) {
-        print('❌ Base64 decode error: $e');
-        return Builder(builder: (ctx) => Icon(Icons.broken_image, size: 48.sp, color: Theme.of(ctx).colorScheme.onSurfaceVariant));
-      }
-    } else {
-      // URL image - convert relative paths to full URLs
-      String imageUrl = imageData;
-      if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
-        // Relative path - prepend base URL
-        imageUrl = '${ApiConstants.mediaBaseUrl}${imageUrl.startsWith('/') ? imageUrl : '/$imageUrl'}';
-      }
-      
-      return Image.network(
-        imageUrl,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Center(
-            child: CircularProgressIndicator(
-              value: loadingProgress.expectedTotalBytes != null
-                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                  : null,
-            ),
-          );
-        },
-        errorBuilder: (context, error, stackTrace) {
-          print('❌ Image load error: $error');
-          print('❌ Attempted URL: $imageUrl');
-          return Builder(builder: (ctx) => Center(child: Icon(Icons.broken_image, size: 48.sp, color: Theme.of(ctx).colorScheme.onSurfaceVariant)));
-        },
-      );
-    }
-  }
-
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'Just now';
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inMinutes < 1) return 'Just now';
-    if (difference.inMinutes < 60) return '${difference.inMinutes} min ago';
-    if (difference.inHours < 24) return '${difference.inHours} hours ago';
-    if (difference.inDays < 7) return '${difference.inDays} days ago';
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
   bool _isVideoFile(String path) {
     final lower = path.toLowerCase();
     return lower.endsWith('.mp4') || 
@@ -420,45 +361,5 @@ class VideoView extends GetView<VideoController> {
            lower.endsWith('.webm') ||
            lower.endsWith('.mkv') ||
            lower.endsWith('.flv');
-  }
-
-  // Get role display label
-  String _getRoleLabel(String role) {
-    switch (role.toLowerCase()) {
-      case 'admin':
-        return 'official_account'.tr.toUpperCase();
-      case 'organizer':
-      case 'organization':
-        return 'news_organizer'.tr.toUpperCase();
-      default:
-        return 'user'.tr.toUpperCase();
-    }
-  }
-
-  // Get role badge color
-  Color _getRoleBadgeColor(String role, BuildContext context) {
-    final theme = Theme.of(context);
-    switch (role.toLowerCase()) {
-      case 'admin':
-        return theme.colorScheme.primary;
-      case 'organizer':
-      case 'organization':
-        return theme.colorScheme.surfaceVariant;
-      default:
-        return theme.colorScheme.error;
-    }
-  }
-
-  Color _getRoleBadgeTextColor(String role, BuildContext context) {
-    final theme = Theme.of(context);
-    switch (role.toLowerCase()) {
-      case 'admin':
-        return theme.colorScheme.onPrimary;
-      case 'organizer':
-      case 'organization':
-        return theme.colorScheme.onSurfaceVariant;
-      default:
-        return theme.colorScheme.onError;
-    }
   }
 }

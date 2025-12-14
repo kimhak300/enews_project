@@ -50,13 +50,13 @@ class BookmarkController extends GetxController {
       final response = await _apiService.removeBookmark(articleId);
       if (response.isSuccess) {
         bookmarks.removeWhere((article) => article.id == articleId);
-        Get.snackbar(
-          'Success',
-          'Bookmark removed',
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        // Get.snackbar(
+        //   'Success',
+        //   'Bookmark removed',
+        //   backgroundColor: Colors.green,
+        //   colorText: Colors.white,
+        //   snackPosition: SnackPosition.BOTTOM,
+        // );
       } else {
         Get.snackbar(
           'Error',

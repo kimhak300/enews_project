@@ -351,7 +351,7 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
         backgroundColor: Colors.orange,
         colorText: Colors.white,
         duration: const Duration(seconds: 4),
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP
       );
       return;
     }
@@ -365,7 +365,7 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
         backgroundColor: Colors.orange,
         colorText: Colors.white,
         duration: const Duration(seconds: 4),
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP
       );
       return;
     }
@@ -389,7 +389,7 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
             'Failed to upload video: ${e.toString()}',
             backgroundColor: Get.theme.colorScheme.error,
             colorText: Get.theme.colorScheme.onError,
-            snackPosition: SnackPosition.BOTTOM,
+            snackPosition: SnackPosition.TOP,
             duration: const Duration(seconds: 5),
           );
         }
@@ -422,7 +422,7 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
             'Article updated successfully',
             backgroundColor: Get.theme.colorScheme.primary,
             colorText: Get.theme.colorScheme.onPrimary,
-            snackPosition: SnackPosition.BOTTOM,
+            snackPosition: SnackPosition.TOP
           );
         }
       } else {
@@ -433,7 +433,7 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
             'Article created successfully',
             backgroundColor: Get.theme.colorScheme.primary,
             colorText: Get.theme.colorScheme.onPrimary,
-            snackPosition: SnackPosition.BOTTOM,
+            snackPosition: SnackPosition.TOP
           );
         }
       }
@@ -446,7 +446,7 @@ class _CreateArticleBottomsheetState extends State<CreateArticleBottomsheet> {
           'Failed to save article: ${e.toString()}',
           backgroundColor: Get.theme.colorScheme.error,
           colorText: Get.theme.colorScheme.onError,
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP
         );
       }
     }

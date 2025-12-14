@@ -147,12 +147,13 @@ class UserArticleDetailController extends GetxController {
     try {
       final authorId = article.authorId;
       if (authorId == null) {
+        final _theme = Theme.of(Get.context!);
         Get.snackbar(
           'Error',
           'Cannot follow: Author not found',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: _theme.colorScheme.error,
+          colorText: _theme.colorScheme.onError,
+          snackPosition: SnackPosition.TOP,
         );
         return;
       }
@@ -162,21 +163,23 @@ class UserArticleDetailController extends GetxController {
         final success = await _followService.unfollowUser(authorId);
         if (success) {
           isFollowing.value = false;
-          Get.snackbar(
-            'Success',
-            'Unfollowed ${article.author?.displayName ?? "author"}',
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
-            duration: const Duration(seconds: 2),
-          );
+          final _theme = Theme.of(Get.context!);
+          // Get.snackbar(
+          //   'Success',
+          //   'Unfollowed ${article.author?.displayName ?? "author"}',
+          //   backgroundColor: _theme.colorScheme.primary,
+          //   colorText: _theme.colorScheme.onPrimary,
+          //   snackPosition: SnackPosition.TOP,
+          //   duration: const Duration(seconds: 2),
+          // );
         } else {
+          final _theme = Theme.of(Get.context!);
           Get.snackbar(
             'Error',
             'Failed to unfollow',
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: _theme.colorScheme.error,
+            colorText: _theme.colorScheme.onError,
+            snackPosition: SnackPosition.TOP,
           );
         }
       } else {
@@ -184,32 +187,35 @@ class UserArticleDetailController extends GetxController {
         final success = await _followService.followUser(authorId);
         if (success) {
           isFollowing.value = true;
-          Get.snackbar(
-            'Success',
-            'Following ${article.author?.displayName ?? "author"}! 🎉',
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
-            duration: const Duration(seconds: 2),
-          );
+          final _theme = Theme.of(Get.context!);
+          // Get.snackbar(
+          //   'Success',
+          //   'Following ${article.author?.displayName ?? "author"}! 🎉',
+          //   backgroundColor: _theme.colorScheme.primary,
+          //   colorText: _theme.colorScheme.onPrimary,
+          //   snackPosition: SnackPosition.TOP,
+          //   duration: const Duration(seconds: 2),
+          // );
         } else {
+          final _theme = Theme.of(Get.context!);
           Get.snackbar(
             'Error',
             'Failed to follow',
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: _theme.colorScheme.error,
+            colorText: _theme.colorScheme.onError,
+            snackPosition: SnackPosition.TOP,
           );
         }
       }
     } catch (e) {
       print('Error toggling follow: $e');
+      final _theme = Theme.of(Get.context!);
       Get.snackbar(
         'Error',
         'Something went wrong',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: _theme.colorScheme.error,
+        colorText: _theme.colorScheme.onError,
+        snackPosition: SnackPosition.TOP,
       );
     }
   }
@@ -226,21 +232,16 @@ class UserArticleDetailController extends GetxController {
           if (likeCount.value > 0) likeCount.value--;
           // Reload actual count from backend
           await reloadArticleStats();
-          Get.snackbar(
-            'Success',
-            'Article unliked!',
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
-            duration: const Duration(seconds: 2),
-          );
+          final _theme = Theme.of(Get.context!);
+
         } else {
+          final _theme = Theme.of(Get.context!);
           Get.snackbar(
             'Error',
             result['error'] ?? 'Failed to unlike',
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: _theme.colorScheme.error,
+            colorText: _theme.colorScheme.onError,
+            snackPosition: SnackPosition.TOP,
           );
         }
       } else {
@@ -251,43 +252,47 @@ class UserArticleDetailController extends GetxController {
           likeCount.value++;
           // Reload actual count from backend
           await reloadArticleStats();
-          Get.snackbar(
-            'Success',
-            'Article liked! ❤️',
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
-            duration: const Duration(seconds: 2),
-          );
+          final _theme = Theme.of(Get.context!);
+          // Get.snackbar(
+          //   'Success',
+          //   'Article liked! ❤️',
+          //   backgroundColor: _theme.colorScheme.primary,
+          //   colorText: _theme.colorScheme.onPrimary,
+          //   snackPosition: SnackPosition.TOP,
+          //   duration: const Duration(seconds: 2),
+          // );
         } else {
           // Check if user needs to login
           if (result['error']?.contains('401') == true) {
+            final _theme = Theme.of(Get.context!);
             Get.snackbar(
               'Login Required',
               'Please login first to like articles',
-              backgroundColor: Colors.orange,
-              colorText: Colors.white,
-              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: _theme.colorScheme.secondary,
+              colorText: _theme.colorScheme.onSecondary,
+              snackPosition: SnackPosition.TOP,
             );
           } else {
+            final _theme = Theme.of(Get.context!);
             Get.snackbar(
               'Error',
               result['error'] ?? 'Failed to like',
-              backgroundColor: Colors.red,
-              colorText: Colors.white,
-              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: _theme.colorScheme.error,
+              colorText: _theme.colorScheme.onError,
+              snackPosition: SnackPosition.TOP,
             );
           }
         }
       }
     } catch (e) {
       print('Error toggling like: $e');
+      final _theme = Theme.of(Get.context!);
       Get.snackbar(
         'Error',
         'Something went wrong',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: _theme.colorScheme.error,
+        colorText: _theme.colorScheme.onError,
+        snackPosition: SnackPosition.TOP,
       );
     }
   }
@@ -302,21 +307,23 @@ class UserArticleDetailController extends GetxController {
         if (result['success']) {
           isBookmarked.value = false;
           await reloadArticleStats();
-          Get.snackbar(
-            'Success',
-            'Bookmark removed!',
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
-            duration: const Duration(seconds: 2),
-          );
+          final _theme = Theme.of(Get.context!);
+          // Get.snackbar(
+          //   'Success',
+          //   'Bookmark removed!',
+          //   backgroundColor: _theme.colorScheme.primary,
+          //   colorText: _theme.colorScheme.onPrimary,
+          //   snackPosition: SnackPosition.TOP,
+          //   duration: const Duration(seconds: 2),
+          // );
         } else {
+          final _theme = Theme.of(Get.context!);
           Get.snackbar(
             'Error',
             result['error'] ?? 'Failed to remove bookmark',
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: _theme.colorScheme.error,
+            colorText: _theme.colorScheme.onError,
+            snackPosition: SnackPosition.TOP,
           );
         }
       } else {
@@ -325,42 +332,46 @@ class UserArticleDetailController extends GetxController {
         if (result['success']) {
           isBookmarked.value = true;
           await reloadArticleStats();
-          Get.snackbar(
-            'Success',
-            'Article bookmarked! 🔖',
-            backgroundColor: Colors.green,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
-            duration: const Duration(seconds: 2),
-          );
+          final _theme = Theme.of(Get.context!);
+          // Get.snackbar(
+          //   'Success',
+          //   'Article bookmarked! 🔖',
+          //   backgroundColor: _theme.colorScheme.primary,
+          //   colorText: _theme.colorScheme.onPrimary,
+          //   snackPosition: SnackPosition.TOP,
+          //   duration: const Duration(seconds: 2),
+          // );
         } else {
           if (result['error']?.contains('401') == true) {
+            final _theme = Theme.of(Get.context!);
             Get.snackbar(
               'Login Required',
               'Please login first to bookmark articles',
-              backgroundColor: Colors.orange,
-              colorText: Colors.white,
-              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: _theme.colorScheme.secondary,
+              colorText: _theme.colorScheme.onSecondary,
+              snackPosition: SnackPosition.TOP,
             );
           } else {
+            final _theme = Theme.of(Get.context!);
             Get.snackbar(
               'Error',
               result['error'] ?? 'Failed to bookmark',
-              backgroundColor: Colors.red,
-              colorText: Colors.white,
-              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: _theme.colorScheme.error,
+              colorText: _theme.colorScheme.onError,
+              snackPosition: SnackPosition.TOP,
             );
           }
         }
       }
     } catch (e) {
       print('Error toggling bookmark: $e');
+      final _theme = Theme.of(Get.context!);
       Get.snackbar(
         'Error',
         'Something went wrong',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: _theme.colorScheme.error,
+        colorText: _theme.colorScheme.onError,
+        snackPosition: SnackPosition.TOP,
       );
     }
   }
@@ -386,22 +397,24 @@ Read more at: NewsHub
       // Reload actual count from backend
       await reloadArticleStats();
 
-      Get.snackbar(
-        'Shared',
-        'Article content copied to clipboard! 🔗',
-        backgroundColor: Colors.grey[600],
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
-      );
+      final _theme = Theme.of(Get.context!);
+      // Get.snackbar(
+      //   'Shared',
+      //   'Article content copied to clipboard! 🔗',
+      //   backgroundColor: _theme.colorScheme.surfaceVariant,
+      //   colorText: _theme.colorScheme.onSurfaceVariant,
+      //   snackPosition: SnackPosition.TOP,
+      //   duration: const Duration(seconds: 2),
+      // );
     } catch (e) {
       print('Error sharing: $e');
+      final _theme = Theme.of(Get.context!);
       Get.snackbar(
         'Error',
         'Failed to share article',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: _theme.colorScheme.error,
+        colorText: _theme.colorScheme.onError,
+        snackPosition: SnackPosition.TOP,
       );
     }
   }
@@ -443,12 +456,13 @@ Read more at: NewsHub
   Future<void> postComment() async {
     final content = commentController.text.trim();
     if (content.isEmpty) {
+      final _theme = Theme.of(Get.context!);
       Get.snackbar(
         'Error',
         'Please enter a comment',
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: _theme.colorScheme.secondary,
+        colorText: _theme.colorScheme.onSecondary,
+        snackPosition: SnackPosition.TOP,
       );
       return;
     }
@@ -464,41 +478,45 @@ Read more at: NewsHub
         // Reload comments
         await loadComments();
 
-        Get.snackbar(
-          'Success',
-          'Comment posted! 💬',
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-          duration: const Duration(seconds: 2),
-        );
+        final _theme = Theme.of(Get.context!);
+        // Get.snackbar(
+        //   'Success',
+        //   'Comment posted! 💬',
+        //   backgroundColor: _theme.colorScheme.primary,
+        //   colorText: _theme.colorScheme.onPrimary,
+        //   snackPosition: SnackPosition.TOP,
+        //   duration: const Duration(seconds: 2),
+        // );
       } else {
         if (result['error']?.contains('401') == true) {
+          final _theme = Theme.of(Get.context!);
           Get.snackbar(
             'Login Required',
             'Please login first to comment',
-            backgroundColor: Colors.orange,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: _theme.colorScheme.secondary,
+            colorText: _theme.colorScheme.onSecondary,
+            snackPosition: SnackPosition.TOP,
           );
         } else {
+          final _theme = Theme.of(Get.context!);
           Get.snackbar(
             'Error',
             result['error'] ?? 'Failed to post comment',
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: _theme.colorScheme.error,
+            colorText: _theme.colorScheme.onError,
+            snackPosition: SnackPosition.TOP,
           );
         }
       }
     } catch (e) {
       print('Error posting comment: $e');
+      final _theme = Theme.of(Get.context!);
       Get.snackbar(
         'Error',
         'Something went wrong',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: _theme.colorScheme.error,
+        colorText: _theme.colorScheme.onError,
+        snackPosition: SnackPosition.TOP,
       );
     } finally {
       isLoading.value = false;
@@ -507,12 +525,13 @@ Read more at: NewsHub
 
   /// Show comment bottom sheet
   void showCommentSheet() {
+    final theme = Theme.of(Get.context!);
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.all(16),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: BoxDecoration(
+          color: theme.scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -523,7 +542,7 @@ Read more at: NewsHub
               height: 4,
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: theme.dividerColor,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -531,7 +550,7 @@ Read more at: NewsHub
             // Title
             Row(
               children: [
-                const Icon(Icons.comment, color: Colors.blue),
+                Icon(Icons.comment, color: theme.colorScheme.primary),
                 const SizedBox(width: 8),
                 const Text(
                   'Comments',
@@ -545,7 +564,7 @@ Read more at: NewsHub
                       '${commentCount.value}',
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.grey[600],
+                        color: theme.textTheme.bodyMedium?.color ?? Colors.grey,
                       ),
                     )),
               ],
@@ -554,11 +573,11 @@ Read more at: NewsHub
 
             // Comments list
             Obx(() => comments.isEmpty
-                ? const Padding(
-                    padding: EdgeInsets.all(32.0),
+                ? Padding(
+                    padding: const EdgeInsets.all(32.0),
                     child: Text(
                       'No comments yet. Be the first to comment!',
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: theme.textTheme.bodySmall?.color ?? Colors.grey),
                       textAlign: TextAlign.center,
                     ),
                   )
@@ -619,7 +638,7 @@ Read more at: NewsHub
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.send),
-                      color: Colors.blue,
+                      color: theme.colorScheme.primary,
                     )),
               ],
             ),
