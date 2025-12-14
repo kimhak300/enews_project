@@ -84,8 +84,16 @@ class ProfileView extends StatelessWidget {
                     }
 
                     String roleDisplay() {
-                      // role is not stored in controller; default to User
-                      return 'User';
+                      final role = profileCtrl.userRole.value?.toLowerCase() ?? 'user';
+                      switch (role) {
+                        case 'admin':
+                          return 'administrator'.tr;
+                        case 'organization':
+                        case 'organizer':
+                          return 'organization'.tr;
+                        default:
+                          return 'user'.tr;
+                      }
                     }
 
                     return Column(
@@ -151,16 +159,10 @@ class ProfileView extends StatelessWidget {
             _buildMenuItem(
               icon: Icons.person_outline,
               title: 'edit_profile'.tr,
-              onTap: () async {
+                onTap: () async {
+                // Allow regular users, organization and admin to edit their profile
                 final authService = Get.find<AuthService>();
                 final user = await authService.getSavedUser();
-                final role = user?.primaryRole ?? 'user';
-                if (role.toLowerCase() != 'user') {
-                  Get.snackbar(
-                      'error'.tr, 'only_regular_users_can_edit_profile'.tr,
-                      snackPosition: SnackPosition.BOTTOM);
-                  return;
-                }
 
                 final profileCtrl = Get.find<ProfileController>();
                 final nameCtrl = TextEditingController(text: user?.name ?? '');

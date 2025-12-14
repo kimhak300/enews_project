@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:newshub/app/routes/app_routes.dart';
 import 'package:newshub/modules/admin/admin_binding.dart';
 import 'package:newshub/modules/admin/admin_bottom_nav.dart';
+import 'package:newshub/modules/user/user_binding.dart';
+import 'package:newshub/modules/user/profile/profile_view.dart';
 import 'package:newshub/modules/admin/analytics_view/analytics_view.dart';
 import 'package:newshub/modules/admin/dashboard/dashboard_view.dart';
 import 'package:newshub/modules/admin/manage_articles/manage_articles_view.dart';
@@ -40,6 +42,11 @@ class AdminPages {
         name: Routes.ADMIN_MANAGE_USER,
         page: () => ManageUsersView(),
         binding: AdminBinding()
+    ),
+    GetPage(
+      name: Routes.ADMIN_MANAGER_PROFILE,
+      page: () => ProfileView(),
+      binding: UserBinding()
     ),
   ];
 }

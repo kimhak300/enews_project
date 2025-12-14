@@ -37,6 +37,8 @@ class _CreateOrgArticleBottomsheetState extends State<CreateOrgArticleBottomshee
   List<String> mediaBase64 = [];
   List<File> pickedFiles = [];
   File? pickedVideo;
+  bool _isPickingImage = false;
+  bool _isPickingVideo = false;
 
   @override
   void initState() {
@@ -63,24 +65,47 @@ class _CreateOrgArticleBottomsheetState extends State<CreateOrgArticleBottomshee
   }
 
   Future<void> pickImages() async {
-    final ImagePicker picker = ImagePicker();
-    final List<XFile>? images = await picker.pickMultiImage(imageQuality: 80);
-    if (images != null && images.isNotEmpty) {
-      pickedFiles = images.map((e) => File(e.path)).toList();
-      mediaBase64 = pickedFiles.map((file) {
-        final bytes = file.readAsBytesSync();
-        return 'data:image/${file.path.split('.').last};base64,${base64Encode(bytes)}';
-      }).toList();
-      setState(() {});
+    if (_isPickingImage) return; // prevent re-entrancy
+    _isPickingImage = true;
+    setState(() {});
+    try {
+      final ImagePicker picker = ImagePicker();
+      final List<XFile>? images = await picker.pickMultiImage(imageQuality: 80);
+      if (images != null && images.isNotEmpty) {
+        pickedFiles = images.map((e) => File(e.path)).toList();
+        mediaBase64 = pickedFiles.map((file) {
+          final bytes = file.readAsBytesSync();
+          return 'data:image/${file.path.split('.').last};base64,${base64Encode(bytes)}';
+        }).toList();
+        if (mounted) setState(() {});
+      }
+    } catch (e) {
+      // Handle platform exceptions (picker already active) gracefully
+      if (e is Exception) {
+        // Optionally log or show a snackbar
+      }
+    } finally {
+      _isPickingImage = false;
+      if (mounted) setState(() {});
     }
   }
 
   Future<void> pickVideo() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? video = await picker.pickVideo(source: ImageSource.gallery);
-    if (video != null) {
-      pickedVideo = File(video.path);
-      setState(() {});
+    if (_isPickingVideo) return;
+    _isPickingVideo = true;
+    setState(() {});
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? video = await picker.pickVideo(source: ImageSource.gallery);
+      if (video != null) {
+        pickedVideo = File(video.path);
+        if (mounted) setState(() {});
+      }
+    } catch (e) {
+      // ignore platform exceptions or show feedback
+    } finally {
+      _isPickingVideo = false;
+      if (mounted) setState(() {});
     }
   }
 
@@ -152,7 +177,7 @@ class _CreateOrgArticleBottomsheetState extends State<CreateOrgArticleBottomshee
                             if (selectedType == 'video') ...[
                               Center(
                                 child: ElevatedButton.icon(
-                                  onPressed: pickVideo,
+                                  onPressed: _isPickingVideo ? null : pickVideo,
                                   icon: const Icon(Icons.video_library),
                                   label: const Text('Pick Video'),
                                   style: ElevatedButton.styleFrom(
@@ -169,7 +194,7 @@ class _CreateOrgArticleBottomsheetState extends State<CreateOrgArticleBottomshee
                             ] else ...[
                               Center(
                                 child: ElevatedButton.icon(
-                                  onPressed: pickImages,
+                                  onPressed: _isPickingImage ? null : pickImages,
                                   icon: const Icon(Icons.image),
                                   label: const Text('Pick Images'),
                                   style: ElevatedButton.styleFrom(

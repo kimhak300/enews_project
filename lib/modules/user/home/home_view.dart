@@ -7,7 +7,6 @@ import 'package:newshub/modules/user/search/search_controller.dart'
     as user_search;
 import 'package:newshub/modules/user/video/video_detail_view.dart';
 import 'package:newshub/core/utils/video_helper.dart';
-import 'package:newshub/modules/user/home/widgets/article_card_widget.dart';
 import 'package:newshub/core/utils/article_helpers.dart';
 
 class HomeView extends GetView<HomeController> {

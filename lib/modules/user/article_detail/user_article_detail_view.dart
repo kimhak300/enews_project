@@ -840,10 +840,8 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
       case 'admin':
         return 'OFFICIAL ACCOUNT';
       case 'organizer':
-      case 'organization':
-        return 'NEWS ORGANIZER';
       default:
-        return 'USER';
+        return 'NEWS ORGANIZER';
     }
   }
 

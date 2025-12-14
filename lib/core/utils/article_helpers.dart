@@ -31,10 +31,8 @@ class ArticleHelpers {
       case 'admin':
         return 'official_account'.tr.toUpperCase();
       case 'organizer':
-      case 'organization':
-        return 'news_organizer'.tr.toUpperCase();
       default:
-        return 'user'.tr.toUpperCase();
+        return 'news_organizer'.tr.toUpperCase();
     }
   }
 
@@ -45,10 +43,8 @@ class ArticleHelpers {
       case 'admin':
         return theme.colorScheme.primary;
       case 'organizer':
-      case 'organization':
-        return theme.colorScheme.surfaceVariant;
       default:
-        return theme.colorScheme.error;
+        return theme.colorScheme.error; 
     }
   }
 

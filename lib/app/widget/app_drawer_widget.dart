@@ -471,9 +471,11 @@ class AppDrawerWidget extends StatelessWidget {
     // Navigate to profile based on role
     switch (userRole.toLowerCase()) {
       case 'admin':
-        Get.snackbar('profile'.tr, 'admin_profile_coming_soon'.tr);
+        // Allow admin to open the shared profile view for editing
+        Get.toNamed(Routes.ADMIN_MANAGER_PROFILE);
         break;
       case 'organization':
+        // Organization role uses the same profile view which supports editing
         Get.toNamed(Routes.ORG_PROFILE);
         break;
       default:

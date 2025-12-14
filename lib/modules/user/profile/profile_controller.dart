@@ -11,6 +11,7 @@ class ProfileController extends GetxController {
   final isEditing = false.obs;
   final userName = 'User Name'.obs;
   final userEmail = 'user@example.com'.obs;
+  final userRole = 'user'.obs;
   final Rxn<File> profileImage = Rxn<File>();
   final Rxn<String> avatarPath = Rxn<String>();
 
@@ -116,9 +117,12 @@ class ProfileController extends GetxController {
         final name = (map['display_name'] ?? map['full_name'] ?? map['name']) as String?;
         final email = map['email'] as String?;
         final avatar = map['avatar_url'] as String?;
+        // Some backends store role under 'primary_role' or 'role'
+        final role = (map['primary_role'] ?? map['role'] ?? map['primaryRole']) as String?;
         if (name != null && name.isNotEmpty) userName.value = name;
         if (email != null && email.isNotEmpty) userEmail.value = email;
         if (avatar != null && avatar.isNotEmpty) avatarPath.value = avatar;
+        if (role != null && role.isNotEmpty) userRole.value = role.toString().toLowerCase();
       }
     } catch (_) {
       // ignore
