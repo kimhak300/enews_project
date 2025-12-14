@@ -141,24 +141,33 @@ class HomeView extends GetView<HomeController> {
               SliverToBoxAdapter(child: SizedBox(height: 16.h)),
 
               // Featured Article
-                if (controller.filteredArticles.isNotEmpty)
+              if (controller.filteredArticles.isNotEmpty)
                 SliverPadding(
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (ctx, index) {
-                    final article = controller.filteredArticles[index];
-                    return Column(
-                      children: [
-                      _buildFeaturedArticle(context, article),
-                      SizedBox(height: 16.h),
-                      ],
-                    );
-                    },
-                    childCount: controller.filteredArticles.length,
-                  ),
+                    delegate: SliverChildBuilderDelegate(
+                      (ctx, index) {
+                        final article = controller.filteredArticles[index];
+                        return Column(
+                          children: [
+                            _buildFeaturedArticle(context, article),
+                            SizedBox(height: 16.h),
+                          ],
+                        );
+                      },
+                      childCount: controller.filteredArticles.length,
+                    ),
                   ),
                 ),
+
+              // if (controller.filteredArticles.isNotEmpty)
+              //   SliverToBoxAdapter(
+              //     child: Padding(
+              //       padding: EdgeInsets.symmetric(horizontal: 16.w),
+              //       child: _buildFeaturedArticle(
+              //           context, controller.filteredArticles.first),
+              //     ),
+              //   ),
 
               // SliverToBoxAdapter(child: SizedBox(height: 16.h)),
 
