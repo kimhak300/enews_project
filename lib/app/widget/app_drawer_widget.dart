@@ -341,14 +341,6 @@ class AppDrawerWidget extends StatelessWidget {
           Get.toNamed(Routes.USER_BOOKMARK);
         },
       ),
-      _buildMenuItem(
-        icon: Icons.person,
-        title: 'profile'.tr,
-        onTap: () {
-          Get.back();
-          Get.toNamed(Routes.USER_PROFILE);
-        },
-      ),
     ];
   }
 
