@@ -423,34 +423,36 @@ class HomeView extends GetView<HomeController> {
                             Text(
                               article.author!.name,
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 12.sp,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             SizedBox(width: 6.w),
-                            // Role badge
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 6.w, vertical: 2.h),
-                              decoration: BoxDecoration(
-                                color: _getRoleBadgeColor(
-                                    article.author!.primaryRole),
-                                borderRadius: BorderRadius.circular(8.r),
-                              ),
-                              child: Text(
-                                _getRoleLabel(article.author!.primaryRole),
-                                style: TextStyle(
-                                  fontSize: 9.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
+                              // Role badge
+                              Builder(builder: (ctx) {
+                                final bg = _getRoleBadgeColor(article.author!.primaryRole, ctx);
+                                final fg = _getRoleBadgeTextColor(article.author!.primaryRole, ctx);
+                                return Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                                  decoration: BoxDecoration(
+                                    color: bg,
+                                    borderRadius: BorderRadius.circular(8.r),
+                                  ),
+                                  child: Text(
+                                    _getRoleLabel(article.author!.primaryRole),
+                                    style: TextStyle(
+                                      fontSize: 9.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: fg,
+                                    ),
+                                  ),
+                                );
+                              }),
                             SizedBox(width: 8.w),
                           ],
-                          Icon(Icons.access_time,
-                              size: 12.sp, color: Colors.white70),
+                              Icon(Icons.access_time,
+                              size: 12.sp, color: Theme.of(context).disabledColor),
                           SizedBox(width: 4.w),
                           Text(
                             _formatDate(
@@ -459,7 +461,7 @@ class HomeView extends GetView<HomeController> {
                                   article.updatedAt) as DateTime?,
                             ),
                             style: TextStyle(
-                                color: Colors.white70, fontSize: 12.sp),
+                              color: Theme.of(context).disabledColor, fontSize: 12.sp),
                           ),
                         ],
                       ),
@@ -627,7 +629,7 @@ class HomeView extends GetView<HomeController> {
                                   style: TextStyle(
                                     fontSize: 13.sp,
                                     fontWeight: FontWeight.w600,
-                                    color: theme.textTheme.bodyLarge?.color,
+                                    color: theme.colorScheme.onSurface,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -635,23 +637,25 @@ class HomeView extends GetView<HomeController> {
                               ),
                               SizedBox(width: 6.w),
                               // Role badge
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 6.w, vertical: 2.h),
-                                decoration: BoxDecoration(
-                                  color: _getRoleBadgeColor(
-                                      article.author!.primaryRole),
-                                  borderRadius: BorderRadius.circular(8.r),
-                                ),
-                                child: Text(
-                                  _getRoleLabel(article.author!.primaryRole),
-                                  style: TextStyle(
-                                    fontSize: 8.sp,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                              Builder(builder: (ctx) {
+                                final bg = _getRoleBadgeColor(article.author!.primaryRole, ctx);
+                                final fg = _getRoleBadgeTextColor(article.author!.primaryRole, ctx);
+                                return Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                                  decoration: BoxDecoration(
+                                    color: bg,
+                                    borderRadius: BorderRadius.circular(8.r),
                                   ),
-                                ),
-                              ),
+                                  child: Text(
+                                    _getRoleLabel(article.author!.primaryRole),
+                                    style: TextStyle(
+                                      fontSize: 8.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: fg,
+                                    ),
+                                  ),
+                                );
+                              }),
                             ],
                           ),
                           SizedBox(height: 2.h),
@@ -836,25 +840,39 @@ class HomeView extends GetView<HomeController> {
   String _getRoleLabel(String role) {
     switch (role.toLowerCase()) {
       case 'admin':
-        return 'OFFICIAL ACCOUNT';
+        return 'official_account'.tr.toUpperCase();
       case 'organizer':
       case 'organization':
-        return 'NEWS ORGANIZER';
+        return 'news_organizer'.tr.toUpperCase();
       default:
-        return 'USER';
+        return 'user'.tr.toUpperCase();
     }
   }
 
   // Get role badge color
-  Color _getRoleBadgeColor(String role) {
+  Color _getRoleBadgeColor(String role, BuildContext context) {
+    final theme = Theme.of(context);
     switch (role.toLowerCase()) {
       case 'admin':
-        return Colors.blue;
+        return theme.colorScheme.primary;
       case 'organizer':
       case 'organization':
-        return Colors.grey;
+        return theme.colorScheme.surfaceVariant;
       default:
-        return Colors.red;
+        return theme.colorScheme.error;
+    }
+  }
+
+  Color _getRoleBadgeTextColor(String role, BuildContext context) {
+    final theme = Theme.of(context);
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return theme.colorScheme.onPrimary;
+      case 'organizer':
+      case 'organization':
+        return theme.colorScheme.onSurfaceVariant;
+      default:
+        return theme.colorScheme.onError;
     }
   }
 }

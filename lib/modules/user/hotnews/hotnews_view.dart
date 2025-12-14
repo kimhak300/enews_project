@@ -14,18 +14,20 @@ class HotNewsView extends GetView<HotNewsController> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text('hot_news'.tr),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor ?? Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).appBarTheme.foregroundColor ?? Theme.of(context).colorScheme.onPrimary,
+        backgroundColor: theme.appBarTheme.backgroundColor ?? theme.colorScheme.primary,
+        foregroundColor: theme.appBarTheme.foregroundColor ?? theme.colorScheme.onPrimary,
       ),
       body: Obx(() {
         if (controller.isLoading.value && controller.hotNews.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(theme.colorScheme.primary)));
         }
 
         if (controller.errorMessage.isNotEmpty && controller.hotNews.isEmpty) {
@@ -33,12 +35,12 @@ class HotNewsView extends GetView<HotNewsController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline, size: 64.sp, color: Colors.red),
+                Icon(Icons.error_outline, size: 64.sp, color: theme.colorScheme.error),
                 SizedBox(height: 16.h),
                 Text(
                   controller.errorMessage.value,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14.sp),
+                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 14.sp),
                 ),
                 SizedBox(height: 16.h),
                 ElevatedButton(
@@ -55,14 +57,11 @@ class HotNewsView extends GetView<HotNewsController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.local_fire_department_outlined, size: 64.sp, color: Colors.grey),
+                Icon(Icons.local_fire_department_outlined, size: 64.sp, color: theme.disabledColor),
                 SizedBox(height: 16.h),
                 Text(
                   'no_hot_news'.tr,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    color: Colors.grey[600],
-                  ),
+                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 16.sp, color: theme.textTheme.bodyMedium?.color?.withOpacity(0.9)),
                 ),
               ],
             ),
@@ -86,13 +85,13 @@ class HotNewsView extends GetView<HotNewsController> {
               itemBuilder: (context, index) {
                 if (index == controller.hotNews.length) {
                   return controller.isLoadingMore.value
-                      ? Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(16.h),
-                            child: const CircularProgressIndicator(),
-                          ),
-                        )
-                      : const SizedBox.shrink();
+                        ? Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(16.h),
+                              child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(theme.colorScheme.primary)),
+                            ),
+                          )
+                        : const SizedBox.shrink();
                 }
 
                 final news = controller.hotNews[index];
@@ -111,6 +110,8 @@ class HotNewsView extends GetView<HotNewsController> {
     if (news.media != null && news.media!.isNotEmpty) {
       coverImage = news.media!.first;
     }
+
+    final theme = Theme.of(context);
 
     return Card(
       margin: EdgeInsets.only(bottom: 16.h),
@@ -148,7 +149,7 @@ class HotNewsView extends GetView<HotNewsController> {
                     // Avatar
                     CircleAvatar(
                       radius: 16.r,
-                      backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
                       backgroundImage: (news.author!.avatarUrl != null && news.author!.avatarUrl!.isNotEmpty)
                           ? NetworkImage(news.author!.avatarUrl!)
                           : null,
@@ -158,7 +159,7 @@ class HotNewsView extends GetView<HotNewsController> {
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: theme.colorScheme.primary,
                               ),
                             )
                           : null,
@@ -170,49 +171,46 @@ class HotNewsView extends GetView<HotNewsController> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  news.author!.name,
-                                  style: TextStyle(
-                                    fontSize: 13.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      news.author!.name,
+                                      style: theme.textTheme.bodyLarge?.copyWith(fontSize: 13.sp, fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              SizedBox(width: 6.w),
-                              // Role badge
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                                decoration: BoxDecoration(
-                                  color: _getRoleBadgeColor(news.author!.primaryRole),
-                                  borderRadius: BorderRadius.circular(8.r),
-                                ),
-                                child: Text(
-                                  _getRoleLabel(news.author!.primaryRole),
-                                  style: TextStyle(
-                                    fontSize: 8.sp,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
+                                  SizedBox(width: 6.w),
+                                  // Role badge
+                                  Builder(builder: (ctx) {
+                                    final bg = _getRoleBadgeColor(news.author!.primaryRole, ctx);
+                                    final fg = _getRoleBadgeTextColor(news.author!.primaryRole, ctx);
+                                    return Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                                      decoration: BoxDecoration(
+                                        color: bg,
+                                        borderRadius: BorderRadius.circular(8.r),
+                                      ),
+                                      child: Text(
+                                        _getRoleLabel(news.author!.primaryRole),
+                                        style: TextStyle(
+                                          fontSize: 8.sp,
+                                          fontWeight: FontWeight.bold,
+                                          color: fg,
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                                ],
                           ),
                           SizedBox(height: 2.h),
                           Row(
                             children: [
-                              Icon(Icons.access_time, size: 11.sp, color: Theme.of(context).textTheme.bodySmall?.color),
+                              Icon(Icons.access_time, size: 11.sp, color: theme.textTheme.bodySmall?.color),
                               SizedBox(width: 4.w),
                               Text(
                                 _formatDate(news.createdAt),
-                                style: TextStyle(
-                                  fontSize: 11.sp,
-                                  color: Theme.of(context).textTheme.bodySmall?.color,
-                                ),
+                                style: theme.textTheme.bodySmall?.copyWith(fontSize: 11.sp),
                               ),
                             ],
                           ),
@@ -232,13 +230,13 @@ class HotNewsView extends GetView<HotNewsController> {
                 Container(
                   height: 120.h,
                   width: 120.w,
-                  color: Theme.of(context).colorScheme.surface,
+                  color: theme.colorScheme.surface,
                   child: coverImage != null
-                      ? _buildImage(coverImage)
+                      ? _buildImage(context, coverImage)
                       : Icon(
                           Icons.newspaper,
                           size: 36.sp,
-                          color: Theme.of(context).disabledColor,
+                          color: theme.disabledColor,
                         ),
                 ),
                 // Hot badge
@@ -248,18 +246,18 @@ class HotNewsView extends GetView<HotNewsController> {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: theme.colorScheme.secondary,
                       borderRadius: BorderRadius.circular(4.r),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.local_fire_department, color: Theme.of(context).colorScheme.onSecondary, size: 12.sp),
+                        Icon(Icons.local_fire_department, color: theme.colorScheme.onSecondary, size: 12.sp),
                         SizedBox(width: 2.w),
                         Text(
                           'hot'.tr,
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSecondary,
+                            color: theme.colorScheme.onSecondary,
                             fontSize: 9.sp,
                             fontWeight: FontWeight.bold,
                           ),
@@ -279,10 +277,7 @@ class HotNewsView extends GetView<HotNewsController> {
                   children: [
                     Text(
                       news.title,
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: theme.textTheme.titleMedium?.copyWith(fontSize: 15.sp, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -290,14 +285,30 @@ class HotNewsView extends GetView<HotNewsController> {
                       SizedBox(height: 4.h),
                       Text(
                         news.subtitle!,
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          color: Theme.of(context).textTheme.bodyMedium?.color,
-                        ),
+                          style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12.sp, color: theme.textTheme.bodyMedium?.color),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
+                    SizedBox(height: 6.h),
+                    // View count
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.remove_red_eye_outlined,
+                          size: 12.sp,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          '${news.viewCount ?? 0}',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -310,7 +321,7 @@ class HotNewsView extends GetView<HotNewsController> {
     );
   }
 
-  Widget _buildImage(String imageData) {
+  Widget _buildImage(BuildContext context, String imageData) {
     if (imageData.startsWith('data:image')) {
       // Base64 image
       try {
@@ -332,13 +343,12 @@ class HotNewsView extends GetView<HotNewsController> {
         imageUrl = '${ApiConstants.mediaBaseUrl}${imageUrl.startsWith('/') ? imageUrl : '/$imageUrl'}';
       }
       
-      return Image.network(
+        return Image.network(
         imageUrl,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
-        errorBuilder: (context, error, stackTrace) =>
-            Icon(Icons.broken_image, size: 36.sp, color: Colors.grey[500]),
+        errorBuilder: (context, error, stackTrace) => Icon(Icons.broken_image, size: 36.sp, color: Theme.of(context).colorScheme.onSurfaceVariant),
       );
     }
   }
@@ -359,25 +369,39 @@ class HotNewsView extends GetView<HotNewsController> {
   String _getRoleLabel(String role) {
     switch (role.toLowerCase()) {
       case 'admin':
-        return 'OFFICIAL ACCOUNT';
+        return 'official_account'.tr.toUpperCase();
       case 'organizer':
       case 'organization':
-        return 'NEWS ORGANIZER';
+        return 'news_organizer'.tr.toUpperCase();
       default:
-        return 'USER';
+        return 'user'.tr.toUpperCase();
     }
   }
 
   // Get role badge color
-  Color _getRoleBadgeColor(String role) {
+  Color _getRoleBadgeColor(String role, BuildContext context) {
+    final theme = Theme.of(context);
     switch (role.toLowerCase()) {
       case 'admin':
-        return Colors.blue;
+        return theme.colorScheme.primary;
       case 'organizer':
       case 'organization':
-        return Colors.grey;
+        return theme.colorScheme.surfaceVariant;
       default:
-        return Colors.red;
+        return theme.colorScheme.error;
+    }
+  }
+
+  Color _getRoleBadgeTextColor(String role, BuildContext context) {
+    final theme = Theme.of(context);
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return theme.colorScheme.onPrimary;
+      case 'organizer':
+      case 'organization':
+        return theme.colorScheme.onSurfaceVariant;
+      default:
+        return theme.colorScheme.onError;
     }
   }
 }

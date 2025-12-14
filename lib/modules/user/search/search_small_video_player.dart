@@ -144,7 +144,12 @@ class _SearchSmallVideoPlayerState extends State<SearchSmallVideoPlayer> {
           color: theme.colorScheme.surfaceVariant,
           borderRadius: BorderRadius.circular(8.r),
         ),
-        child: Center(child: SizedBox(width: 20.w, height: 20.h, child: CircularProgressIndicator(strokeWidth: 2))),
+        child: Center(
+            child: SizedBox(
+                width: 20.w,
+                height: 20.h,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, valueColor: AlwaysStoppedAnimation(theme.colorScheme.primary)))),
       );
     }
 
@@ -155,7 +160,7 @@ class _SearchSmallVideoPlayerState extends State<SearchSmallVideoPlayer> {
         height: h,
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
-          color: Colors.black,
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(8.r),
         ),
         child: Stack(
@@ -177,12 +182,12 @@ class _SearchSmallVideoPlayerState extends State<SearchSmallVideoPlayer> {
               width: 30.w,
               height: 30.w,
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
+                color: theme.colorScheme.onSurface.withOpacity(0.5),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 (_controller != null && _controller!.value.isPlaying) ? Icons.pause : Icons.play_arrow,
-                color: Colors.white,
+                color: theme.colorScheme.surface,
                 size: 18.sp,
               ),
             ),

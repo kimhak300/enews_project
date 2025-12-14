@@ -66,8 +66,21 @@ class UserArticleDetailController extends GetxController {
       commentCount.value = article.commentCount ?? 0;
       shareCount.value = 0;
 
+      // Track view when article is opened
+      _trackArticleView();
+
       // Load all data - these will update the UI as they complete
       _initializeArticleData();
+    }
+  }
+
+  /// Track article view
+  Future<void> _trackArticleView() async {
+    try {
+      await _interactionService.trackArticleView(article.id);
+    } catch (e) {
+      // Silent fail - view tracking shouldn't interrupt user experience
+      print('Failed to track view: $e');
     }
   }
 

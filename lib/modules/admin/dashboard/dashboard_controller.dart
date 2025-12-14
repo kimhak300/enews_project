@@ -25,8 +25,8 @@ class DashboardController extends GetxController {
   final RxList<RecentArticle> recentArticles = <RecentArticle>[].obs;
 
   @override
-  void onInit() {
-    super.onInit();
+  void onReady() {
+    super.onReady();
     fetchDashboardStats();
   }
 
@@ -53,6 +53,12 @@ class DashboardController extends GetxController {
         recentArticles.assignAll(stats.value?.recentArticles ?? []);
       } else {
         errorMessage.value = response.error ?? 'Failed to load dashboard data';
+        
+        // If 401, token was already cleared by ApiService
+        if (response.code == 401) {
+          // Show a more helpful message
+          errorMessage.value = 'Your session has expired. Please login again.';
+        }
       }
     } catch (e) {
       errorMessage.value = 'An error occurred: $e';

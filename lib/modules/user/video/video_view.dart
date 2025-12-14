@@ -25,7 +25,7 @@ class VideoView extends GetView<VideoController> {
       ),
       body: Obx(() {
         if (controller.isLoading.value && controller.videos.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary));
         }
 
         if (controller.errorMessage.isNotEmpty && controller.videos.isEmpty) {
@@ -33,7 +33,7 @@ class VideoView extends GetView<VideoController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline, size: 64.sp, color: Colors.red),
+                Icon(Icons.error_outline, size: 64.sp, color: Theme.of(context).colorScheme.error),
                 SizedBox(height: 16.h),
                 Text(
                   controller.errorMessage.value,
@@ -55,7 +55,7 @@ class VideoView extends GetView<VideoController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.video_library_outlined, size: 64.sp, color: Colors.grey),
+                Icon(Icons.video_library_outlined, size: 64.sp, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 SizedBox(height: 16.h),
                 Text(
                   'no_videos'.tr,
@@ -136,6 +136,8 @@ class VideoView extends GetView<VideoController> {
       videoUrl = AppConfig.getImageUrl(videoUrl);
     }
 
+    final theme = Theme.of(context);
+
     return Card(
       margin: EdgeInsets.only(bottom: 16.h),
       shape: RoundedRectangleBorder(
@@ -189,29 +191,33 @@ class VideoView extends GetView<VideoController> {
                                   style: TextStyle(
                                     fontSize: 13.sp,
                                     fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                                    color: theme.colorScheme.onSurface,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               SizedBox(width: 6.w),
-                              // Role badge
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                                decoration: BoxDecoration(
-                                  color: _getRoleBadgeColor(video.author!.primaryRole),
-                                  borderRadius: BorderRadius.circular(8.r),
-                                ),
-                                child: Text(
-                                  _getRoleLabel(video.author!.primaryRole),
-                                  style: TextStyle(
-                                    fontSize: 8.sp,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
+                                // Role badge
+                                Builder(builder: (ctx) {
+                                  final bg = _getRoleBadgeColor(video.author!.primaryRole, ctx);
+                                  final fg = _getRoleBadgeTextColor(video.author!.primaryRole, ctx);
+                                  return Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                                    decoration: BoxDecoration(
+                                      color: bg,
+                                      borderRadius: BorderRadius.circular(8.r),
+                                    ),
+                                    child: Text(
+                                      _getRoleLabel(video.author!.primaryRole),
+                                      style: TextStyle(
+                                        fontSize: 8.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: fg,
+                                      ),
+                                    ),
+                                  );
+                                }),
                             ],
                           ),
                           SizedBox(height: 2.h),
@@ -251,7 +257,7 @@ class VideoView extends GetView<VideoController> {
                             gradient: LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
-                              colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
+                              colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
                             ),
                           ),
                           child: coverImage != null && !_isVideoFile(coverImage)
@@ -260,7 +266,7 @@ class VideoView extends GetView<VideoController> {
                                   child: Icon(
                                     Icons.play_circle_outline,
                                     size: 80.sp,
-                                    color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.85),
+                                    color: theme.colorScheme.onPrimary.withOpacity(0.85),
                                   ),
                                 ),
                         ),
@@ -268,15 +274,15 @@ class VideoView extends GetView<VideoController> {
                 // Play button overlay
                 Positioned.fill(
                   child: Center(
-                    child: Container(
+                      child: Container(
                       padding: EdgeInsets.all(12.w),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        color: theme.colorScheme.onSurface.withOpacity(0.6),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.play_arrow,
-                        color: Colors.white,
+                        color: theme.colorScheme.onSurface,
                         size: 36.sp,
                       ),
                     ),
@@ -339,6 +345,24 @@ class VideoView extends GetView<VideoController> {
                     ),
                   ],
                   SizedBox(height: 8.h),
+                  // View count
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.remove_red_eye_outlined,
+                        size: 12.sp,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        '${video.viewCount ?? 0}',
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -351,13 +375,16 @@ class VideoView extends GetView<VideoController> {
   Widget _buildImage(String imageData) {
     // Check if it's a video file first - don't try to load as image
     if (_isVideoFile(imageData)) {
-      return Center(
-        child: Icon(
-          Icons.play_circle_outline,
-          size: 80.sp,
-          color: Colors.white.withOpacity(0.8),
-        ),
-      );
+      return Builder(builder: (ctx) {
+        final theme = Theme.of(ctx);
+        return Center(
+          child: Icon(
+            Icons.play_circle_outline,
+            size: 80.sp,
+            color: theme.colorScheme.onPrimary.withOpacity(0.8),
+          ),
+        );
+      });
     }
     
     if (imageData.startsWith('data:image')) {
@@ -373,7 +400,7 @@ class VideoView extends GetView<VideoController> {
         );
       } catch (e) {
         print('❌ Base64 decode error: $e');
-        return Icon(Icons.broken_image, size: 48.sp, color: Colors.grey[500]);
+        return Builder(builder: (ctx) => Icon(Icons.broken_image, size: 48.sp, color: Theme.of(ctx).colorScheme.onSurfaceVariant));
       }
     } else {
       // URL image - convert relative paths to full URLs
@@ -401,9 +428,7 @@ class VideoView extends GetView<VideoController> {
         errorBuilder: (context, error, stackTrace) {
           print('❌ Image load error: $error');
           print('❌ Attempted URL: $imageUrl');
-          return Center(
-            child: Icon(Icons.broken_image, size: 48.sp, color: Colors.grey[500]),
-          );
+          return Builder(builder: (ctx) => Center(child: Icon(Icons.broken_image, size: 48.sp, color: Theme.of(ctx).colorScheme.onSurfaceVariant)));
         },
       );
     }
@@ -435,25 +460,39 @@ class VideoView extends GetView<VideoController> {
   String _getRoleLabel(String role) {
     switch (role.toLowerCase()) {
       case 'admin':
-        return 'OFFICIAL ACCOUNT';
+        return 'official_account'.tr.toUpperCase();
       case 'organizer':
       case 'organization':
-        return 'NEWS ORGANIZER';
+        return 'news_organizer'.tr.toUpperCase();
       default:
-        return 'USER';
+        return 'user'.tr.toUpperCase();
     }
   }
 
   // Get role badge color
-  Color _getRoleBadgeColor(String role) {
+  Color _getRoleBadgeColor(String role, BuildContext context) {
+    final theme = Theme.of(context);
     switch (role.toLowerCase()) {
       case 'admin':
-        return Colors.blue;
+        return theme.colorScheme.primary;
       case 'organizer':
       case 'organization':
-        return Colors.grey;
+        return theme.colorScheme.surfaceVariant;
       default:
-        return Colors.red;
+        return theme.colorScheme.error;
+    }
+  }
+
+  Color _getRoleBadgeTextColor(String role, BuildContext context) {
+    final theme = Theme.of(context);
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return theme.colorScheme.onPrimary;
+      case 'organizer':
+      case 'organization':
+        return theme.colorScheme.onSurfaceVariant;
+      default:
+        return theme.colorScheme.onError;
     }
   }
 }

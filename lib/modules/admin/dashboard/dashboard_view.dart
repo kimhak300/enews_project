@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newshub/app/config/app_config.dart';
 import 'package:newshub/app/constants/app_constant.dart';
+import 'package:newshub/app/routes/app_routes.dart';
 import 'package:newshub/app/widget/app_drawer_widget.dart';
 import 'package:newshub/modules/auth/services/auth_service.dart';
 import 'package:newshub/data/models/user_model.dart';
@@ -58,13 +59,18 @@ class DashboardView extends GetView<DashboardController> {
         }
 
         if (controller.errorMessage.value.isNotEmpty) {
+          final isSessionExpired = controller.errorMessage.value.toLowerCase().contains('session') || 
+                                    controller.errorMessage.value.toLowerCase().contains('login');
+          
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline,
-                    size: 64,
-                    color: theme.colorScheme.onSurface.withOpacity(0.4)),
+                Icon(
+                  isSessionExpired ? Icons.lock_clock : Icons.error_outline,
+                  size: 64,
+                  color: theme.colorScheme.onSurface.withOpacity(0.4),
+                ),
                 const SizedBox(height: 16),
                 Text(
                   controller.errorMessage.value,
@@ -73,9 +79,24 @@ class DashboardView extends GetView<DashboardController> {
                       color: theme.colorScheme.onSurface.withOpacity(0.7)),
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: controller.refresh,
-                  child: Text('retry'.tr),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (!isSessionExpired)
+                      ElevatedButton(
+                        onPressed: controller.refresh,
+                        child: Text('retry'.tr),
+                      ),
+                    if (isSessionExpired) ...[
+                      ElevatedButton(
+                        onPressed: () => Get.offAllNamed(Routes.LOGIN),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.colorScheme.primary,
+                        ),
+                        child: Text('login'.tr),
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),
@@ -144,21 +165,21 @@ class DashboardView extends GetView<DashboardController> {
           context: context,
         ),
         _buildStatCard(
-          title: 'Admin Followers',
+          title: 'admin_followers'.tr,
           value: controller.adminFollowers.value.toString(),
           icon: Icons.verified_user,
           color: Colors.blue,
           context: context,
         ),
         _buildStatCard(
-          title: 'Organizer Followers',
+          title: 'organizer_followers'.tr,
           value: controller.organizerFollowers.value.toString(),
           icon: Icons.people_outline,
           color: Colors.grey,
           context: context,
         ),
         _buildStatCard(
-          title: 'Total Follows',
+          title: 'total_follows'.tr,
           value: controller.totalFollows.value.toString(),
           icon: Icons.follow_the_signs_sharp,
           color: theme.colorScheme.secondaryContainer,

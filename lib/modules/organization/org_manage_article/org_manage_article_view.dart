@@ -16,7 +16,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Manage Articles'),
+        title: Text('manage_articles'.tr),
       ),
       body: Obx(() {
         if (controller.isLoading.value && controller.articles.isEmpty) {
@@ -34,7 +34,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                 SizedBox(height: 16.h),
                 ElevatedButton(
                   onPressed: () => controller.refresh(),
-                  child: const Text('Retry'),
+                  child: Text('retry'.tr),
                 ),
               ],
             ),
@@ -53,7 +53,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                   TextField(
                     controller: controller.searchController,
                     decoration: InputDecoration(
-                      hintText: 'Search articles...',
+                      hintText: 'search_articles'.tr,
                       prefixIcon: const Icon(Icons.search),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.r),
@@ -69,16 +69,15 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                     onChanged: controller.searchArticles,
                   ),
                   SizedBox(height: 12.h),
-                  // Status Filter (tabbar-like chips)
-                  Row(
+                  // Status Filter (wrapped to prevent overflow)
+                  Wrap(
+                    spacing: 8.w,
+                    runSpacing: 8.h,
                     children: [
-                      _buildFilterChip(context, 'All', 'all'),
-                      SizedBox(width: 8.w),
-                      _buildFilterChip(context, 'Published', 'published'),
-                      SizedBox(width: 8.w),
-                      _buildFilterChip(context, 'Draft', 'draft'),
-                      SizedBox(width: 8.w),
-                      _buildFilterChip(context, 'Archived', 'archived'),
+                      _buildFilterChip(context, 'all'.tr, 'all'),
+                      _buildFilterChip(context, 'published'.tr, 'published'),
+                      _buildFilterChip(context, 'draft'.tr, 'draft'),
+                      _buildFilterChip(context, 'archived'.tr, 'archived'),
                     ],
                   ),
                 ],
@@ -96,28 +95,9 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                               size: 64.sp, color: Colors.grey),
                           SizedBox(height: 16.h),
                           Text(
-                            'No articles found',
+                            'no_articles_found'.tr,
                             style: TextStyle(
                                 fontSize: 16.sp, color: Colors.grey[600]),
-                          ),
-                          SizedBox(height: 8.h),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Create Article',
-                                style: theme.textTheme.titleLarge?.copyWith(
-                                  color: theme.colorScheme.onSurface
-                                      .withOpacity(0.95),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: controller.navigateToCreateArticle,
-                                icon: Icon(Icons.add,
-                                    color: theme.colorScheme.onSurface),
-                              ),
-                            ],
                           ),
                         ],
                       ),
@@ -148,7 +128,9 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
       floatingActionButton: FloatingActionButton(
         onPressed: controller.navigateToCreateArticle,
         child: const Icon(Icons.add),
+        
       ),
+      
     );
   }
 
@@ -230,7 +212,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      article['title'] ?? 'Untitled',
+                      article['title'] ?? 'untitled'.tr,
                       style: theme.textTheme.titleMedium?.copyWith(
                               fontSize: 16.sp, fontWeight: FontWeight.w600) ??
                           TextStyle(
@@ -311,7 +293,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                         Icon(Icons.edit,
                             size: 20, color: theme.colorScheme.onSurface),
                         SizedBox(width: 8),
-                        Text('Edit', style: theme.textTheme.bodyMedium),
+                        Text('edit'.tr, style: theme.textTheme.bodyMedium),
                       ],
                     ),
                   ),
@@ -322,7 +304,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                         Icon(Icons.delete,
                             size: 20, color: theme.colorScheme.error),
                         SizedBox(width: 8),
-                        Text('Delete',
+                        Text('delete'.tr,
                             style: TextStyle(color: theme.colorScheme.error)),
                       ],
                     ),
@@ -339,12 +321,12 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
   void _showDeleteDialog(Map<String, dynamic> article) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Delete Article'),
-        content: Text('Are you sure you want to delete "${article['title']}"?'),
+        title: Text('delete_article'.tr),
+        content: Text('delete_article_confirmation'.tr.replaceAll('{title}', article['title'] ?? '')),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel'),
+            child: Text('cancel'.tr),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -353,16 +335,16 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
               try {
                 await controller.deleteArticle(article['id']);
                 Get.snackbar(
-                  'Success',
-                  'Article deleted successfully',
+                  'success'.tr,
+                  'article_deleted_successfully'.tr,
                   backgroundColor: Colors.green,
                   colorText: Colors.white,
                   snackPosition: SnackPosition.BOTTOM,
                 );
               } catch (e) {
                 Get.snackbar(
-                  'Error',
-                  'Failed to delete article',
+                  'error'.tr,
+                  'failed_to_delete_article'.tr,
                   backgroundColor: Colors.red,
                   colorText: Colors.white,
                   snackPosition: SnackPosition.BOTTOM,
@@ -372,7 +354,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text('Delete'),
+            child: Text('delete'.tr),
           ),
         ],
       ),

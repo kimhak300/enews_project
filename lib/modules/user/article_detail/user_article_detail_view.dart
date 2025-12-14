@@ -9,6 +9,8 @@ import 'user_article_detail_controller.dart';
 class UserArticleDetailView extends GetView<UserArticleDetailController> {
   const UserArticleDetailView({super.key});
 
+  ThemeData get theme => Theme.of(Get.context!);
+
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> article = Get.arguments ?? {};
@@ -21,8 +23,10 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
     final List<String> media = List<String>.from(article['media'] ?? []);
     final List categories = article['categories'] ?? [];
 
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(type == 'video'
             ? 'Video'
@@ -30,6 +34,8 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                 ? 'Hot News'
                 : 'Article'),
         elevation: 0,
+        backgroundColor: theme.appBarTheme.backgroundColor ?? theme.colorScheme.primary,
+        foregroundColor: theme.appBarTheme.foregroundColor ?? theme.colorScheme.onPrimary,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -66,13 +72,13 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                           padding: EdgeInsets.symmetric(
                               horizontal: 12.w, vertical: 6.h),
                           decoration: BoxDecoration(
-                            color: Colors.blue.withOpacity(0.1),
+                            color: theme.colorScheme.primaryContainer,
                             borderRadius: BorderRadius.circular(8.r),
                           ),
                           child: Text(
                             catName.toString().toUpperCase(),
                             style: TextStyle(
-                              color: Colors.blue,
+                              color: theme.colorScheme.onPrimaryContainer,
                               fontSize: 11.sp,
                               fontWeight: FontWeight.bold,
                             ),
@@ -86,11 +92,12 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                   // Title
                   Text(
                     title,
-                    style: TextStyle(
-                      fontSize: 24.sp,
-                      fontWeight: FontWeight.bold,
-                      height: 1.3,
-                    ),
+                        style: TextStyle(
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.bold,
+                          height: 1.3,
+                          color: theme.colorScheme.onSurface,
+                        ),
                   ),
 
                   // Subtitle
@@ -100,7 +107,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                       subtitle,
                       style: TextStyle(
                         fontSize: 16.sp,
-                        color: Colors.grey[600],
+                        color: theme.textTheme.bodyMedium?.color?.withOpacity(0.85),
                         height: 1.4,
                       ),
                     ),
@@ -114,7 +121,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                       excerpt,
                       style: TextStyle(
                         fontSize: 15.sp,
-                        color: Colors.grey[700],
+                        color: theme.textTheme.bodyMedium?.color?.withOpacity(0.75),
                         height: 1.6,
                         fontStyle: FontStyle.italic,
                       ),
@@ -129,7 +136,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                       style: TextStyle(
                         fontSize: 16.sp,
                         height: 1.7,
-                        color: Colors.black87,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -211,7 +218,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
           // Avatar with fallback to initials
           CircleAvatar(
             radius: 20.r,
-            backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+            backgroundColor: theme.colorScheme.primary.withOpacity(0.12),
             backgroundImage: (avatarUrl != null && avatarUrl.isNotEmpty)
                 ? NetworkImage(avatarUrl)
                 : null,
@@ -242,7 +249,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
                           color: theme.textTheme.bodyLarge?.color ??
-                              Colors.black87,
+                            theme.colorScheme.onSurface,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -254,17 +261,17 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                       decoration: BoxDecoration(
-                        color: _getRoleBadgeColor(authorRole),
+                        color: _getRoleBadgeColor(authorRole, Get.context!),
                         borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: Text(
-                        _getRoleLabel(authorRole),
-                        style: TextStyle(
-                          fontSize: 8.sp,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          _getRoleLabel(authorRole),
+                          style: TextStyle(
+                            fontSize: 8.sp,
+                            fontWeight: FontWeight.bold,
+                            color: _getRoleBadgeTextColor(authorRole, Get.context!),
+                          ),
                         ),
-                      ),
                     ),
                   ],
                 ),
@@ -272,9 +279,9 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                 Row(
                   children: [
                     Icon(Icons.access_time,
-                        size: 12.sp,
-                        color: theme.textTheme.bodySmall?.color ??
-                            Colors.grey[600]),
+                      size: 12.sp,
+                      color: theme.textTheme.bodySmall?.color ??
+                        theme.colorScheme.onSurface.withOpacity(0.7)),
                     SizedBox(width: 4.w),
                     Text(
                       _formatPublishDate(publishedAt),
@@ -298,13 +305,13 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                   height: 32.w,
                   decoration: BoxDecoration(
                     color: controller.isFollowing.value
-                        ? Colors.grey[300]
-                        : Colors.red,
+                        ? theme.colorScheme.surfaceVariant
+                        : theme.colorScheme.primary,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     controller.isFollowing.value ? Icons.check : Icons.add,
-                    color: Colors.white,
+                    color: theme.colorScheme.onPrimary,
                     size: 18.sp,
                   ),
                 ),
@@ -319,12 +326,12 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
               width: 32.w,
               height: 32.w,
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: theme.colorScheme.surfaceVariant,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.more_horiz,
-                color: Colors.black87,
+                color: theme.iconTheme.color,
                 size: 20.sp,
               ),
             ),
@@ -392,7 +399,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
     Get.bottomSheet(
       Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.colorScheme.surfaceVariant,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
         ),
         child: Column(
@@ -403,7 +410,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
               width: 40.w,
               height: 4.h,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: theme.colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.circular(2.r),
               ),
             ),
@@ -450,13 +457,13 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
         child: Row(
           children: [
-            Icon(icon, size: 24.sp, color: Colors.black87),
+            Icon(icon, size: 24.sp, color: theme.colorScheme.onSurface),
             SizedBox(width: 16.w),
             Text(
               title,
               style: TextStyle(
                 fontSize: 16.sp,
-                color: Colors.black87,
+                color: theme.colorScheme.onSurface,
               ),
             ),
           ],
@@ -470,47 +477,46 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
           padding: EdgeInsets.symmetric(vertical: 12.h),
           decoration: BoxDecoration(
             border: Border(
-              top: BorderSide(color: Colors.grey[300]!, width: 1),
-              bottom: BorderSide(color: Colors.grey[300]!, width: 1),
+              top: BorderSide(color: theme.dividerColor, width: 1),
+              bottom: BorderSide(color: theme.dividerColor, width: 1),
             ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               // Like Button
-              _buildActionButton(
+                _buildActionButton(
                 icon: controller.isLiked.value
                     ? Icons.favorite
                     : Icons.favorite_border,
                 label: controller.likeCount.value.toString(),
-                color: controller.isLiked.value ? Colors.red : Colors.grey,
+                color: controller.isLiked.value ? theme.colorScheme.error : theme.colorScheme.onSurfaceVariant,
                 onTap: () => controller.toggleLike(),
               ),
 
               // Comment Button
-              _buildActionButton(
+                _buildActionButton(
                 icon: Icons.comment_outlined,
                 label: controller.commentCount.value.toString(),
-                color: Colors.grey,
+                color: theme.colorScheme.onSurfaceVariant,
                 onTap: () => _showCommentDialog(),
               ),
 
               // Share Button
-              _buildActionButton(
+                _buildActionButton(
                 icon: Icons.share_outlined,
                 label: controller.shareCount.value.toString(),
-                color: Colors.grey,
+                color: theme.colorScheme.onSurfaceVariant,
                 onTap: () => controller.shareArticle(),
               ),
 
               // Bookmark Button
-              _buildActionButton(
+                _buildActionButton(
                 icon: controller.isBookmarked.value
                     ? Icons.bookmark
                     : Icons.bookmark_border,
                 label: controller.isBookmarked.value ? 'Saved' : 'Save',
-                color:
-                    controller.isBookmarked.value ? Colors.amber : Colors.grey,
+                color: controller.isBookmarked.value ? theme.colorScheme.secondary : theme.colorScheme.onSurfaceVariant,
                 onTap: () => controller.toggleBookmark(),
               ),
             ],
@@ -547,22 +553,22 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
   Widget _buildCommentsSection() {
     return Obx(() {
       if (controller.comments.isEmpty) {
-        return Center(
+                return Center(
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 20.h),
             child: Column(
               children: [
                 Icon(Icons.comment_outlined,
-                    size: 48.sp, color: Colors.grey[400]),
+                    size: 48.sp, color: theme.colorScheme.onSurfaceVariant),
                 SizedBox(height: 8.h),
                 Text(
                   'No comments yet',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14.sp),
+                  style: TextStyle(color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7), fontSize: 14.sp),
                 ),
                 SizedBox(height: 8.h),
                 TextButton.icon(
                   onPressed: () => _showCommentDialog(),
-                  icon: Icon(Icons.add_comment),
+                  icon: Icon(Icons.add_comment, color: theme.iconTheme.color),
                   label: Text('Be the first to comment'),
                 ),
               ],
@@ -584,11 +590,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              TextButton.icon(
-                onPressed: () => _showCommentDialog(),
-                icon: Icon(Icons.add_comment, size: 18.sp),
-                label: Text('Add'),
-              ),
+
             ],
           ),
           SizedBox(height: 12.h),
@@ -624,7 +626,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
       children: [
         CircleAvatar(
           radius: 20.r,
-          backgroundColor: Colors.blue[100],
+          backgroundColor: theme.colorScheme.primaryContainer,
           child: avatarUrl != null
               ? ClipOval(
                   child: Image.network(
@@ -633,10 +635,10 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                     height: 40.w,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) =>
-                        Icon(Icons.person, size: 20.sp, color: Colors.blue),
+                        Icon(Icons.person, size: 20.sp, color: theme.colorScheme.primary),
                   ),
                 )
-              : Icon(Icons.person, size: 20.sp, color: Colors.blue),
+                : Icon(Icons.person, size: 20.sp, color: theme.colorScheme.primary),
         ),
         SizedBox(width: 12.w),
         Expanded(
@@ -660,7 +662,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                 _formatTime(comment.createdAt),
                 style: TextStyle(
                   fontSize: 11.sp,
-                  color: Colors.grey[600],
+                  color: theme.textTheme.bodySmall?.color?.withOpacity(0.8),
                 ),
               ),
             ],
@@ -843,9 +845,9 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
 
   Widget _errorPlaceholder() {
     return Container(
-      color: Colors.grey[300],
+      color: theme.colorScheme.surfaceVariant,
       child: Center(
-        child: Icon(Icons.broken_image, size: 48.sp, color: Colors.grey[500]),
+        child: Icon(Icons.broken_image, size: 48.sp, color: theme.colorScheme.onSurfaceVariant),
       ),
     );
   }
@@ -873,15 +875,29 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
   }
 
   // Get role badge color
-  Color _getRoleBadgeColor(String role) {
+  Color _getRoleBadgeColor(String role, BuildContext context) {
+    final theme = Theme.of(context);
     switch (role.toLowerCase()) {
       case 'admin':
-        return Colors.blue;
+        return theme.colorScheme.primary;
       case 'organizer':
       case 'organization':
-        return Colors.grey;
+        return theme.colorScheme.surfaceVariant;
       default:
-        return Colors.red;
+        return theme.colorScheme.error;
+    }
+  }
+
+  Color _getRoleBadgeTextColor(String role, BuildContext context) {
+    final theme = Theme.of(context);
+    switch (role.toLowerCase()) {
+      case 'admin':
+        return theme.colorScheme.onPrimary;
+      case 'organizer':
+      case 'organization':
+        return theme.colorScheme.onSurfaceVariant;
+      default:
+        return theme.colorScheme.onError;
     }
   }
 }

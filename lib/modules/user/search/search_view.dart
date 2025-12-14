@@ -43,16 +43,21 @@ class SearchView extends StatelessWidget {
                       child: TextField(
                         controller: controller.searchTextController,
                         onChanged: controller.search,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        cursorColor: theme.colorScheme.primary,
                         decoration: InputDecoration(
                           hintText: 'search_news'.tr,
-                          prefixIcon: const Icon(Icons.search),
-                          suffixIcon:
-                              Obx(() => controller.searchQuery.isNotEmpty
-                                  ? IconButton(
-                                      icon: const Icon(Icons.clear),
-                                      onPressed: controller.clearSearch,
-                                    )
-                                  : const SizedBox()),
+                          hintStyle: theme.textTheme.bodyMedium
+                              ?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                          prefixIcon: Icon(Icons.search, color: theme.iconTheme.color),
+                          suffixIcon: Obx(() => controller.searchQuery.isNotEmpty
+                              ? IconButton(
+                                  icon: Icon(Icons.clear, color: theme.iconTheme.color),
+                                  onPressed: controller.clearSearch,
+                                )
+                              : const SizedBox()),
                           filled: true,
                           fillColor: theme.colorScheme.surfaceVariant,
                           border: OutlineInputBorder(
@@ -344,38 +349,29 @@ class SearchView extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       elevation: 0,
       child: InkWell(
-        onTap: () {
-          // If video article -> open video detail, else open article detail
+          onTap: () {
+          // If video article -> open full article detail (to show profile, comments, actions)
           final isVideo = (article.type ?? '') == 'video';
           final mediaList = article.media as List?;
-          String? videoUrl;
+          String? videoUrlCandidate;
           if (mediaList != null && mediaList.isNotEmpty) {
             final first = mediaList.first;
             if (first is String)
-              videoUrl = first;
+              videoUrlCandidate = first;
             else if (first is Map)
-              videoUrl = (first['url'] ??
+              videoUrlCandidate = (first['url'] ??
                       first['video'] ??
                       first['src'] ??
                       first['path'])
                   ?.toString();
           }
 
-          if (isVideo && (videoUrl != null && videoUrl.isNotEmpty)) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (_) => UserVideoDetailView(
-                      videoUrl: videoUrl!, title: article.title)),
-            );
-            return;
-          }
-
-          // Otherwise open user article detail (pass raw json map)
+          // Always navigate to article detail route so the user sees full article page
           final Map<String, dynamic> args = article is Map
               ? Map<String, dynamic>.from(article)
               : (article.toJson());
           Get.toNamed('/article-detail', arguments: args);
+          return;
         },
         borderRadius: BorderRadius.circular(12.r),
         child: Padding(
@@ -448,13 +444,13 @@ class SearchView extends StatelessWidget {
                               horizontal: 8.w, vertical: 4.h),
                           margin: EdgeInsets.only(bottom: 6.h),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withOpacity(0.08),
+                            color: theme.colorScheme.primaryContainer,
                             borderRadius: BorderRadius.circular(12.r),
                           ),
                           child: Text(
                             catName,
                             style: TextStyle(
-                                color: theme.colorScheme.primary,
+                                color: theme.colorScheme.onPrimaryContainer,
                                 fontSize: 11.sp,
                                 fontWeight: FontWeight.w600),
                           ),
@@ -482,6 +478,7 @@ class SearchView extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+
                     Row(
                       children: [
                         Icon(Icons.schedule,
@@ -566,19 +563,24 @@ class SearchView extends StatelessWidget {
             return Container(
               width: double.infinity,
               height: height ?? 180.h,
-              color: theme.colorScheme.surfaceVariant,
+              color: theme.colorScheme.surfaceContainerHighest,
               child: Icon(Icons.broken_image,
-                  size: 64.sp, color: theme.disabledColor),
+                  size: 36.sp, color: theme.colorScheme.onSurfaceVariant),
             );
           },
         );
       } catch (e) {
-        final theme = Theme.of(Get.context!);
-        return Container(
-          width: double.infinity,
-          height: height ?? 180.h,
-          color: theme.colorScheme.surfaceVariant,
-          child: Icon(Icons.article, size: 64.sp, color: theme.disabledColor),
+        return Builder(
+          builder: (context) {
+            final theme = Theme.of(context);
+            return Container(
+              width: double.infinity,
+              height: height ?? 180.h,
+              color: theme.colorScheme.surfaceContainerHighest,
+              child: Icon(Icons.image_not_supported,
+                  size: 36.sp, color: theme.colorScheme.onSurfaceVariant),
+            );
+          },
         );
       }
     }
@@ -594,9 +596,9 @@ class SearchView extends StatelessWidget {
         return Container(
           width: double.infinity,
           height: height ?? 180.h,
-          color: theme.colorScheme.surfaceVariant,
-          child:
-              Icon(Icons.broken_image, size: 64.sp, color: theme.disabledColor),
+          color: theme.colorScheme.surfaceContainerHighest,
+          child: Icon(Icons.broken_image,
+              size: 36.sp, color: theme.colorScheme.onSurfaceVariant),
         );
       },
     );

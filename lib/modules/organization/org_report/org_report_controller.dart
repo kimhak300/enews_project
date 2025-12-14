@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:newshub/app/services/api_service.dart';
+import 'package:newshub/app/constants/app_constant.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:get_storage/get_storage.dart';
@@ -122,7 +123,12 @@ class OrgReportController extends GetxController {
   
   Future<void> fetchEngagementStats() async {
     try {
-      final token = box.read('token');
+      final token = box.read(AppConstants.TOKEN_KEY);
+      if (token == null || token.isEmpty) {
+        print('No token available for organizer stats');
+        return;
+      }
+      
       final response = await http.get(
         Uri.parse('${AppConfig.apiBaseUrl}/organizer/stats'),
         headers: {
@@ -135,15 +141,18 @@ class OrgReportController extends GetxController {
         final data = json.decode(response.body);
         if (data['success'] == true) {
           final stats = data['data'];
-          totalLikes.value = stats['total_likes'] ?? 0;
-          totalComments.value = stats['total_comments'] ?? 0;
-          totalShares.value = stats['total_shares'] ?? 0;
-          totalBookmarks.value = stats['total_bookmarks'] ?? 0;
-          totalUsers.value = stats['total_users'] ?? 0;
-          totalArticles.value = stats['total_articles'] ?? 0;
-          publishedArticles.value = stats['published_articles'] ?? 0;
-          draftArticles.value = stats['draft_articles'] ?? 0;
+          totalLikes.value = _parseInt(stats['total_likes']);
+          totalComments.value = _parseInt(stats['total_comments']);
+          totalShares.value = _parseInt(stats['total_shares']);
+          totalBookmarks.value = _parseInt(stats['total_bookmarks']);
+          totalUsers.value = _parseInt(stats['total_users']);
+          totalArticles.value = _parseInt(stats['total_articles']);
+          totalViews.value = _parseInt(stats['total_views']);
+          publishedArticles.value = _parseInt(stats['published_articles']);
+          draftArticles.value = _parseInt(stats['draft_articles']);
         }
+      } else {
+        print('Organizer stats error: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
       print('Error fetching engagement stats: $e');
@@ -153,34 +162,32 @@ class OrgReportController extends GetxController {
   /// Attempt to call admin stats endpoint. Returns true if admin stats used.
   Future<bool> fetchAdminStatsIfAllowed() async {
     try {
-      final token = box.read('token');
-      final response = await http.get(
-        Uri.parse('${AppConfig.apiBaseUrl}/admin/stats'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        },
-      );
+      final response = await _apiService.getAdminStats();
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success'] == true) {
-          final stats = data['data'];
-          totalLikes.value = stats['total_likes'] ?? 0;
-          totalComments.value = stats['total_comments'] ?? 0;
-          totalShares.value = stats['total_shares'] ?? 0;
-          totalBookmarks.value = stats['total_bookmarks'] ?? 0;
-          totalUsers.value = stats['total_users'] ?? 0;
-          totalArticles.value = stats['total_articles'] ?? 0;
-          publishedArticles.value = stats['published_articles'] ?? 0;
-          draftArticles.value = stats['draft_articles'] ?? 0;
-          return true;
-        }
+      if (response.isSuccess && response.data['data'] != null) {
+        final stats = response.data['data'];
+        totalLikes.value = _parseInt(stats['total_likes']);
+        totalComments.value = _parseInt(stats['total_comments']);
+        totalShares.value = _parseInt(stats['total_shares']);
+        totalBookmarks.value = _parseInt(stats['total_bookmarks']);
+        totalUsers.value = _parseInt(stats['total_users']);
+        totalArticles.value = _parseInt(stats['total_articles']);
+        totalViews.value = _parseInt(stats['total_views']);
+        publishedArticles.value = _parseInt(stats['published_articles']);
+        draftArticles.value = _parseInt(stats['draft_articles']);
+        return true;
       }
     } catch (e) {
       // likely not authorized for admin endpoint - ignore and fallback
       print('Admin stats fetch error or not allowed: $e');
     }
     return false;
+  }
+
+  int _parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
   }
 }

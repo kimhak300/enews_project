@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:newshub/app/services/api_service.dart';
 import 'package:newshub/data/models/article_model.dart';
 
-class HomeController extends GetxController {
+class HomeController extends GetxController with WidgetsBindingObserver {
   final ApiService _apiService = Get.find<ApiService>();
 
   // Loading states
@@ -32,11 +32,32 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     fetchInitialData();
   }
 
   @override
+  void onReady() {
+    super.onReady();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Refresh articles when app comes back to foreground
+    if (state == AppLifecycleState.resumed) {
+      refresh();
+    }
+  }
+
+  // Called when user returns to this screen
+  void onPageVisible() {
+    // Silently refresh to get updated view counts
+    refresh();
+  }
+
+  @override
   void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
     searchController.dispose();
     super.onClose();
   }

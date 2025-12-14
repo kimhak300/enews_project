@@ -63,7 +63,7 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
         if (controller.articles.isEmpty) {
           return Center(
               child: Text(
-            'No articles found.',
+            'no_articles_found'.tr,
             style: theme.textTheme.bodyMedium
                 ?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7)),
           ));
@@ -82,12 +82,12 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
                     TextField(
                       controller: controller.searchController,
                       decoration: InputDecoration(
-                        hintText: 'Search articles...',
+                        hintText: 'search_articles'.tr,
                         prefixIcon: const Icon(Icons.search),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(
-                              color: theme.colorScheme.onSurface.withOpacity(0.12)),
+                              color: theme.colorScheme.onSurface.withOpacity(0.24)),
                         ),
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -97,13 +97,15 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        _buildFilterChip(context, 'All', 'all'),
+                        _buildFilterChip(context, 'all'.tr, 'all'),
                         const SizedBox(width: 8),
-                        _buildFilterChip(context, 'Published', 'published'),
+                        Wrap(
+                          children: [
+                          _buildFilterChip(context, 'pubilished'.tr, 'pubilished'),
+                        ]),
+                        _buildFilterChip(context, 'draft'.tr, 'draft'),
                         const SizedBox(width: 8),
-                        _buildFilterChip(context, 'Draft', 'draft'),
-                        const SizedBox(width: 8),
-                        _buildFilterChip(context, 'Archived', 'archived'),
+                        _buildFilterChip(context, 'archived'.tr, 'archived'),
                       ],
                     ),
                   ],
@@ -161,7 +163,7 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Filter by Category'),
+          title: Text('filter_by_category'.tr),
           content: Obx(() {
             if (categoryController.isLoading.value) {
               return const SizedBox(
@@ -170,8 +172,8 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
               );
             }
             return DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                labelText: 'Select Category',
+              decoration: InputDecoration(
+                labelText: 'select_category'.tr,
               ),
               items: categoryController.categories
                   .map((cat) => DropdownMenuItem(
@@ -189,14 +191,14 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
                 Navigator.pop(context);
                 controller.fetchArticles();
               },
-              child: const Text('Clear'),
+              child: Text('clear'.tr),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
                 controller.fetchArticles(category: selectedCategory);
               },
-              child: const Text('Apply'),
+              child: Text('apply'.tr),
             ),
           ],
         ),

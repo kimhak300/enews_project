@@ -274,7 +274,7 @@ class ApiService extends GetxService {
   // ============ Admin Methods ============
 
   Future<ApiResponse> getAdminStats() async {
-    return get(ApiConstants.adminStats, auth: false); // Public for dev
+    return get(ApiConstants.adminStats, auth: true);
   }
 
   Future<ApiResponse> getAdminUserStats() async {

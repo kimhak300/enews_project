@@ -12,7 +12,7 @@ class OrgTeamView extends GetView<OrgTeamController> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Team Members'),
+        title: Text('team_members'.tr),
       ),
       body: Obx(() {
         if (controller.isLoading.value && controller.teamMembers.isEmpty) {
@@ -45,7 +45,7 @@ class OrgTeamView extends GetView<OrgTeamController> {
                 Icon(Icons.people_outline, size: 64.sp, color: Colors.grey),
                 SizedBox(height: 16.h),
                 Text(
-                  'No team members yet',
+                  'no_team_members_yet'.tr,
                   style: TextStyle(
                     fontSize: 16.sp,
                     color: Colors.grey[600],
@@ -72,7 +72,7 @@ class OrgTeamView extends GetView<OrgTeamController> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildStatItem(
-                      'Total Members',
+                      'total_members'.tr,
                       controller.teamMembers.length.toString(),
                       Icons.people,
                     ),
@@ -82,7 +82,7 @@ class OrgTeamView extends GetView<OrgTeamController> {
                       color: Colors.blue[200],
                     ),
                     _buildStatItem(
-                      'Active',
+                      'active'.tr,
                       controller.teamMembers
                           .where((m) => m['is_active'] == true)
                           .length
@@ -96,7 +96,7 @@ class OrgTeamView extends GetView<OrgTeamController> {
 
               // Team Members List
               Text(
-                'Team Members',
+                'team_members'.tr,
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
@@ -215,7 +215,7 @@ class OrgTeamView extends GetView<OrgTeamController> {
                             borderRadius: BorderRadius.circular(4.r),
                           ),
                           child: Text(
-                            member['role'] ?? 'user',
+                            (member['role'] ?? 'user'),
                             style: TextStyle(
                               fontSize: 11.sp,
                               color: Colors.purple,
@@ -246,7 +246,7 @@ class OrgTeamView extends GetView<OrgTeamController> {
                               ),
                               SizedBox(width: 4.w),
                               Text(
-                                isActive ? 'Active' : 'Inactive',
+                                isActive ? 'active'.tr : 'inactive'.tr,
                                 style: TextStyle(
                                   fontSize: 11.sp,
                                   color: isActive ? Colors.green : Colors.grey,

@@ -339,4 +339,35 @@ class ArticleInteractionService {
       };
     }
   }
+
+  /// Track article view - increments views_count
+  Future<Map<String, dynamic>> trackArticleView(int articleId) async {
+    try {
+      print('👁️ Tracking view for article: $articleId');
+      final response = await http.post(
+        Uri.parse('$baseUrl/articles/$articleId/track-view'),
+        headers: headers,
+      );
+
+      print('👁️ Track view response: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        return {
+          'success': true,
+          'data': jsonDecode(response.body),
+        };
+      } else {
+        return {
+          'success': false,
+          'error': 'Failed to track view: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      print('❌ Error tracking view: $e');
+      return {
+        'success': false,
+        'error': e.toString(),
+      };
+    }
+  }
 }

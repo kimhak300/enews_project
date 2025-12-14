@@ -62,7 +62,7 @@ class ArticleModel {
           json['author'] != null ? UserModel.fromJson(json['author']) : null,
       categories: _parseCategories(json['categories']),
       tags: _parseTags(json['tags']),
-      viewCount: json['view_count'],
+      viewCount: json['view_count'] ?? json['views_count'] ?? 0,
       likeCount: json['like_count'],
       commentCount: json['comment_count'],
       publishedAt: json['published_at'] != null

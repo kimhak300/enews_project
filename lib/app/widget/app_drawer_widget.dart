@@ -169,7 +169,7 @@ class AppDrawerWidget extends StatelessWidget {
       case 'organization':
         return 'organization'.tr;
       default:
-        return 'user'.tr;
+        return 'organization'.tr;
     }
   }
 

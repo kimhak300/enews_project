@@ -3,11 +3,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:newshub/modules/organization/org_report/org_report_controller.dart';
 
-class OrgReportView extends GetView<OrgReportController> {
+class OrgReportView extends StatelessWidget {
   const OrgReportView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Ensure controller is initialized
+    final controller = Get.put(OrgReportController());
+    
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -91,6 +94,20 @@ class OrgReportView extends GetView<OrgReportController> {
                       color: Colors.orange,
                       title: 'total_bookmarks'.tr,
                       value: controller.totalBookmarks.value.toString(),
+                    ),
+                    _buildMetricCard(
+                      context,
+                      icon: Icons.remove_red_eye,
+                      color: Colors.cyan,
+                      title: 'total_views'.tr,
+                      value: controller.totalViews.value.toString(),
+                    ),
+                    _buildMetricCard(
+                      context,
+                      icon: Icons.people,
+                      color: Colors.purple,
+                      title: 'total_users'.tr,
+                      value: controller.totalUsers.value.toString(),
                     ),
                   ],
                 ),

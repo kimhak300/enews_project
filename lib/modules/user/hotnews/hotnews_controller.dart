@@ -1,8 +1,9 @@
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:newshub/app/services/api_service.dart';
 import 'package:newshub/data/models/article_model.dart';
 
-class HotNewsController extends GetxController {
+class HotNewsController extends GetxController with WidgetsBindingObserver {
   final ApiService _apiService = Get.find<ApiService>();
 
   // Loading states
@@ -21,7 +22,21 @@ class HotNewsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     fetchHotNews();
+  }
+
+  @override
+  void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.onClose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      refresh();
+    }
   }
 
   Future<void> fetchHotNews({bool refresh = false}) async {

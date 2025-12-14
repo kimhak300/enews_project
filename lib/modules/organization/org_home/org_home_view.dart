@@ -110,10 +110,10 @@ class OrgHomeView extends GetView<OrgHomeController> {
                 const SizedBox(height: 24),
 
                 // Quick Actions
-                _buildSectionTitle(context, 'quick_actions'.tr),
-                const SizedBox(height: 12),
-                _buildQuickActions(context),
-                const SizedBox(height: 24),
+                // _buildSectionTitle(context, 'quick_actions'.tr),
+                // const SizedBox(height: 12),
+                // _buildQuickActions(context),
+                // const SizedBox(height: 24),
 
                 // Recent Articles Section
                 _buildSectionTitle(context, 'recent_articles'.tr),
@@ -144,27 +144,27 @@ class OrgHomeView extends GetView<OrgHomeController> {
           color: theme.colorScheme.primary,
           context: context,
         ),
+        // _buildStatCard(
+        //   title: 'published'.tr,
+        //   value: controller.publishedArticles.value.toString(),
+        //   icon: Icons.check_circle,
+        //   color: theme.colorScheme.secondary,
+        //   context: context,
+        // ),
         _buildStatCard(
-          title: 'published'.tr,
-          value: controller.publishedArticles.value.toString(),
-          icon: Icons.check_circle,
-          color: theme.colorScheme.secondary,
-          context: context,
-        ),
-        _buildStatCard(
-          title: 'Organizer Followers'.tr,
+          title: 'organizer_followers'.tr,
           value: controller.organizerFollowers.value.toString(),
           icon: Icons.people_outline,
           color: Colors.grey,
           context: context,
         ),
-        _buildStatCard(
-          title: 'total_views'.tr,
-          value: controller.totalViews.value.toString(),
-          icon: Icons.visibility,
-          color: theme.colorScheme.secondaryContainer,
-          context: context,
-        ),
+        // _buildStatCard(
+        //   title: 'total_views'.tr,
+        //   value: controller.totalViews.value.toString(),
+        //   icon: Icons.visibility,
+        //   color: theme.colorScheme.secondaryContainer,
+        //   context: context,
+        // ),
       ],
     );
   }
@@ -223,23 +223,23 @@ class OrgHomeView extends GetView<OrgHomeController> {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context) {
-    final theme = Theme.of(context);
-    return Row(
-      children: [
-        const SizedBox(width: 16),
-        Expanded(
-          child: _buildActionButton(
-            title: 'view_team'.tr,
-            icon: Icons.people_outline,
-            color: theme.colorScheme.secondary,
-            onTap: () => Get.toNamed('/org-team'),
-            context: context,
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget _buildQuickActions(BuildContext context) {
+  //   final theme = Theme.of(context);
+  //   return Row(
+  //     children: [
+  //       const SizedBox(width: 16),
+  //       Expanded(
+  //         child: _buildActionButton(
+  //           title: 'view_team'.tr,
+  //           icon: Icons.people_outline,
+  //           color: theme.colorScheme.secondary,
+  //           onTap: () => Get.toNamed('/org-team'),
+  //           context: context,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildActionButton({
     required String title,

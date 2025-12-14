@@ -3,11 +3,14 @@ import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'analytics_controller.dart';
 
-class AnalyticsView extends GetView<AnalyticsController> {
+class AnalyticsView extends StatelessWidget {
   const AnalyticsView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Ensure controller is initialized
+    final controller = Get.put(AnalyticsController());
+    
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -88,8 +91,15 @@ class AnalyticsView extends GetView<AnalyticsController> {
                   children: [
                     _buildMetricCard(
                       context,
-                      icon: Icons.publish,
+                      icon: Icons.remove_red_eye_sharp, 
                       color: Colors.teal,
+                      title: 'total_views'.tr,
+                      value: controller.totalViews.value.toString(),
+                    ),
+                    _buildMetricCard(
+                      context,
+                      icon: Icons.publish,
+                      color: Colors.green,
                       title: 'published'.tr,
                       value: controller.publishedArticles.value.toString(),
                     ),
