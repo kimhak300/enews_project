@@ -271,24 +271,6 @@ class VideoView extends GetView<VideoController> {
                                 ),
                         ),
                 ),
-                // Play button overlay
-                Positioned.fill(
-                  child: Center(
-                      child: Container(
-                      padding: EdgeInsets.all(12.w),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.play_arrow,
-                        color: theme.colorScheme.onSurface,
-                        size: 36.sp,
-                      ),
-                    ),
-                  ),
-                ),
-                // Video badge
                 Positioned(
                   top: 8.h,
                   left: 8.w,
@@ -298,26 +280,10 @@ class VideoView extends GetView<VideoController> {
                       color: Theme.of(context).colorScheme.error,
                       borderRadius: BorderRadius.circular(4.r),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.videocam, color: Theme.of(context).colorScheme.onError, size: 14.sp),
-                        SizedBox(width: 4.w),
-                        Text(
-                          'video'.tr.toUpperCase(),
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onError,
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ],
             ),
-            // Video Info
             Padding(
               padding: EdgeInsets.all(12.w),
               child: Column(

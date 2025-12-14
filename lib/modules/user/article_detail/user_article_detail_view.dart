@@ -34,129 +34,140 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                 ? 'Hot News'
                 : 'Article'),
         elevation: 0,
-        backgroundColor: theme.appBarTheme.backgroundColor ?? theme.colorScheme.primary,
-        foregroundColor: theme.appBarTheme.foregroundColor ?? theme.colorScheme.onPrimary,
+        backgroundColor:
+            theme.appBarTheme.backgroundColor ?? theme.colorScheme.primary,
+        foregroundColor:
+            theme.appBarTheme.foregroundColor ?? theme.colorScheme.onPrimary,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Media Section
-            if (media.isNotEmpty) ...[
-              if (type == 'video')
-                _buildVideoSection(media)
-              else
-                _buildImageSection(media),
-              SizedBox(height: 16.h),
-            ],
+      body: Stack(
+        children: [
+          // Scrollable Content
+          SingleChildScrollView(
+            controller: controller.scrollController,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Media Section
+                if (media.isNotEmpty) ...[
+                  if (type == 'video')
+                    _buildVideoSection(media)
+                  else
+                    _buildImageSection(media),
+                  SizedBox(height: 16.h),
+                ],
 
-            // Profile Header Section
-            _buildProfileHeader(article),
-            SizedBox(height: 16.h),
+                // Profile Header Section
+                _buildProfileHeader(article),
+                SizedBox(height: 16.h),
 
-            // Content Section
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Categories
-                  if (categories.isNotEmpty) ...[
-                    Wrap(
-                      spacing: 8.w,
-                      runSpacing: 8.h,
-                      children: categories.map((cat) {
-                        final catName =
-                            cat is String ? cat : cat['name'] ?? 'Category';
-                        return Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 12.w, vertical: 6.h),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                          child: Text(
-                            catName.toString().toUpperCase(),
-                            style: TextStyle(
-                              color: theme.colorScheme.onPrimaryContainer,
-                              fontSize: 11.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    SizedBox(height: 16.h),
-                  ],
+                // Content Section
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Categories
+                      if (categories.isNotEmpty) ...[
+                        Wrap(
+                          spacing: 8.w,
+                          runSpacing: 8.h,
+                          children: categories.map((cat) {
+                            final catName =
+                                cat is String ? cat : cat['name'] ?? 'Category';
+                            return Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12.w, vertical: 6.h),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.primaryContainer,
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                              child: Text(
+                                catName.toString().toUpperCase(),
+                                style: TextStyle(
+                                  color: theme.colorScheme.onPrimaryContainer,
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        SizedBox(height: 16.h),
+                      ],
 
-                  // Title
-                  Text(
-                    title,
+                      // Title
+                      Text(
+                        title,
                         style: TextStyle(
                           fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
                           height: 1.3,
                           color: theme.colorScheme.onSurface,
                         ),
+                      ),
+
+                      // Subtitle
+                      if (subtitle != null && subtitle.isNotEmpty) ...[
+                        SizedBox(height: 8.h),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            color: theme.textTheme.bodyMedium?.color
+                                ?.withOpacity(0.85),
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+
+                      SizedBox(height: 16.h),
+
+                      // Excerpt
+                      if (excerpt != null && excerpt.isNotEmpty) ...[
+                        Text(
+                          excerpt,
+                          style: TextStyle(
+                            fontSize: 15.sp,
+                            color: theme.textTheme.bodyMedium?.color
+                                ?.withOpacity(0.75),
+                            height: 1.6,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
+                      ],
+
+                      // Content
+                      if (content != null && content.isNotEmpty) ...[
+                        Text(
+                          content,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            height: 1.7,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+
+                      SizedBox(height: 24.h),
+
+                      // Comments Section
+                      _buildCommentsSection(),
+                      SizedBox(height: 80.h),
+                    ],
                   ),
-
-                  // Subtitle
-                  if (subtitle != null && subtitle.isNotEmpty) ...[
-                    SizedBox(height: 8.h),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        color: theme.textTheme.bodyMedium?.color?.withOpacity(0.85),
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-
-                  SizedBox(height: 16.h),
-
-                  // Excerpt
-                  if (excerpt != null && excerpt.isNotEmpty) ...[
-                    Text(
-                      excerpt,
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        color: theme.textTheme.bodyMedium?.color?.withOpacity(0.75),
-                        height: 1.6,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                  ],
-
-                  // Content
-                  if (content != null && content.isNotEmpty) ...[
-                    Text(
-                      content,
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        height: 1.7,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
-
-                  SizedBox(height: 24.h),
-
-                  // Action Buttons Row
-                  _buildActionButtons(),
-
-                  SizedBox(height: 24.h),
-
-                  // Comments Section
-                  _buildCommentsSection(),
-
-                  SizedBox(height: 32.h),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          // Fixed Action Buttons at Bottom
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: _buildActionButtons(),
+          ),
+        ],
       ),
     );
   }
@@ -249,7 +260,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
                           color: theme.textTheme.bodyLarge?.color ??
-                            theme.colorScheme.onSurface,
+                              theme.colorScheme.onSurface,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -265,13 +276,14 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                         borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: Text(
-                          _getRoleLabel(authorRole),
-                          style: TextStyle(
-                            fontSize: 8.sp,
-                            fontWeight: FontWeight.bold,
-                            color: _getRoleBadgeTextColor(authorRole, Get.context!),
-                          ),
+                        _getRoleLabel(authorRole),
+                        style: TextStyle(
+                          fontSize: 8.sp,
+                          fontWeight: FontWeight.bold,
+                          color:
+                              _getRoleBadgeTextColor(authorRole, Get.context!),
                         ),
+                      ),
                     ),
                   ],
                 ),
@@ -279,9 +291,9 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                 Row(
                   children: [
                     Icon(Icons.access_time,
-                      size: 12.sp,
-                      color: theme.textTheme.bodySmall?.color ??
-                        theme.colorScheme.onSurface.withOpacity(0.7)),
+                        size: 12.sp,
+                        color: theme.textTheme.bodySmall?.color ??
+                            theme.colorScheme.onSurface.withOpacity(0.7)),
                     SizedBox(width: 4.w),
                     Text(
                       _formatPublishDate(publishedAt),
@@ -474,52 +486,68 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
 
   Widget _buildActionButtons() {
     return Obx(() => Container(
-          padding: EdgeInsets.symmetric(vertical: 12.h),
           decoration: BoxDecoration(
+            color: theme.scaffoldBackgroundColor,
             border: Border(
-              top: BorderSide(color: theme.dividerColor, width: 1),
-              bottom: BorderSide(color: theme.dividerColor, width: 1),
+              top: BorderSide(
+                  color: theme.dividerColor.withOpacity(0.5), width: 0.5),
             ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              // Like Button
-                _buildActionButton(
-                icon: controller.isLiked.value
-                    ? Icons.favorite
-                    : Icons.favorite_border,
-                label: controller.likeCount.value.toString(),
-                color: controller.isLiked.value ? theme.colorScheme.error : theme.colorScheme.onSurfaceVariant,
-                onTap: () => controller.toggleLike(),
-              ),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Action buttons row
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      // Like Button
+                      _buildActionButton(
+                        icon: controller.isLiked.value
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        label: controller.likeCount.value.toString(),
+                        color: controller.isLiked.value
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.onSurfaceVariant,
+                        onTap: () => controller.toggleLike(),
+                      ),
 
-              // Comment Button
-                _buildActionButton(
-                icon: Icons.comment_outlined,
-                label: controller.commentCount.value.toString(),
-                color: theme.colorScheme.onSurfaceVariant,
-                onTap: () => _showCommentDialog(),
-              ),
+                      // Comment Button
+                      _buildActionButton(
+                        icon: Icons.mode_comment_outlined,
+                        label: controller.commentCount.value.toString(),
+                        color: theme.colorScheme.onSurfaceVariant,
+                        onTap: () => _showCommentBottomSheet(),
+                      ),
 
-              // Share Button
-                _buildActionButton(
-                icon: Icons.share_outlined,
-                label: controller.shareCount.value.toString(),
-                color: theme.colorScheme.onSurfaceVariant,
-                onTap: () => controller.shareArticle(),
-              ),
+                      // Share Button
+                      _buildActionButton(
+                        icon: Icons.send_outlined,
+                        label: controller.shareCount.value.toString(),
+                        color: theme.colorScheme.onSurfaceVariant,
+                        onTap: () => controller.shareArticle(),
+                      ),
 
-              // Bookmark Button
-                _buildActionButton(
-                icon: controller.isBookmarked.value
-                    ? Icons.bookmark
-                    : Icons.bookmark_border,
-                label: controller.isBookmarked.value ? 'Saved' : 'Save',
-                color: controller.isBookmarked.value ? theme.colorScheme.secondary : theme.colorScheme.onSurfaceVariant,
-                onTap: () => controller.toggleBookmark(),
-              ),
-            ],
+                      // Bookmark Button
+                      _buildActionButton(
+                        icon: controller.isBookmarked.value
+                            ? Icons.bookmark
+                            : Icons.bookmark_border,
+                        label: controller.isBookmarked.value ? 'Saved' : 'Save',
+                        color: controller.isBookmarked.value
+                            ? theme.colorScheme.secondary
+                            : theme.colorScheme.onSurfaceVariant,
+                        onTap: () => controller.toggleBookmark(),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ));
   }
@@ -532,20 +560,24 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
   }) {
     return InkWell(
       onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color, size: 24.sp),
-          SizedBox(height: 4.h),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: color,
-              fontWeight: FontWeight.w500,
+      borderRadius: BorderRadius.circular(8.r),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 22.sp),
+            SizedBox(height: 2.h),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11.sp,
+                color: color,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -553,7 +585,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
   Widget _buildCommentsSection() {
     return Obx(() {
       if (controller.comments.isEmpty) {
-                return Center(
+        return Center(
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 20.h),
             child: Column(
@@ -563,13 +595,19 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                 SizedBox(height: 8.h),
                 Text(
                   'No comments yet',
-                  style: TextStyle(color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7), fontSize: 14.sp),
+                  style: TextStyle(
+                      color:
+                          theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+                      fontSize: 14.sp),
                 ),
                 SizedBox(height: 8.h),
-                TextButton.icon(
-                  onPressed: () => _showCommentDialog(),
-                  icon: Icon(Icons.add_comment, color: theme.iconTheme.color),
-                  label: Text('Be the first to comment'),
+                Text(
+                  'Be the first to comment below',
+                  style: TextStyle(
+                    color: theme.colorScheme.primary,
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -590,7 +628,6 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
             ],
           ),
           SizedBox(height: 12.h),
@@ -634,11 +671,12 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                     width: 40.w,
                     height: 40.w,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) =>
-                        Icon(Icons.person, size: 20.sp, color: theme.colorScheme.primary),
+                    errorBuilder: (_, __, ___) => Icon(Icons.person,
+                        size: 20.sp, color: theme.colorScheme.primary),
                   ),
                 )
-                : Icon(Icons.person, size: 20.sp, color: theme.colorScheme.primary),
+              : Icon(Icons.person,
+                  size: 20.sp, color: theme.colorScheme.primary),
         ),
         SizedBox(width: 12.w),
         Expanded(
@@ -669,72 +707,6 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
           ),
         ),
       ],
-    );
-  }
-
-  void _showCommentDialog() {
-    Get.dialog(
-      Dialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-        child: Padding(
-          padding: EdgeInsets.all(16.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Add Comment',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 16.h),
-              TextField(
-                controller: controller.commentController,
-                maxLines: 4,
-                decoration: InputDecoration(
-                  hintText: 'Write your comment...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  contentPadding: EdgeInsets.all(12.w),
-                ),
-              ),
-              SizedBox(height: 16.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      controller.commentController.clear();
-                      Get.back();
-                    },
-                    child: Text('Cancel'),
-                  ),
-                  SizedBox(width: 8.w),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (controller.commentController.text.trim().isNotEmpty) {
-                        controller.postComment();
-                        Get.back();
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                    ),
-                    child: Text('Post'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -847,7 +819,8 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
     return Container(
       color: theme.colorScheme.surfaceVariant,
       child: Center(
-        child: Icon(Icons.broken_image, size: 48.sp, color: theme.colorScheme.onSurfaceVariant),
+        child: Icon(Icons.broken_image,
+            size: 48.sp, color: theme.colorScheme.onSurfaceVariant),
       ),
     );
   }
@@ -899,5 +872,163 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
       default:
         return theme.colorScheme.onError;
     }
+  }
+
+  void _showCommentBottomSheet() {
+    Get.bottomSheet(
+      Container(
+        height: Get.height * 0.75,
+        decoration: BoxDecoration(
+          color: theme.scaffoldBackgroundColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        ),
+        child: Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: EdgeInsets.only(top: 8.h),
+              width: 40.w,
+              height: 4.h,
+              decoration: BoxDecoration(
+                color: theme.dividerColor,
+                borderRadius: BorderRadius.circular(2.r),
+              ),
+            ),
+            SizedBox(height: 12.h),
+
+            // Header
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Comments (${controller.commentCount.value})',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Get.back(),
+                    icon: Icon(
+                      Icons.close,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Divider(height: 1, color: theme.dividerColor),
+
+            // Comments list
+            Expanded(
+              child: Obx(() {
+                if (controller.comments.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No comments yet',
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontSize: 14.sp,
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  padding: EdgeInsets.all(16.w),
+                  itemCount: controller.comments.length,
+                  separatorBuilder: (context, index) => SizedBox(height: 16.h),
+                  itemBuilder: (context, index) {
+                    final comment = controller.comments[index];
+                    return _buildCommentItem(comment);
+                  },
+                );
+              }),
+            ),
+
+            // Comment input at bottom
+            Container(
+              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
+              decoration: BoxDecoration(
+                color: theme.scaffoldBackgroundColor,
+                border: Border(
+                  top: BorderSide(
+                      color: theme.dividerColor.withOpacity(0.3), width: 0.5),
+                ),
+              ),
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceVariant,
+                          borderRadius: BorderRadius.circular(24.r),
+                          border: Border.all(
+                            color: theme.dividerColor,
+                            width: 1,
+                          ),
+                        ),
+                        child: TextField(
+                          controller: controller.commentController,
+                          focusNode: controller.commentFocusNode,
+                          autofocus: true,
+                          decoration: InputDecoration(
+                            hintText: 'Write your comment...',
+                            hintStyle: TextStyle(
+                              color: theme.colorScheme.onSurfaceVariant
+                                  .withOpacity(0.6),
+                              fontSize: 14.sp,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16.w,
+                              vertical: 12.h,
+                            ),
+                          ),
+                          style: TextStyle(
+                            color: theme.colorScheme.onSurface,
+                            fontSize: 14.sp,
+                          ),
+                          maxLines: 3,
+                          minLines: 1,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Obx(() => IconButton(
+                          onPressed: controller.isLoading.value
+                              ? null
+                              : () {
+                                  if (controller.commentController.text
+                                      .trim()
+                                      .isNotEmpty) {
+                                    controller.postComment();
+                                  }
+                                },
+                          icon: Icon(
+                            Icons.send,
+                            color:
+                                controller.commentController.text.trim().isEmpty
+                                    ? theme.colorScheme.onSurfaceVariant
+                                        .withOpacity(0.5)
+                                    : theme.colorScheme.primary,
+                            size: 24.sp,
+                          ),
+                        )),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+    );
   }
 }

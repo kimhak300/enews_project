@@ -48,6 +48,10 @@ class UserArticleDetailController extends GetxController {
   final shareCount = 0.obs;
   final isLoading = false.obs;
 
+  // Controllers
+  final ScrollController scrollController = ScrollController();
+  final FocusNode commentFocusNode = FocusNode();
+
   // Comments
   final RxList<CommentModel> comments = <CommentModel>[].obs;
   final commentController = TextEditingController();
