@@ -87,10 +87,11 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(
-                              color: theme.colorScheme.onSurface.withOpacity(0.24)),
+                              color: theme.colorScheme.onSurface
+                                  .withOpacity(0.24)),
                         ),
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
                       ),
                       onChanged: controller.searchArticles,
                     ),
@@ -99,10 +100,11 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
                       children: [
                         _buildFilterChip(context, 'all'.tr, 'all'),
                         const SizedBox(width: 8),
-                        Wrap(
-                          children: [
-                          _buildFilterChip(context, 'pubilished'.tr, 'pubilished'),
+                        Wrap(children: [
+                          _buildFilterChip(
+                              context, 'pubilished'.tr, 'pubilished'),
                         ]),
+                        const SizedBox(width: 8),
                         _buildFilterChip(context, 'draft'.tr, 'draft'),
                         const SizedBox(width: 8),
                         _buildFilterChip(context, 'archived'.tr, 'archived'),
@@ -206,4 +208,3 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
     );
   }
 }
-

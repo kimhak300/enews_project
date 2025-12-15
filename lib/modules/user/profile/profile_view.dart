@@ -84,7 +84,7 @@ class ProfileView extends StatelessWidget {
                     }
 
                     String roleDisplay() {
-                      final role = profileCtrl.userRole.value?.toLowerCase() ?? 'user';
+                      final role = profileCtrl.userRole.value.toLowerCase();
                       switch (role) {
                         case 'admin':
                           return 'administrator'.tr;

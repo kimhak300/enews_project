@@ -317,4 +317,30 @@ const Map<String, String> enUs = {
   'failed_to_delete_article':'Failed to delete article',
   'untitled':'Untitled',
   'total_members':'Total Members',
+  
+  // User Detail Screen
+  'user_details': 'User Details',
+  'user_not_found': 'User not found',
+  'account_information': 'Account Information',
+  'additional_information': 'Additional Information',
+  'user_id': 'User ID',
+  'member_since': 'Member Since',
+  'view_only_notice': 'This is a view-only screen. You cannot edit, update, or delete user information from here.',
+  'administrator': 'Administrator',
+  'organization': 'Organization',
+  'banned': 'Banned',
+  
+  // Months
+  'january': 'January',
+  'february': 'February',
+  'march': 'March',
+  'april': 'April',
+  'may': 'May',
+  'june': 'June',
+  'july': 'July',
+  'august': 'August',
+  'september': 'September',
+  'october': 'October',
+  'november': 'November',
+  'december': 'December',
 };

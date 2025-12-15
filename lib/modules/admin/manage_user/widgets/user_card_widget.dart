@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newshub/app/constants/app_constant.dart';
 import 'package:newshub/app/constants/app_widget_size.dart';
+import 'package:newshub/app/routes/app_routes.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:newshub/api/controller/user_controller.dart';
 import 'package:newshub/app/services/storage_service.dart';
@@ -51,107 +52,114 @@ class UserCardWidget extends StatelessWidget {
       color: theme.colorScheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 0,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        child: Row(
-          children: [
+      child: InkWell(
+        onTap: () {
+          // Navigate to user detail screen
+          Get.toNamed(Routes.ADMIN_USER_DETAIL, arguments: userId);
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          child: Row(
+            children: [
 
-            /// Avatar (RECTANGLE with RADIUS + Transparent BG)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10), // Rectangle radius
-              child: avatarUrl.isNotEmpty
-                  ? Image.network(
-                      AppConstants.STORAGE_BASE_URL + avatarUrl,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return _fallbackAvatar(theme);
-                      },
-                    )
-                  : _fallbackAvatar(theme),
-            ),
+              /// Avatar (RECTANGLE with RADIUS + Transparent BG)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10), // Rectangle radius
+                child: avatarUrl.isNotEmpty
+                    ? Image.network(
+                        AppConstants.STORAGE_BASE_URL + avatarUrl,
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return _fallbackAvatar(theme);
+                        },
+                      )
+                    : _fallbackAvatar(theme),
+              ),
 
-            const SizedBox(width: 16),
+              const SizedBox(width: 16),
 
-            /// User Info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    displayName,
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withOpacity(0.95)),
-                  ),
-
-                  const SizedBox(height: 6),
-
-                  // Role tag
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.14),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: theme.colorScheme.primary.withOpacity(0.18)),
+              /// User Info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      displayName,
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withOpacity(0.95)),
                     ),
-                    child: Text(
-                      role.tr,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: theme.colorScheme.onSurface.withOpacity(0.95),
-                        fontSize: (theme.textTheme.bodySmall?.fontSize ?? 12) + 0,
+
+                    const SizedBox(height: 6),
+
+                    // Role tag
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary.withOpacity(0.14),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: theme.colorScheme.primary.withOpacity(0.18)),
+                      ),
+                      child: Text(
+                        role.tr,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: theme.colorScheme.onSurface.withOpacity(0.95),
+                          fontSize: (theme.textTheme.bodySmall?.fontSize ?? 12) + 0,
+                        ),
                       ),
                     ),
+                  ],
+                ),
+              ),
+
+              /// Edit Button - Only show if current user can edit AND target is not admin/organizer
+              if (canEdit && role.toLowerCase() != 'admin' && role.toLowerCase() != 'organizer')
+                Container(
+                  height: 40,
+                  width: 40,
+                  margin: const EdgeInsets.only(right: 8),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: theme.colorScheme.secondary.withOpacity(0.12),
                   ),
-                ],
-              ),
-            ),
+                  child: IconButton(
+                    icon: Icon(Icons.edit, color: theme.colorScheme.secondary, size: AppWidgetSize.iconSmall),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                        ),
+                        builder: (_) => UpdateUserBottomSheet(
+                          userId: userId,
+                          displayName: displayName,
+                          email: email,
+                          role: role,
+                        ),
+                      );
+                    },
+                  ),
+                ),
 
-            /// Edit Button - Only show if current user can edit AND target is not admin/organizer
-            if (canEdit && role.toLowerCase() != 'admin' && role.toLowerCase() != 'organizer')
-              Container(
-                height: 40,
-                width: 40,
-                margin: const EdgeInsets.only(right: 8),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: theme.colorScheme.secondary.withOpacity(0.12),
+              /// Delete Button - Only show if current user can edit AND target is not admin/organizer
+              if (canEdit && role.toLowerCase() != 'admin' && role.toLowerCase() != 'organizer')
+                Container(
+                  height: 40,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: theme.colorScheme.error.withOpacity(0.12),
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.delete, color: theme.colorScheme.error, size: AppWidgetSize.iconSmall),
+                    onPressed: onDelete,
+                  ),
                 ),
-                child: IconButton(
-                  icon: Icon(Icons.edit, color: theme.colorScheme.secondary, size: AppWidgetSize.iconSmall),
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                      ),
-                      builder: (_) => UpdateUserBottomSheet(
-                        userId: userId,
-                        displayName: displayName,
-                        email: email,
-                        role: role,
-                      ),
-                    );
-                  },
-                ),
-              ),
-
-            /// Delete Button - Only show if current user can edit AND target is not admin/organizer
-            if (canEdit && role.toLowerCase() != 'admin' && role.toLowerCase() != 'organizer')
-              Container(
-                height: 40,
-                width: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: theme.colorScheme.error.withOpacity(0.12),
-                ),
-                child: IconButton(
-                  icon: Icon(Icons.delete, color: theme.colorScheme.error, size: AppWidgetSize.iconSmall),
-                  onPressed: onDelete,
-                ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

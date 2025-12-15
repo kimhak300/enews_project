@@ -852,8 +852,6 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
       case 'admin':
         return theme.colorScheme.primary;
       case 'organizer':
-      case 'organization':
-        return theme.colorScheme.surfaceVariant;
       default:
         return theme.colorScheme.error;
     }
@@ -865,10 +863,8 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
       case 'admin':
         return theme.colorScheme.onPrimary;
       case 'organizer':
-      case 'organization':
-        return theme.colorScheme.onSurfaceVariant;
       default:
-        return theme.colorScheme.onError;
+        return theme.colorScheme.onSurfaceVariant;
     }
   }
 
