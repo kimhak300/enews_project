@@ -330,6 +330,8 @@ const Map<String, String> enUs = {
   'organization': 'Organization',
   'banned': 'Banned',
   'subcategories': 'Subcategories',
+  'favorite': 'Favorite',
+  'forward': 'Forward',
   
   // Months
   'january': 'January',

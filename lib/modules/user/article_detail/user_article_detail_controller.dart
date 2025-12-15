@@ -5,6 +5,7 @@ import '../../../api/service/article_interaction_service.dart';
 import '../../../api/service/follow_service.dart';
 import '../../../data/models/article_model.dart';
 import 'package:newshub/app/utils/image_utils.dart';
+import 'widgets/share_bottom_sheet.dart';
 
 class CommentModel {
   final int id;
@@ -379,38 +380,43 @@ class UserArticleDetailController extends GetxController {
   /// Share article
   /// ✅ Tracked in backend Share table → Admin analytics will count it
   Future<void> shareArticle() async {
+    // Show share bottom sheet instead of directly copying
+    Get.bottomSheet(
+      ShareBottomSheet(
+        title: article.title,
+        content: article.content ?? '',
+        articleId: article.id,
+        onShare: (platform) => _handleShare(platform),
+      ),
+      isScrollControlled: true,
+    );
+  }
+
+  /// Handle share action for different platforms
+  Future<void> _handleShare(String platform) async {
     try {
-      // Copy article content/link to clipboard
-      final shareText = '''
-${article.title}
-
-${article.content ?? ''}
-
-Read more at: NewsHub
-      ''';
-
-      await Clipboard.setData(ClipboardData(text: shareText));
-
       // Track share in backend (adds to shares table → counted in admin analytics)
-      await _interactionService.trackShare(article.id, platform: 'copy_link');
+      await _interactionService.trackShare(article.id, platform: platform);
 
       // Reload actual count from backend
       await reloadArticleStats();
 
-      final _theme = Theme.of(Get.context!);
-      // Get.snackbar(
-      //   'Shared',
-      //   'Article content copied to clipboard! 🔗',
-      //   backgroundColor: _theme.colorScheme.surfaceVariant,
-      //   colorText: _theme.colorScheme.onSurfaceVariant,
-      //   snackPosition: SnackPosition.TOP,
-      //   duration: const Duration(seconds: 2),
-      // );
+      if (platform != 'copy_link') {
+        final _theme = Theme.of(Get.context!);
+        Get.snackbar(
+          'success'.tr,
+          'Shared to $platform successfully! 🔗',
+          backgroundColor: _theme.colorScheme.surfaceVariant,
+          colorText: _theme.colorScheme.onSurfaceVariant,
+          snackPosition: SnackPosition.TOP,
+          duration: const Duration(seconds: 2),
+        );
+      }
     } catch (e) {
       print('Error sharing: $e');
       final _theme = Theme.of(Get.context!);
       Get.snackbar(
-        'Error',
+        'error'.tr,
         'Failed to share article',
         backgroundColor: _theme.colorScheme.error,
         colorText: _theme.colorScheme.onError,

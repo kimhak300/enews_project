@@ -327,6 +327,8 @@ const Map<String, String> kmKh = {
   'organization': 'អង្គភាព',
   'banned': 'បានហាមឃាត់',
   'subcategories': 'ប្រភេទរង',
+  'favorite': 'ចូលចិត្ត',
+  'forward': 'បញ្ជូនបន្ត',
   
   // Months
   'january': 'មករា',

@@ -278,21 +278,6 @@ class VideoView extends GetView<VideoController> {
                       color: theme.colorScheme.error,
                       borderRadius: BorderRadius.circular(6.r),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.play_circle, color: Colors.white, size: 14.sp),
-                        SizedBox(width: 4.w),
-                        Text(
-                          'video'.tr.toUpperCase(),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ],

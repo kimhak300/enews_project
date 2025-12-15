@@ -329,25 +329,25 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                 ),
               )),
 
-          SizedBox(width: 8.w),
+          // SizedBox(width: 8.w),
 
-          // More options button
-          InkWell(
-            onTap: () => _showMoreOptions(),
-            child: Container(
-              width: 32.w,
-              height: 32.w,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceVariant,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.more_horiz,
-                color: theme.iconTheme.color,
-                size: 20.sp,
-              ),
-            ),
-          ),
+          // // More options button
+          // InkWell(
+          //   onTap: () => _showMoreOptions(),
+          //   child: Container(
+          //     width: 32.w,
+          //     height: 32.w,
+          //     decoration: BoxDecoration(
+          //       color: theme.colorScheme.surfaceVariant,
+          //       shape: BoxShape.circle,
+          //     ),
+          //     child: Icon(
+          //       Icons.more_horiz,
+          //       color: theme.iconTheme.color,
+          //       size: 20.sp,
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
@@ -407,56 +407,56 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
     }
   }
 
-  void _showMoreOptions() {
-    Get.bottomSheet(
-      Container(
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceVariant,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(height: 12.h),
-            Container(
-              width: 40.w,
-              height: 4.h,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceVariant,
-                borderRadius: BorderRadius.circular(2.r),
-              ),
-            ),
-            SizedBox(height: 20.h),
-            _buildOptionItem(
-              icon: Icons.report_outlined,
-              title: 'Report',
-              onTap: () {
-                Get.back();
-                Get.snackbar('Report', 'Report feature coming soon');
-              },
-            ),
-            _buildOptionItem(
-              icon: Icons.block_outlined,
-              title: 'Block this user',
-              onTap: () {
-                Get.back();
-                Get.snackbar('Block', 'Block feature coming soon');
-              },
-            ),
-            _buildOptionItem(
-              icon: Icons.info_outline,
-              title: 'About this article',
-              onTap: () {
-                Get.back();
-                Get.snackbar('Info', 'Article info coming soon');
-              },
-            ),
-            SizedBox(height: 20.h),
-          ],
-        ),
-      ),
-    );
-  }
+  // void _showMoreOptions() {
+  //   Get.bottomSheet(
+  //     Container(
+  //       decoration: BoxDecoration(
+  //         color: theme.colorScheme.surfaceVariant,
+  //         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+  //       ),
+  //       child: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           SizedBox(height: 12.h),
+  //           Container(
+  //             width: 40.w,
+  //             height: 4.h,
+  //             decoration: BoxDecoration(
+  //               color: theme.colorScheme.surfaceVariant,
+  //               borderRadius: BorderRadius.circular(2.r),
+  //             ),
+  //           ),
+  //           SizedBox(height: 20.h),
+  //           _buildOptionItem(
+  //             icon: Icons.report_outlined,
+  //             title: 'Report',
+  //             onTap: () {
+  //               Get.back();
+  //               Get.snackbar('Report', 'Report feature coming soon');
+  //             },
+  //           ),
+  //           _buildOptionItem(
+  //             icon: Icons.block_outlined,
+  //             title: 'Block this user',
+  //             onTap: () {
+  //               Get.back();
+  //               Get.snackbar('Block', 'Block feature coming soon');
+  //             },
+  //           ),
+  //           _buildOptionItem(
+  //             icon: Icons.info_outline,
+  //             title: 'About this article',
+  //             onTap: () {
+  //               Get.back();
+  //               Get.snackbar('Info', 'Article info coming soon');
+  //             },
+  //           ),
+  //           SizedBox(height: 20.h),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildOptionItem({
     required IconData icon,
@@ -526,7 +526,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
 
                       // Share Button
                       _buildActionButton(
-                        icon: Icons.send_outlined,
+                        icon: Icons.share,
                         label: controller.shareCount.value.toString(),
                         color: theme.colorScheme.onSurfaceVariant,
                         onTap: () => controller.shareArticle(),

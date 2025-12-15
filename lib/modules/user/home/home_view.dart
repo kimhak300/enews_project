@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:newshub/modules/user/home/home_controller.dart';
+import 'package:newshub/modules/user/home/widgets/article_card_widget.dart';
 import 'package:newshub/modules/user/search/search_view.dart';
 import 'package:newshub/modules/user/search/search_controller.dart'
     as user_search;
@@ -171,87 +172,87 @@ class HomeView extends GetView<HomeController> {
               // SliverToBoxAdapter(child: SizedBox(height: 16.h)),
 
               // // Articles List
-              // if (controller.filteredArticles.isEmpty)
-              //   SliverFillRemaining(
-              //     child: Center(
-              //       child: Column(
-              //         mainAxisAlignment: MainAxisAlignment.center,
-              //         children: [
-              //           Icon(Icons.article_outlined,
-              //               size: 64.sp, color: Colors.grey),
-              //           SizedBox(height: 16.h),
-              //           Text(
-              //             'No articles available',
-              //             style: TextStyle(
-              //                 fontSize: 16.sp,
-              //                 color: Theme.of(context)
-              //                     .textTheme
-              //                     .bodyMedium
-              //                     ?.color),
-              //           ),
-              //         ],
-              //       ),
-              //     ),
-              //   )
-              // else
-              //   SliverPadding(
-              //     padding: EdgeInsets.symmetric(horizontal: 16.w),
-              //     sliver: SliverList(
-              //       delegate: SliverChildBuilderDelegate(
-              //         (context, index) {
-              //           // Skip the first article (already shown as featured)
-              //           if (index == 0) return const SizedBox.shrink();
+              if (controller.filteredArticles.isEmpty)
+                SliverFillRemaining(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.article_outlined,
+                            size: 64.sp, color: Colors.grey),
+                        SizedBox(height: 16.h),
+                        Text(
+                          'No articles available',
+                          style: TextStyle(
+                              fontSize: 16.sp,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.color),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        // Skip the first article (already shown as featured)
+                        if (index == 0) return const SizedBox.shrink();
 
-              //           // Adjust index since we skip first article
-              //           final articleIndex = index;
+                        // Adjust index since we skip first article
+                        final articleIndex = index;
 
-              //           // Loading indicator at the end
-              //           if (articleIndex ==
-              //               controller.filteredArticles.length) {
-              //             if (controller.hasMore) {
-              //               controller.loadMore();
-              //               return Padding(
-              //                 padding: EdgeInsets.all(16.h),
-              //                 child: const Center(
-              //                     child: CircularProgressIndicator()),
-              //               );
-              //             }
-              //             return SizedBox(height: 100.h);
-              //           }
+                        // Loading indicator at the end
+                        if (articleIndex ==
+                            controller.filteredArticles.length) {
+                          if (controller.hasMore) {
+                            controller.loadMore();
+                            return Padding(
+                              padding: EdgeInsets.all(16.h),
+                              child: const Center(
+                                  child: CircularProgressIndicator()),
+                            );
+                          }
+                          return SizedBox(height: 100.h);
+                        }
 
-              //           // Article card
-              //           final article =
-              //               controller.filteredArticles[articleIndex];
-              //           return ArticleCardWidget(
-              //             article: article,
-              //             onTap: () {
-              //               // If this is a video and has media, open video detail; otherwise article detail
-              //               try {
-              //                 if (article.type == 'video' &&
-              //                     article.media != null &&
-              //                     article.media!.isNotEmpty) {
-              //                   final raw = article.media!.first;
-              //                   final normalized = normalizeVideoSource(raw);
-              //                   if (normalized.isNotEmpty) {
-              //                     Get.to(() => UserVideoDetailView(
-              //                         videoUrl: normalized,
-              //                         title: article.title));
-              //                     return;
-              //                   }
-              //                 }
-              //               } catch (_) {
-              //                 // Fall back to article detail on any error
-              //               }
+                        // Article card
+                        final article =
+                            controller.filteredArticles[articleIndex];
+                        return ArticleCardWidget(
+                          article: article,
+                          onTap: () {
+                            // If this is a video and has media, open video detail; otherwise article detail
+                            try {
+                              if (article.type == 'video' &&
+                                  article.media != null &&
+                                  article.media!.isNotEmpty) {
+                                final raw = article.media!.first;
+                                final normalized = normalizeVideoSource(raw);
+                                if (normalized.isNotEmpty) {
+                                  Get.to(() => UserVideoDetailView(
+                                      videoUrl: normalized,
+                                      title: article.title));
+                                  return;
+                                }
+                              }
+                            } catch (_) {
+                              // Fall back to article detail on any error
+                            }
 
-              //               Get.toNamed('/article-detail',
-              //                   arguments: article.toJson());
-              //             },
-              //           );
-              //         },
-              //         childCount: controller.filteredArticles.length + 1,
-              //       ),
-              //     ),
-              //   ),
+                            Get.toNamed('/article-detail',
+                                arguments: article.toJson());
+                          },
+                        );
+                      },
+                      childCount: controller.filteredArticles.length + 1,
+                    ),
+                  ),
+                ),
             ],
           ),
         );
