@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:newshub/api/controller/category_controller.dart';
 import 'package:newshub/app/constants/app_spacing.dart';
 import 'package:newshub/modules/admin/manage_categories/widgets/add_category_bottomsheet.dart';
-import 'package:newshub/modules/admin/manage_categories/widgets/category_card_widget.dart';
+import 'package:newshub/modules/organization/org_category/widgets/org_category_card_widget.dart';
 
 /// Original organization profile view remains in other file; this file now
 /// also exposes an organization-facing categories management view so that
@@ -70,7 +70,7 @@ class OrgCategoryView extends StatelessWidget {
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               children: controller.categories
-                  .map((category) => CategoryCardWidget(category: category))
+                  .map((category) => OrgCategoryCardWidget(category: category))
                   .toList(),
             ),
           );

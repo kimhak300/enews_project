@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newshub/app/services/api_service.dart';
+import 'package:newshub/app/routes/app_routes.dart';
 
 class OrgTeamController extends GetxController {
   final ApiService _apiService = ApiService.to;
@@ -44,27 +44,10 @@ class OrgTeamController extends GetxController {
   }
 
   void viewMemberDetails(Map<String, dynamic> member) {
-    Get.dialog(
-      AlertDialog(
-        title: Text(member['display_name'] ?? 'Member Details'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Email: ${member['email']}'),
-            const SizedBox(height: 8),
-            Text('Role: ${member['role']}'),
-            const SizedBox(height: 8),
-            Text('Status: ${member['is_active'] == true ? 'Active' : 'Inactive'}'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
+    // Navigate to user detail screen
+    final userId = member['id'];
+    if (userId != null) {
+      Get.toNamed(Routes.ORG_USER_DETAIL, arguments: userId);
+    }
   }
 }

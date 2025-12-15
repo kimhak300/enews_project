@@ -326,6 +326,7 @@ const Map<String, String> kmKh = {
   'administrator': 'អ្នកគ្រប់គ្រង',
   'organization': 'អង្គភាព',
   'banned': 'បានហាមឃាត់',
+  'subcategories': 'ប្រភេទរង',
   
   // Months
   'january': 'មករា',

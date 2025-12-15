@@ -28,6 +28,7 @@ abstract class Routes {
   static const ORG_HOME = '/ORG_HOME';
   static const ORG_MANAGE_ARTICLE = '/USER_MANAGE_ARTICLE';
   static const ORG_TEAM = '/USER_TEAM';
+  static const ORG_USER_DETAIL = '/ORG_USER_DETAIL';
   static const ORG_REPORT = '/USER_REPORT';
   static const ORG_PROFILE = '/USER_PROFILE';
 
