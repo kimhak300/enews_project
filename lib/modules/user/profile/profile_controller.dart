@@ -54,7 +54,7 @@ class ProfileController extends GetxController {
     userEmail.value = emailController.text;
     isEditing.value = false;
     Get.snackbar('Success', 'Profile updated successfully',
-        snackPosition: SnackPosition.BOTTOM);
+        snackPosition: SnackPosition.TOP);
   }
 
   void showImageSourceDialog() {
@@ -104,7 +104,7 @@ class ProfileController extends GetxController {
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to pick image',
-          snackPosition: SnackPosition.BOTTOM);
+          snackPosition: SnackPosition.TOP);
     }
   }
 

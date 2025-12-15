@@ -241,7 +241,7 @@ class ProfileView extends StatelessWidget {
                             Get.snackbar(
                               'success'.tr,
                               'profile_updated'.tr,
-                              snackPosition: SnackPosition.BOTTOM,
+                              snackPosition: SnackPosition.TOP,
                               backgroundColor: Colors.green,
                               colorText: Colors.white,
                             );
@@ -249,7 +249,7 @@ class ProfileView extends StatelessWidget {
                             Get.snackbar(
                               'error'.tr,
                               'failed_to_save_profile'.tr,
-                              snackPosition: SnackPosition.BOTTOM,
+                              snackPosition: SnackPosition.TOP,
                               backgroundColor: Colors.red,
                               colorText: Colors.white,
                             );
@@ -263,7 +263,7 @@ class ProfileView extends StatelessWidget {
                           Get.snackbar(
                             'error'.tr,
                             'Error: ${e.toString()}',
-                            snackPosition: SnackPosition.BOTTOM,
+                            snackPosition: SnackPosition.TOP,
                             backgroundColor: Colors.red,
                             colorText: Colors.white,
                             duration: const Duration(seconds: 5),
@@ -312,20 +312,19 @@ class ProfileView extends StatelessWidget {
                 Get.toNamed(Routes.USER_BOOKMARK);
               },
             ),
-            _buildMenuItem(
-              icon: Icons.notifications_outlined,
-              title: 'notifications'.tr,
-              onTap: () {
-                Get.snackbar(
-                    'Coming Soon', 'Notifications feature coming soon');
-              },
-            ),
+            // _buildMenuItem(
+            //   icon: Icons.notifications_outlined,
+            //   title: 'notifications'.tr,
+            //   onTap: () {
+            //     Get.snackbar(
+            //         'Coming Soon', 'Notifications feature coming soon');
+            //   },
+            // ),
             _buildMenuItem(
               icon: Icons.lock_outline,
               title: 'privacy_settings'.tr,
               onTap: () {
-                Get.snackbar(
-                    'coming_soon'.tr, 'privacy_settings_coming_soon'.tr);
+                Get.toNamed(Routes.PRIVACY_SETTINGS);
               },
             ),
 
@@ -336,13 +335,15 @@ class ProfileView extends StatelessWidget {
             _buildMenuItem(
               icon: Icons.info_outline,
               title: 'about_app'.tr,
-              onTap: () => _showAboutDialog(context),
+              onTap: () {
+                Get.toNamed(Routes.ABOUT_APP);
+              },
             ),
             _buildMenuItem(
               icon: Icons.help_outline,
               title: 'help_support'.tr,
               onTap: () {
-                Get.snackbar('coming_soon'.tr, 'help_support_coming_soon'.tr);
+                Get.toNamed(Routes.HELP_SUPPORT);
               },
             ),
 

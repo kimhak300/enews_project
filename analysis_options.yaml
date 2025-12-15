@@ -42,6 +42,7 @@ analyzer:
     curly_braces_in_flow_control_structures: ignore
     prefer_iterable_wheretype: ignore
     no_leading_underscores_for_local_identifiers: ignore
+    unnecessary_brace_in_string_interps: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:

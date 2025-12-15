@@ -220,4 +220,75 @@ class AuthService {
   String _deriveRole(UserModel user) {
     return user.primaryRole.toLowerCase();
   }
+
+  /// Change password
+  Future<Map<String, dynamic>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String newPasswordConfirmation,
+  }) async {
+    try {
+      final response = await _api.post(
+        '/change-password',
+        body: {
+          'current_password': currentPassword,
+          'new_password': newPassword,
+          'new_password_confirmation': newPasswordConfirmation,
+        },
+        auth: true,
+      );
+
+      if (response.isSuccess) {
+        return {
+          'success': true,
+          'message': response.data['message'] ?? 'Password changed successfully'
+        };
+      } else {
+        return {
+          'success': false,
+          'message': response.error ?? 'Failed to change password'
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error: $e'
+      };
+    }
+  }
+
+  /// Delete account
+  Future<Map<String, dynamic>> deleteAccount({
+    required String password,
+  }) async {
+    try {
+      final response = await _api.post(
+        '/delete-account',
+        body: {
+          'password': password,
+        },
+        auth: true,
+      );
+
+      if (response.isSuccess) {
+        // Clear local session
+        await _clearSession();
+        
+        return {
+          'success': true,
+          'message': response.data['message'] ?? 'Account deleted successfully'
+        };
+      } else {
+        return {
+          'success': false,
+          'message': response.error ?? 'Failed to delete account'
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error: $e'
+      };
+    }
+  }
 }

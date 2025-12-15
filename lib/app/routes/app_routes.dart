@@ -22,6 +22,9 @@ abstract class Routes {
   static const USER_BOOKMARK = '/USER_BOOKMARK';
   static const USER_SEARCH = '/USER_SEARCH';
   static const USER_PROFILE = '/USER_PROFILE';
+  static const PRIVACY_SETTINGS = '/PRIVACY_SETTINGS';
+  static const ABOUT_APP = '/ABOUT_APP';
+  static const HELP_SUPPORT = '/HELP_SUPPORT';
 
   /// Organization
   static const ORG_BOTTOM_NAV = '/ORG_BOTTOM_NAV';
