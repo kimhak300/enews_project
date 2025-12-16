@@ -54,11 +54,13 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                     controller: controller.searchController,
                     decoration: InputDecoration(
                       hintText: 'search_articles'.tr,
+                      hintStyle:  TextStyle(color: 
+                                theme.colorScheme.onSurface),
                       prefixIcon: const Icon(Icons.search),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.r),
                         borderSide: BorderSide(
-                            color:
+                            color:  
                                 theme.colorScheme.onSurface.withOpacity(0.12)),
                       ),
                       contentPadding: EdgeInsets.symmetric(
@@ -139,7 +141,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
     return Obx(() {
       final isSelected = controller.selectedStatus.value == value;
       return FilterChip(
-        label: Text(label, style: theme.textTheme.bodySmall),
+        label: Text(label, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6))),
         selected: isSelected,
         onSelected: (_) => controller.setStatusFilter(value),
         backgroundColor: theme.colorScheme.surfaceVariant,

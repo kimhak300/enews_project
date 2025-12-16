@@ -21,41 +21,41 @@ class PrivacySettingsView extends GetView<PrivacySettingsController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Profile Visibility Section
-            _buildSectionHeader(
-              context,
-              icon: Icons.visibility_outlined,
-              title: 'profile_visibility'.tr,
-            ),
-            Obx(() => _buildSwitchTile(
-                  context: context,
-                  title: 'show_profile_picture'.tr,
-                  subtitle: 'others_can_see_profile_picture'.tr,
-                  value: controller.showProfilePicture.value,
-                  onChanged: controller.toggleShowProfilePicture,
-                )),
-            Obx(() => _buildSwitchTile(
-                  context: context,
-                  title: 'show_email'.tr,
-                  subtitle: 'display_email_on_profile'.tr,
-                  value: controller.showEmail.value,
-                  onChanged: controller.toggleShowEmail,
-                )),
-            Obx(() => _buildSwitchTile(
-                  context: context,
-                  title: 'show_phone'.tr,
-                  subtitle: 'display_phone_on_profile'.tr,
-                  value: controller.showPhone.value,
-                  onChanged: controller.toggleShowPhone,
-                )),
+            // _buildSectionHeader(
+            //   context,
+            //   icon: Icons.visibility_outlined,
+            //   title: 'profile_visibility'.tr,
+            // ),
+            // Obx(() => _buildSwitchTile(
+            //       context: context,
+            //       title: 'show_profile_picture'.tr,
+            //       subtitle: 'others_can_see_profile_picture'.tr,
+            //       value: controller.showProfilePicture.value,
+            //       onChanged: controller.toggleShowProfilePicture,
+            //     )),
+            // Obx(() => _buildSwitchTile(
+            //       context: context,
+            //       title: 'show_email'.tr,
+            //       subtitle: 'display_email_on_profile'.tr,
+            //       value: controller.showEmail.value,
+            //       onChanged: controller.toggleShowEmail,
+            //     )),
+            // Obx(() => _buildSwitchTile(
+            //       context: context,
+            //       title: 'show_phone'.tr,
+            //       subtitle: 'display_phone_on_profile'.tr,
+            //       value: controller.showPhone.value,
+            //       onChanged: controller.toggleShowPhone,
+            //     )),
 
-            Divider(height: 32.h, thickness: 8, color: theme.colorScheme.surfaceVariant),
+            // Divider(height: 32.h, thickness: 8, color: theme.colorScheme.surfaceVariant),
 
             // Interactions Section
-            _buildSectionHeader(
-              context,
-              icon: Icons.people_outline,
-              title: 'interactions'.tr,
-            ),
+            // _buildSectionHeader(
+            //   context,
+            //   icon: Icons.people_outline,
+            //   title: 'interactions'.tr,
+            // ),
             // Obx(() => _buildSwitchTile(
             //       context: context,
             //       title: 'allow_tagging'.tr,
@@ -63,13 +63,13 @@ class PrivacySettingsView extends GetView<PrivacySettingsController> {
             //       value: controller.allowTagging.value,
             //       onChanged: controller.toggleAllowTagging,
             //     )),
-            Obx(() => _buildSwitchTile(
-                  context: context,
-                  title: 'show_online_status'.tr,
-                  subtitle: 'show_when_active'.tr,
-                  value: controller.showOnlineStatus.value,
-                  onChanged: controller.toggleShowOnlineStatus,
-                )),
+            // Obx(() => _buildSwitchTile(
+            //       context: context,
+            //       title: 'show_online_status'.tr,
+            //       subtitle: 'show_when_active'.tr,
+            //       value: controller.showOnlineStatus.value,
+            //       onChanged: controller.toggleShowOnlineStatus,
+            //     )),
             // Obx(() => _buildSwitchTile(
             //       context: context,
             //       title: 'allow_messaging'.tr,
@@ -101,30 +101,30 @@ class PrivacySettingsView extends GetView<PrivacySettingsController> {
             //       onChanged: controller.toggleEmailNotifications,
             //     )),
 
-            Divider(height: 32.h, thickness: 8, color: theme.colorScheme.surfaceVariant),
+            // Divider(height: 32.h, thickness: 8, color: theme.colorScheme.surfaceVariant),
 
-            // Data & Privacy Section
-            _buildSectionHeader(
-              context,
-              icon: Icons.security_outlined,
-              title: 'data_privacy'.tr,
-            ),
-            Obx(() => _buildSwitchTile(
-                  context: context,
-                  title: 'data_collection'.tr,
-                  subtitle: 'allow_analytics_data_collection'.tr,
-                  value: controller.dataCollection.value,
-                  onChanged: controller.toggleDataCollection,
-                )),
-            Obx(() => _buildSwitchTile(
-                  context: context,
-                  title: 'personalization'.tr,
-                  subtitle: 'personalized_content_recommendations'.tr,
-                  value: controller.personalization.value,
-                  onChanged: controller.togglePersonalization,
-                )),
+            // // Data & Privacy Section
+            // _buildSectionHeader(
+            //   context,
+            //   icon: Icons.security_outlined,
+            //   title: 'data_privacy'.tr,
+            // ),
+            // Obx(() => _buildSwitchTile(
+            //       context: context,
+            //       title: 'data_collection'.tr,
+            //       subtitle: 'allow_analytics_data_collection'.tr,
+            //       value: controller.dataCollection.value,
+            //       onChanged: controller.toggleDataCollection,
+            //     )),
+            // Obx(() => _buildSwitchTile(
+            //       context: context,
+            //       title: 'personalization'.tr,
+            //       subtitle: 'personalized_content_recommendations'.tr,
+            //       value: controller.personalization.value,
+            //       onChanged: controller.togglePersonalization,
+            //     )),
 
-            SizedBox(height: 16.h),
+            // SizedBox(height: 16.h),
 
             // Additional Options
             _buildListTile(

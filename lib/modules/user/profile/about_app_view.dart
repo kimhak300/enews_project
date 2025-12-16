@@ -103,17 +103,17 @@ class AboutAppView extends GetView<AboutAppController> {
             SizedBox(height: 16.h),
 
             // Action Buttons
-            _buildActionButton(
-              context: context,
-              icon: Icons.star_outline,
-              title: 'rate_app'.tr,
-              onTap: () {
-                Get.snackbar(
-                  'coming_soon'.tr,
-                  'Rate app feature coming soon',
-                );
-              },
-            ),
+            // _buildActionButton(
+            //   context: context,
+            //   icon: Icons.star_outline,
+            //   title: 'rate_app'.tr,
+            //   onTap: () {
+            //     Get.snackbar(
+            //       'coming_soon'.tr,
+            //       'Rate app feature coming soon',
+            //     );
+            //   },
+            // ),
             // _buildActionButton(
             //   context: context,
             //   icon: Icons.share_outlined,

@@ -259,8 +259,7 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                         style: TextStyle(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
-                          color: theme.textTheme.bodyLarge?.color ??
-                              theme.colorScheme.onSurface,
+                          color: theme.textTheme.bodySmall?.color?.withOpacity(0.9) ?? theme.colorScheme.onSurface,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -317,8 +316,8 @@ class UserArticleDetailView extends GetView<UserArticleDetailController> {
                   height: 32.w,
                   decoration: BoxDecoration(
                     color: controller.isFollowing.value
-                        ? theme.colorScheme.surfaceVariant
-                        : theme.colorScheme.primary,
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.primaryContainer,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(

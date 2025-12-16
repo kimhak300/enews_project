@@ -284,9 +284,9 @@ class HomeView extends GetView<HomeController> {
               name,
               style: TextStyle(
                 color: isSelected
-                    ? (Theme.of(context).colorScheme.onPrimary)
+                    ? Colors.white
                     : (Theme.of(context).textTheme.bodyMedium?.color ??
-                        Theme.of(context).colorScheme.onBackground),
+                        Theme.of(context).colorScheme.onSurface),
                 fontSize: 13.sp,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               ),
@@ -377,7 +377,7 @@ class HomeView extends GetView<HomeController> {
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           )
                         : null,
@@ -398,10 +398,9 @@ class HomeView extends GetView<HomeController> {
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w700,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge
-                                      ?.color,
+                                                          color: 
+                                // Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7) ??
+                                 Theme.of(context).colorScheme.onSurface,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -425,7 +424,9 @@ class HomeView extends GetView<HomeController> {
                                   style: TextStyle(
                                     fontSize: 10.sp,
                                     fontWeight: FontWeight.bold,
-                                    color: fg,
+                                                    color: 
+                                // Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7) ??
+                                 Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                                   ),
                                 ),
                               );
@@ -439,7 +440,9 @@ class HomeView extends GetView<HomeController> {
                         children: [
                           Icon(Icons.access_time,
                               size: 12.sp,
-                              color: Theme.of(context).disabledColor),
+                                     color: 
+                                // Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7) ??
+                                 Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
                           SizedBox(width: 6.w),
                           Text(
                             ArticleHelpers.formatDate(
@@ -448,7 +451,9 @@ class HomeView extends GetView<HomeController> {
                                   article.updatedAt,
                             ),
                             style: TextStyle(
-                                color: Theme.of(context).disabledColor,
+                                color: 
+                                // Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7) ??
+                                 Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                                 fontSize: 12.sp),
                           ),
                         ],
@@ -463,8 +468,8 @@ class HomeView extends GetView<HomeController> {
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w800,
                           color:
-                              Theme.of(context).textTheme.titleLarge?.color ??
-                                  Theme.of(context).textTheme.bodyLarge?.color,
+                          //     Theme.of(context).textTheme.titleLarge?.color ??
+                                  Theme.of(context).colorScheme.onSurface,
                           height: 1.3,
                         ),
                         maxLines: 3,

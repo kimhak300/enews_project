@@ -190,25 +190,25 @@ class HelpSupportView extends GetView<HelpSupportController> {
             // SizedBox(height: 24.h),
 
             // Send Feedback Button
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () => _showFeedbackDialog(context),
-                  icon: const Icon(Icons.feedback_outlined),
-                  label: Text('send_feedback'.tr),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: theme.colorScheme.onPrimary,
-                    padding: EdgeInsets.symmetric(vertical: 16.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            // Padding(
+            //   padding: EdgeInsets.symmetric(horizontal: 16.w),
+            //   child: SizedBox(
+            //     width: double.infinity,
+            //     child: ElevatedButton.icon(
+            //       onPressed: () => _showFeedbackDialog(context),
+            //       icon: const Icon(Icons.feedback_outlined),
+            //       label: Text('send_feedback'.tr),
+            //       style: ElevatedButton.styleFrom(
+            //         backgroundColor: theme.colorScheme.primary,
+            //         foregroundColor: theme.colorScheme.onPrimary,
+            //         padding: EdgeInsets.symmetric(vertical: 16.h),
+            //         shape: RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.circular(12.r),
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
 
             SizedBox(height: 32.h),
           ],
