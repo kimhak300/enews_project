@@ -39,7 +39,6 @@ class HelpSupportController extends GetxController {
   }
 
   void sendFeedback(String message) {
-    // TODO: Implement API call to send feedback
     print('Sending feedback: $message');
     Get.back();
     Get.snackbar(

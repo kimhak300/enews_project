@@ -27,19 +27,28 @@ class ProfileView extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Profile Header
+            // Profile Header (compact rounded card)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(24),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
                     AppTheme.primaryColor,
-                    AppTheme.primaryColor.withOpacity(0.8),
+                    AppTheme.primaryColor.withOpacity(0.85),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
+                  ),
+                ],
               ),
               child: Builder(
                 builder: (context) {
@@ -98,17 +107,34 @@ class ProfileView extends StatelessWidget {
 
                     return Column(
                       children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundColor: Colors.white,
-                          backgroundImage: avatarProvider,
-                          child: avatarProvider == null
-                              ? Icon(
-                                  Icons.person,
-                                  size: 50,
-                                  color: AppTheme.primaryColor,
-                                )
-                              : null,
+                        // Avatar with white ring and shadow
+                        Container(
+                          width: 100,
+                          height: 100,
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 8,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            radius: 44,
+                            backgroundColor: AppTheme.primaryColor,
+                            backgroundImage: avatarProvider,
+                            child: avatarProvider == null
+                                ? Icon(
+                                    Icons.person,
+                                    size: 44,
+                                    color: AppTheme.primaryColor,
+                                  )
+                                : null,
+                          ),
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -169,31 +195,121 @@ class ProfileView extends StatelessWidget {
                 final emailCtrl =
                     TextEditingController(text: user?.email ?? '');
 
-                await Get.dialog(AlertDialog(
-                  title: Text('edit_profile'.tr),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Avatar picker button (uses ProfileController)
-                      OutlinedButton.icon(
-                        onPressed: () => profileCtrl.showImageSourceDialog(),
-                        icon: const Icon(Icons.photo_camera),
-                        label: Text('choose_avatar'.tr),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                          controller: nameCtrl,
-                          decoration: InputDecoration(labelText: 'name'.tr)),
-                      TextField(
-                          controller: emailCtrl,
-                          decoration: InputDecoration(labelText: 'email'.tr)),
-                    ],
+                await Get.dialog(Dialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Get.back(), child: Text('cancel'.tr)),
-                    ElevatedButton(
-                      onPressed: () async {
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Title
+                        Text(
+                          'edit_profile'.tr,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        
+                        // Avatar picker button
+                        OutlinedButton.icon(
+                          onPressed: () => profileCtrl.showImageSourceDialog(),
+                          icon: const Icon(Icons.photo_camera),
+                          label: Text('choose_avatar'.tr),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            side: BorderSide(
+                              color: AppTheme.primaryColor.withOpacity(0.5),
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        
+                        // Name field
+                        TextField(
+                          controller: nameCtrl,
+                          decoration: InputDecoration(
+                            labelText: 'name'.tr,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade300,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: AppTheme.primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        
+                        // Email field
+                        TextField(
+                          controller: emailCtrl,
+                          decoration: InputDecoration(
+                            labelText: 'email'.tr,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade300,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: AppTheme.primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        
+                        // Action buttons
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () => Get.back(),
+                              child: Text(
+                                'cancel'.tr,
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            ElevatedButton(
+                              onPressed: () async {
                         try {
                           print('=== SAVE BUTTON CLICKED ===');
                           print('Name: ${nameCtrl.text}');
@@ -270,10 +386,31 @@ class ProfileView extends StatelessWidget {
                           );
                         }
                       },
-                      child: Text('save'.tr),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                      ),
+                      child: Text(
+                        'save'.tr,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ],
-                ));
+                ),
+              ],
+            ),
+          ),
+        ));
               },
             ),
             _buildMenuItem(

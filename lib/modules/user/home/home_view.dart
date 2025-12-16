@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:newshub/modules/user/home/home_controller.dart';
-import 'package:newshub/modules/user/home/widgets/article_card_widget.dart';
 import 'package:newshub/modules/user/search/search_view.dart';
 import 'package:newshub/modules/user/search/search_controller.dart'
     as user_search;

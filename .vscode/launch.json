@@ -1,26 +1,28 @@
 {
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Flutter",
-            "type": "dart",
+            "name": "khmer_news",
+            "cwd": "khmer_news",
             "request": "launch",
-            "program": "lib/main.dart",
-            "flutterMode": "debug"
+            "type": "dart"
         },
         {
-            "name": "Flutter (Release mode)",
-            "type": "dart",
+            "name": "khmer_news (profile mode)",
+            "cwd": "khmer_news",
             "request": "launch",
-            "program": "lib/main.dart",
-            "flutterMode": "release"
-        },
-        {
-            "name": "Flutter (Profile mode)",
             "type": "dart",
-            "request": "launch",
-            "program": "lib/main.dart",
             "flutterMode": "profile"
+        },
+        {
+            "name": "khmer_news (release mode)",
+            "cwd": "khmer_news",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
         }
     ]
 }

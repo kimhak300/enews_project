@@ -64,7 +64,6 @@ class PrivacySettingsController extends GetxController {
   }
 
   void _saveSettings() {
-    // TODO: Save to backend
     print('Privacy settings saved');
   }
 
