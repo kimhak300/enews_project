@@ -238,6 +238,10 @@ class ProfileView extends StatelessWidget {
                         // Name field
                         TextField(
                           controller: nameCtrl,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 16,
+                          ),
                           decoration: InputDecoration(
                             labelText: 'name'.tr,
                             border: OutlineInputBorder(
@@ -246,13 +250,13 @@ class ProfileView extends StatelessWidget {
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: Colors.grey.shade300,
+                                color:  Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: AppTheme.primaryColor,
+                                color:  AppTheme.primaryColor,
                                 width: 2,
                               ),
                             ),
@@ -267,6 +271,10 @@ class ProfileView extends StatelessWidget {
                         // Email field
                         TextField(
                           controller: emailCtrl,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 16,
+                          ),
                           decoration: InputDecoration(
                             labelText: 'email'.tr,
                             border: OutlineInputBorder(
@@ -275,13 +283,13 @@ class ProfileView extends StatelessWidget {
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: Colors.grey.shade300,
+                                color:  Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: AppTheme.primaryColor,
+                                color:  AppTheme.primaryColor,
                                 width: 2,
                               ),
                             ),

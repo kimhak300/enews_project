@@ -52,15 +52,18 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
                   // Search Bar
                   TextField(
                     controller: controller.searchController,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 16,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'search_articles'.tr,
-                      hintStyle:  TextStyle(color: 
-                                theme.colorScheme.onSurface),
+                      hintStyle: TextStyle(color: theme.colorScheme.onSurface),
                       prefixIcon: const Icon(Icons.search),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.r),
                         borderSide: BorderSide(
-                            color:  
+                            color:
                                 theme.colorScheme.onSurface.withOpacity(0.12)),
                       ),
                       contentPadding: EdgeInsets.symmetric(
@@ -130,9 +133,7 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
       floatingActionButton: FloatingActionButton(
         onPressed: controller.navigateToCreateArticle,
         child: const Icon(Icons.add),
-        
       ),
-      
     );
   }
 
@@ -141,7 +142,9 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
     return Obx(() {
       final isSelected = controller.selectedStatus.value == value;
       return FilterChip(
-        label: Text(label, style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6))),
+        label: Text(label,
+            style:
+                TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6))),
         selected: isSelected,
         onSelected: (_) => controller.setStatusFilter(value),
         backgroundColor: theme.colorScheme.surfaceVariant,
@@ -324,7 +327,9 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
     Get.dialog(
       AlertDialog(
         title: Text('delete_article'.tr),
-        content: Text('delete_article_confirmation'.tr.replaceAll('{title}', article['title'] ?? '')),
+        content: Text('delete_article_confirmation'
+            .tr
+            .replaceAll('{title}', article['title'] ?? '')),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
@@ -336,21 +341,15 @@ class OrgManageArticleView extends GetView<OrgManageArticleController> {
 
               try {
                 await controller.deleteArticle(article['id']);
-                Get.snackbar(
-                  'success'.tr,
-                  'article_deleted_successfully'.tr,
-                  backgroundColor: Colors.green,
-                  colorText: Colors.white,
-                  snackPosition: SnackPosition.TOP
-                );
+                Get.snackbar('success'.tr, 'article_deleted_successfully'.tr,
+                    backgroundColor: Colors.green,
+                    colorText: Colors.white,
+                    snackPosition: SnackPosition.TOP);
               } catch (e) {
-                Get.snackbar(
-                  'error'.tr,
-                  'failed_to_delete_article'.tr,
-                  backgroundColor: Colors.red,
-                  colorText: Colors.white,
-                  snackPosition: SnackPosition.TOP
-                );
+                Get.snackbar('error'.tr, 'failed_to_delete_article'.tr,
+                    backgroundColor: Colors.red,
+                    colorText: Colors.white,
+                    snackPosition: SnackPosition.TOP);
               }
             },
             style: ElevatedButton.styleFrom(

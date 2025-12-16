@@ -135,13 +135,68 @@ class _CreateOrgArticleBottomsheetState extends State<CreateOrgArticleBottomshee
                   ],
                 ),
                 const SizedBox(height: 20),
-                TextFormField(controller: titleController, decoration: const InputDecoration(labelText: 'Title'), validator: (v) => v!.isEmpty ? 'Required' : null),
+                TextFormField(
+                  controller: titleController,
+                  style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 16),
+                  decoration: InputDecoration(
+                    labelText: 'Title',
+                    labelStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.3)),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+                    ),
+                  ),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
                 const SizedBox(height: 12),
-                TextFormField(controller: subtitleController, decoration: const InputDecoration(labelText: 'Subtitle')),
+                TextFormField(
+                  controller: subtitleController,
+                  style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 16),
+                  decoration: InputDecoration(
+                    labelText: 'Subtitle',
+                    labelStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.3)),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 12),
-                TextFormField(controller: excerptController, decoration: const InputDecoration(labelText: 'Excerpt')),
+                TextFormField(
+                  controller: excerptController,
+                  style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 16),
+                  decoration: InputDecoration(
+                    labelText: 'Excerpt',
+                    labelStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.3)),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 12),
-                TextFormField(controller: contentController, decoration: const InputDecoration(labelText: 'Content'), maxLines: 6, validator: (v) => v!.isEmpty ? 'Required' : null),
+                TextFormField(
+                  controller: contentController,
+                  style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 16),
+                  decoration: InputDecoration(
+                    labelText: 'Content',
+                    labelStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.3)),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+                    ),
+                  ),
+                  maxLines: 6,
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   value: selectedStatus,
@@ -163,11 +218,27 @@ class _CreateOrgArticleBottomsheetState extends State<CreateOrgArticleBottomshee
                             DropdownButtonFormField<String>(
                               value: selectedType,
                               isExpanded: true,
-                              decoration: const InputDecoration(labelText: 'Type'),
-                              items: const [
-                                DropdownMenuItem(value: 'article', child: Text('ARTICLE')),
-                                DropdownMenuItem(value: 'video', child: Text('VIDEO')),
-                                DropdownMenuItem(value: 'news_feed', child: Text('NEWS_FEED')),
+                              style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 16),
+                              decoration: InputDecoration(
+                                labelText: 'Type',
+                                labelStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: theme.colorScheme.onSurface.withOpacity(0.3)),
+                                ),
+                              ),
+                              items: [
+                                DropdownMenuItem(
+                                  value: 'article',
+                                  child: Text('ARTICLE', style: TextStyle(color: theme.colorScheme.onSurface)),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'video',
+                                  child: Text('VIDEO', style: TextStyle(color: theme.colorScheme.onSurface)),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'news_feed',
+                                  child: Text('NEWS_FEED', style: TextStyle(color: theme.colorScheme.onSurface)),
+                                ),
                               ],
                               onChanged: (v) => setState(() => selectedType = v!),
                             ),
@@ -189,7 +260,11 @@ class _CreateOrgArticleBottomsheetState extends State<CreateOrgArticleBottomshee
                               ),
                               if (pickedVideo != null) ...[
                                 const SizedBox(height: 8),
-                                Text(pickedVideo!.path.split('/').last, overflow: TextOverflow.ellipsis),
+                                Text(
+                                  pickedVideo!.path.split('/').last,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.7)),
+                                ),
                               ],
                             ] else ...[
                               Center(
@@ -207,8 +282,12 @@ class _CreateOrgArticleBottomsheetState extends State<CreateOrgArticleBottomshee
                             ],
                 Row(
                   children: [
-                    const Text('Featured'),
-                    Switch(value: isFeatured, onChanged: (v) => setState(() => isFeatured = v)),
+                    Text('Featured', style: TextStyle(color: theme.colorScheme.onSurface, fontSize: 16)),
+                    Switch(
+                      value: isFeatured,
+                      onChanged: (v) => setState(() => isFeatured = v),
+                      activeColor: theme.colorScheme.primary,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 18),

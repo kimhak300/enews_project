@@ -81,6 +81,10 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
                   children: [
                     TextField(
                       controller: controller.searchController,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 16,
+                      ),
                       decoration: InputDecoration(
                         hintText: 'search_articles'.tr,
                         prefixIcon: const Icon(Icons.search),
@@ -100,10 +104,7 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
                       children: [
                         _buildFilterChip(context, 'all'.tr, 'all'),
                         const SizedBox(width: 8),
-                        Wrap(children: [
-                          _buildFilterChip(
-                              context, 'pubilished'.tr, 'pubilished'),
-                        ]),
+                        _buildFilterChip(context, 'published'.tr, 'published'),
                         const SizedBox(width: 8),
                         _buildFilterChip(context, 'draft'.tr, 'draft'),
                         const SizedBox(width: 8),
@@ -155,7 +156,7 @@ class _ManageArticlesViewState extends State<ManageArticlesView> {
           controller.filterByStatus(_selectedStatus);
         });
       },
-      selectedColor: theme.colorScheme.primary.withOpacity(0.12),
+      selectedColor: theme.colorScheme.primary,
     );
   }
 

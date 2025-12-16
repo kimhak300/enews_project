@@ -7,6 +7,7 @@ import 'package:newshub/data/models/article_model.dart';
 import 'package:newshub/api/controller/category_controller.dart' as api_cat;
 import 'package:newshub/api/controller/article_controller.dart';
 import 'package:newshub/modules/organization/org_manage_article/create_org_article_bottomsheet.dart';
+import 'package:newshub/modules/auth/services/auth_service.dart';
 
 class OrgManageArticleController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
@@ -65,11 +66,24 @@ class OrgManageArticleController extends GetxController {
     errorMessage.value = '';
 
     try {
+      // Get current user to check role and ID
+      final authService = Get.find<AuthService>();
+      final currentUser = await authService.getSavedUser();
+      final userRole = currentUser?.primaryRole.toLowerCase();
+      final userId = currentUser?.id;
+
       final response = await _apiService.getArticles(page: currentPage);
 
       if (response.isSuccess) {
         final data = response.data['data'] as List? ?? [];
-        final newArticles = data.map((json) => ArticleModel.fromJson(json)).toList();
+        var newArticles = data.map((json) => ArticleModel.fromJson(json)).toList();
+
+        // Filter articles: only show user's own articles unless they are admin
+        if (userRole != 'admin' && userId != null) {
+          newArticles = newArticles.where((article) {
+            return article.authorId == userId;
+          }).toList();
+        }
 
         if (newArticles.isEmpty) {
           hasMore = false;
