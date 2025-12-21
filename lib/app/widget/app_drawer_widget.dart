@@ -332,19 +332,19 @@ class AppDrawerWidget extends StatelessWidget {
   List<Widget> _buildUserMenu(BuildContext context) {
     return [
       _buildSectionHeader('menu'.tr),
-      _buildMenuItem(
-        icon: Icons.home,
-        title: 'home'.tr,
-        onTap: () => Get.offAllNamed(Routes.USER_BOTTOM_NAV),
-      ),
-      _buildMenuItem(
-        icon: Icons.search,
-        title: 'search'.tr,
-        onTap: () {
-          Get.back();
-          Get.toNamed(Routes.USER_SEARCH);
-        },
-      ),
+      // _buildMenuItem(
+      //   icon: Icons.home,
+      //   title: 'home'.tr,
+      //   onTap: () => Get.offAllNamed(Routes.USER_BOTTOM_NAV),
+      // ),
+      // _buildMenuItem(
+      //   icon: Icons.search,
+      //   title: 'search'.tr,
+      //   onTap: () {
+      //     Get.back();
+      //     Get.toNamed(Routes.USER_SEARCH);
+      //   },
+      // ),
       _buildMenuItem(
         icon: Icons.bookmark,
         title: 'saved_articles'.tr,

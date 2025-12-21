@@ -229,7 +229,7 @@ const Map<String, String> kmKh = {
   'total_comments':'មតិយោបល់សរុប',
   'total_shares':'ចែករំលែកសរុប',
   'total_bookmarks':'រក្សាទុកសរុប',
-  'published':'បានបោះពុម្ពផ្សាយ',
+  'published':'ផ្សាយ',
   'drafts':'សេចក្ដីព្រាង',
   'manage_articles':'គ្រប់គ្រងអត្ថបទ',
   // 'description':'ការពិពណ៌នា',

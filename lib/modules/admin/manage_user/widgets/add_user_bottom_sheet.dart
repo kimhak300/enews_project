@@ -32,8 +32,19 @@ class _AddUserBottomSheetState extends State<AddUserBottomSheet> {
   File? imageFile;
   final ImagePicker _picker = ImagePicker();
 
-  // User Controller
-  final UserController userController = Get.put(UserController());
+  // User Controller - use putIfAbsent pattern for bottom sheets
+  late final UserController userController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Use put if not already registered, otherwise find existing
+    if (!Get.isRegistered<UserController>()) {
+      userController = Get.put(UserController());
+    } else {
+      userController = Get.find<UserController>();
+    }
+  }
 
   Future<void> pickImage() async {
     final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);

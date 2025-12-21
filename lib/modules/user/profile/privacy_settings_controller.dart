@@ -3,7 +3,7 @@ import 'package:newshub/modules/auth/services/auth_service.dart';
 import 'package:newshub/app/routes/app_routes.dart';
 
 class PrivacySettingsController extends GetxController {
-  final AuthService _authService = AuthService();
+  final AuthService _authService = Get.find<AuthService>();
   final isLoading = false.obs;
 
   // Privacy toggles

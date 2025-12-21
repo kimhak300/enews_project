@@ -218,11 +218,17 @@ class _UpdateUserBottomSheetState extends State<UpdateUserBottomSheet> {
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
 
-  final UserController _userController = UserController();
+  late final UserController _userController;
 
   @override
   void initState() {
     super.initState();
+    // Use put if not already registered, otherwise find existing
+    if (!Get.isRegistered<UserController>()) {
+      _userController = Get.put(UserController());
+    } else {
+      _userController = Get.find<UserController>();
+    }
     _displayNameController.text = widget.displayName;
     _emailController.text = widget.email;
     _selectedRole = widget.role;

@@ -228,6 +228,7 @@ class PrivacySettingsView extends GetView<PrivacySettingsController> {
   void _showDeleteAccountDialog(BuildContext context) {
     final theme = Theme.of(context);
     final passwordController = TextEditingController();
+    final ctrl = Get.find<PrivacySettingsController>();
 
     Get.dialog(
       AlertDialog(
@@ -246,6 +247,7 @@ class PrivacySettingsView extends GetView<PrivacySettingsController> {
             SizedBox(height: 16.h),
             TextField(
               controller: passwordController,
+              style: TextStyle(color: theme.colorScheme.onSurface),
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'password'.tr,
@@ -264,7 +266,7 @@ class PrivacySettingsView extends GetView<PrivacySettingsController> {
             child: Text('cancel'.tr),
           ),
           Obx(() => ElevatedButton(
-                onPressed: controller.isLoading.value
+                onPressed: ctrl.isLoading.value
                     ? null
                     : () {
                         if (passwordController.text.trim().isEmpty) {
@@ -274,7 +276,7 @@ class PrivacySettingsView extends GetView<PrivacySettingsController> {
                           );
                           return;
                         }
-                        controller.deleteAccount(
+                        ctrl.deleteAccount(
                           password: passwordController.text.trim(),
                         );
                       },
@@ -282,7 +284,7 @@ class PrivacySettingsView extends GetView<PrivacySettingsController> {
                   backgroundColor: theme.colorScheme.error,
                   foregroundColor: theme.colorScheme.onError,
                 ),
-                child: controller.isLoading.value
+                child: ctrl.isLoading.value
                     ? SizedBox(
                         width: 16.w,
                         height: 16.h,
@@ -306,6 +308,7 @@ class PrivacySettingsView extends GetView<PrivacySettingsController> {
     final showCurrentPassword = false.obs;
     final showNewPassword = false.obs;
     final showConfirmPassword = false.obs;
+    final ctrl = Get.find<PrivacySettingsController>();
 
     Get.dialog(
       AlertDialog(
@@ -385,7 +388,7 @@ class PrivacySettingsView extends GetView<PrivacySettingsController> {
             child: Text('cancel'.tr),
           ),
           Obx(() => ElevatedButton(
-                onPressed: controller.isLoading.value
+                onPressed: ctrl.isLoading.value
                     ? null
                     : () {
                         final current = currentPasswordController.text.trim();
@@ -416,13 +419,13 @@ class PrivacySettingsView extends GetView<PrivacySettingsController> {
                           return;
                         }
 
-                        controller.changePassword(
+                        ctrl.changePassword(
                           currentPassword: current,
                           newPassword: newPass,
                           newPasswordConfirmation: confirm,
                         );
                       },
-                child: controller.isLoading.value
+                child: ctrl.isLoading.value
                     ? SizedBox(
                         width: 16.w,
                         height: 16.h,
